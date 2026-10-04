@@ -76,6 +76,7 @@ scp vigie mon-serveur:/tmp/ && ssh mon-serveur 'sudo install -m 755 /tmp/vigie /
 ```bash
 vigie          # consultation seule
 sudo vigie     # consultation + actions (créer un compte, redémarrer un service…)
+sudo vigie --no-mouse # consultation + actions sans support de la souris
 ```
 
 ### Raccourcis clavier
