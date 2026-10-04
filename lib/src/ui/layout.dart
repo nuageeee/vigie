@@ -21,25 +21,50 @@ void render(RenderContext ctx, VigieState s) {
 }
 
 void _topBar(RenderContext ctx, VigieState s, Rect area) {
-  ctx.draw(Container(border: BorderStyle.single, title: 'Vigie'), area);
-  for (var i = 0; i < Section.values.length; i++) {
-    final sec = Section.values[i];
-    final active = sec == s.section;
-    final label = ' ${i + 1} ${sec.label}'.padRight(area.width - 2);
-    final rect = Rect(area.x + 1, area.y + 1 + i * 2, area.width - 2, 1);
-    ctx.draw(
-      Text(
-        label,
-        style: active
-            ? const Style(reverse: true, bold: true)
-            : const Style(dim: true),
-      ),
-      rect,
-    );
+  const line = Style(dim: true);
+  const logo = ' 👁 Vigie ';
+
+  final labels = [
+    for (var i = 0; i < Section.values.length; i++)
+      ' ${i + 1} ${Section.values[i].label}',
+  ];
+  final tabsWidth =
+      labels.fold<int>(0, (w, l) => w + l.length) + labels.length - 1;
+
+  ctx.draw(const Text('|', style: line), Rect(area.x, area.y, 1, 1));
+  ctx.draw(const Text('|', style: line), Rect(area.right - 1, area.y, 1, 1));
+
+  final logoX = area.x + 1;
+  ctx.draw(
+    const Text(logo, style: Style(bold: true, fg: Color.cyan)),
+    Rect(logoX, area.y, logo.length + 1, 1),
+  );
+  final logoEnd = logoX + logo.length + 1;
+
+  var x = area.right - 2 - tabsWidth;
+
+  final fill = x - 1 - logoEnd;
+  if (fill > 0) {
+    ctx.draw(Text('─' * fill, style: line), Rect(logoEnd, area.y, fill, 1));
+  }
+
+    for (var i = 0; i < labels.length; i++) {
+    final label = labels[i];
+    final active = Section.values[i] == s.section;
+    final rect = Rect(x, area.y, label.length, 1);
+    if (x >= logoEnd) {
+      // On ne dessine pas par-dessus le logo si le terminal est trop étroit.
+      ctx.draw(
+        Text(label,
+            style: active
+                ? const Style(reverse: true, bold: true)
+                : const Style(dim: true)),
+        rect,
+      );
+    }
+    x += label.length + 1;
   }
 }
-
-
 
 void _systemBar(RenderContext ctx, VigieState s, Rect area) {
   ctx.draw(Container(border: BorderStyle.single, title: "Système"), area);
