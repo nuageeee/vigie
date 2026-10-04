@@ -52,6 +52,7 @@ class VigieState {
   final bool isRoot;
   final String AdminGroup;
   final cpu = CpuSampler();
+  bool openShell = false;
 
   Section section = Section.table;
 

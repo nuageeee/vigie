@@ -53,5 +53,5 @@ Future<void> main(List<String> args) async {
   } finally {
     restoreTerminal();
   }
-  exit(0);
+  exit(state.openShell ? 42 : 0);
 }
