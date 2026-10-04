@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 — 2026-10-04
+
+### Ajouté
+- Support de la souris, façon btop :
+  - clic sur les onglets pour changer de section
+  - clic sur une ligne pour la sélectionner, molette pour défiler
+  - boutons d'action cliquables (barre du bas, confirmation Oui / Non)
+- Option `--no-mouse` pour désactiver la souris
+
+### Corrigé
+- Décalage d'affichage causé par la largeur variable des emojis (logo remplacé par `◉`)
+- Le terminal est toujours restauré à la sortie (mode souris, curseur), même après un plantage ou une coupure SSH
+
 ## 0.1.0 — 2026-10-04
 
 Première version publique.

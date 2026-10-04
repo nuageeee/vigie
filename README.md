@@ -106,6 +106,16 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 
 ---
 
+### Options
+
+| Option | Effet |
+|---|---|
+| `--no-mouse` | Désactive la souris (utile dans tmux sans `mouse on`, ou pour sélectionner du texte) |
+
+> 💡 Souris active : maintiens `Maj` pour sélectionner du texte dans le terminal.
+
+---
+
 ## Développement
 
 ### Lancer depuis les sources
@@ -167,7 +177,7 @@ Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu e
 
 ## Feuille de route
 
-- [ ] Support de la souris (onglets, lignes et boutons cliquables, molette)
+- [x] Support de la souris (onglets, lignes et boutons cliquables, molette)
 - [ ] CPU instantané par processus via `/proc/<pid>/stat` (le `%CPU` de `ps` est une moyenne sur la vie du processus)
 - [ ] Recherche / filtre avec `/`
 - [ ] Journal d'un service (`journalctl -u`)
