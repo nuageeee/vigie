@@ -18,6 +18,8 @@ void restoreTerminal() {
 }
 
 Future<void> main(List<String> args) async {
+  final mouse = !args.contains('--no-mouse');
+
   if (!Platform.isLinux) {
     stderr.writeln('Vigie only work on linux.');
     exit(1);
@@ -44,7 +46,7 @@ Future<void> main(List<String> args) async {
       initialState: state,
       mode: const RenderMode.alternateScreen(),
       frameRate: const Duration(seconds: 2),
-      enableMouse: true,
+      enableMouse: mouse,
       render: render,
       onEvent: onEvent,
     );
