@@ -44,11 +44,11 @@ void render(RenderContext ctx, VigieState s) {
 
 void _topBar(RenderContext ctx, VigieState s, Rect area) {
   const line = Style(dim: true);
-  const logo = ' 👁 Vigie ';
+  const logo = ' ◉ Vigie ';
 
   final labels = [
     for (var i = 0; i < Section.values.length; i++)
-      ' ${i + 1} ${Section.values[i].label}',
+      ' ${i + 1} ${Section.values[i].label} ',
   ];
   final tabsWidth =
       labels.fold<int>(0, (w, l) => w + l.length) + labels.length - 1;
@@ -59,9 +59,9 @@ void _topBar(RenderContext ctx, VigieState s, Rect area) {
   final logoX = area.x + 1;
   ctx.draw(
     const Text(logo, style: Style(bold: true, fg: Color.cyan)),
-    Rect(logoX, area.y, logo.length + 1, 1),
+    Rect(logoX, area.y, logo.length, 1),
   );
-  final logoEnd = logoX + logo.length + 1;
+  final logoEnd = logoX + logo.length;
 
   var x = area.right - 2 - tabsWidth;
 
