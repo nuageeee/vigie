@@ -182,6 +182,7 @@ Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu e
 - [ ] Recherche / filtre avec `/`
 - [ ] Journal d'un service (`journalctl -u`)
 - [ ] Mode distant : gérer plusieurs serveurs via SSH
+- [ ] Lancement au démarrage: ce lance a l'ouverture d'une session (Si activé)
 
 ---
 
