@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/system/overview.dart';
+import 'package:vigie/src/system/processes.dart';
+import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
 
@@ -48,8 +50,12 @@ class VigieState {
 
   Overview? overview;
   List<SysUser> users = [];
+  List<Proc> processes = [];
+  List<Service> services = [];
 
   final usersTable = TableState<SysUser>();
+  final processesTable = TableState<Proc>();
+  final servicesTable = TableState<Service>();
 
   String status = 'Ready !';
   bool statusError = false;
@@ -67,13 +73,15 @@ class VigieState {
     status = r.message;
     statusError = !r.ok;
   }
-  
+
   T? _selected<T>(List<T> items, TableState<T> table) {
     if (items.isEmpty) return null;
     return items[table.activeRow.clamp(0, items.length - 1)];
   }
-  
+
   SysUser? get selectedUser => _selected(users, usersTable);
+  Proc? get selectedProcess => _selected(processes, processesTable);
+  Service? get selectedService => _selected(services, servicesTable);
 
   void refreshInBackground({bool all = false}) {
     if (_refreshing) {
@@ -84,7 +92,7 @@ class VigieState {
     refresh(all: all).whenComplete(() {
       _refreshing = false;
       events.add(const CustomEvent('refreshed'));
-      if(_refreshAgain) {
+      if (_refreshAgain) {
         _refreshAgain = false;
         refreshInBackground();
       }
