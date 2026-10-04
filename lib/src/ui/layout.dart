@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/state.dart';
 import 'package:vigie/src/system/overview.dart';
@@ -24,10 +22,26 @@ void render(RenderContext ctx, VigieState s) {
 
 void _topBar(RenderContext ctx, VigieState s, Rect area) {
   ctx.draw(Container(border: BorderStyle.single, title: 'Vigie'), area);
-
+  for (var i = 0; i < Section.values.length; i++) {
+    final sec = Section.values[i];
+    final active = sec == s.section;
+    final label = ' ${i + 1} ${sec.label}'.padRight(area.width - 2);
+    final rect = Rect(area.x + 1, area.y + 1 + i * 2, area.width - 2, 1);
+    ctx.draw(
+      Text(
+        label,
+        style: active
+            ? const Style(reverse: true, bold: true)
+            : const Style(dim: true),
+      ),
+      rect,
+    );
+  }
 }
 
-void _systemBar(RenderContext  ctx, VigieState s,Rect area) {
+
+
+void _systemBar(RenderContext ctx, VigieState s, Rect area) {
   ctx.draw(Container(border: BorderStyle.single, title: "Système"), area);
   final o = s.overview;
   if (o == null) return;
@@ -36,7 +50,7 @@ void _systemBar(RenderContext  ctx, VigieState s,Rect area) {
     ('Hôte', o.hostname),
     ('OS', o.os),
     ('Kernel', o.kernel),
-    ('Uptime', formatUptime(o.uptime))
+    ('Uptime', formatUptime(o.uptime)),
   ];
 
   var y = area.y + 1;
@@ -47,5 +61,5 @@ void _systemBar(RenderContext  ctx, VigieState s,Rect area) {
     ctx.draw(Text(label, style: const Style(dim: true)), Rect(x, y, w, 1));
     ctx.draw(Text(value, style: const Style(bold: true)), Rect(x, y + 1, w, 1));
     y += 3;
-   }
+  }
 }
