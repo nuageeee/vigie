@@ -102,7 +102,7 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 | | `e` | Activer au démarrage |
 | | `d` | Désactiver au démarrage |
 
-> ⚠️ Connecté en SSH, évite d'arrêter `ssh.service` : tu perdrais l'accès au serveur.
+> ⚠️ Connecté en SSH, éviter d'arrêter `ssh.service` : vous perdrez l'accès au serveur.
 
 ---
 
@@ -116,7 +116,7 @@ dart run bin/vigie.dart                   # lecture seule
 sudo "$(which dart)" run bin/vigie.dart   # avec les droits root
 ```
 
-`sudo dart` seul ne fonctionne pas : `sudo` utilise son propre `PATH` (`secure_path`), qui ne contient pas Dart. Ne lance pas non plus `dart pub get` avec `sudo`, sinon `.dart_tool/` appartient à root.
+`sudo dart` seul ne fonctionne pas : `sudo` utilise son propre `PATH` (`secure_path`), qui ne contient pas Dart. Ne lancer pas non plus `dart pub get` avec `sudo`, sinon `.dart_tool/` appartient à root.
 
 ### Hot reload
 
