@@ -9,10 +9,10 @@ class Overview {
   final Duration uptime;
   final String load;
   final double cpuUsage;
-  final int memTotalKib;
-  final int memUsedKib;
-  final int diskTotalKib;
-  final int diskUsedKib;
+  final int memTotalKb;
+  final int memUsedKb;
+  final int diskTotalKb;
+  final int diskUsedKb;
 
   const Overview({
     required this.hostname,
@@ -21,16 +21,16 @@ class Overview {
     required this.uptime,
     required this.load,
     required this.cpuUsage,
-    required this.memTotalKib,
-    required this.memUsedKib,
-    required this.diskTotalKib,
-    required this.diskUsedKib,
+    required this.memTotalKb,
+    required this.memUsedKb,
+    required this.diskTotalKb,
+    required this.diskUsedKb,
   });
 
   double get memPercent =>
-      memTotalKib == 0 ? 0 : memUsedKib / memTotalKib * 100;
+      memTotalKb == 0 ? 0 : memUsedKb / memTotalKb * 100;
   double get diskPercent =>
-      diskTotalKib == 0 ? 0 : diskUsedKib / diskTotalKib * 100;
+      diskTotalKb == 0 ? 0 : diskUsedKb / diskTotalKb * 100;
 }
 
 class CpuSampler {
@@ -81,10 +81,10 @@ Future<Overview> loadOverview(CpuSampler cpu) async {
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
     cpuUsage: cpu.sample(),
-    memTotalKib: total,
-    memUsedKib: total - available,
-    diskTotalKib: disk.length > 2 ? int.tryParse(disk[1]) ?? 0 : 0,
-    diskUsedKib: disk.length > 2 ? int.tryParse(disk[2]) ?? 0 : 0,
+    memTotalKb: total,
+    memUsedKb: total - available,
+    diskTotalKb: disk.length > 2 ? int.tryParse(disk[1]) ?? 0 : 0,
+    diskUsedKb: disk.length > 2 ? int.tryParse(disk[2]) ?? 0 : 0,
   );
 }
 
