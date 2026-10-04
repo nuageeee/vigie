@@ -101,5 +101,10 @@ class VigieState {
 
   Future<void> refresh({bool all = false}) async {
     overview = await loadOverview(cpu);
+    if (all || section == Section.users) users = await LoadUsers();
+    if (all || section == Section.process) processes = await loadProcesses();
+    if (all || section == Section.services || section == Section.table) {
+      services = await loadServices();
+    }
   }
 }
