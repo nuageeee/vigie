@@ -46,6 +46,13 @@ Vigie est une interface en mode texte (TUI) qui regroupe au même endroit ce qu'
 - Linux avec **systemd**
 - [Dart SDK](https://dart.dev/get-dart) ≥ 3.3, uniquement pour compiler
 
+### Installation rapide (Linux x64)
+
+```bash
+curl -L -o vigie https://github.com/nuageeee/vigie/releases/latest/download/vigie-linux-x64
+sudo install -m 755 vigie /usr/local/bin/vigie
+```
+
 ### Compiler et installer
 
 ```bash
