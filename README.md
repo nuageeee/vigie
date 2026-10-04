@@ -159,7 +159,7 @@ Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu e
 
 ## Feuille de route
 
-- [ ] Support de la souris (onglets, lignes et boutons cliquables, molette), façon btop
+- [ ] Support de la souris (onglets, lignes et boutons cliquables, molette)
 - [ ] CPU instantané par processus via `/proc/<pid>/stat` (le `%CPU` de `ps` est une moyenne sur la vie du processus)
 - [ ] Recherche / filtre avec `/`
 - [ ] Journal d'un service (`journalctl -u`)
