@@ -174,4 +174,4 @@ Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu e
 
 ## Licence
 
-À définir.
+Distribué sous licence [MIT](LICENSE).
