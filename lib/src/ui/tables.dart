@@ -5,11 +5,12 @@ import '../system/processes.dart';
 import '../system/services.dart';
 import '../system/users.dart';
 
-Widget _cell(String text, TableCellState c, {Style style = Style.none}) =>
-    Text(text,
-        style: c.isRowActive && c.isFocused
-            ? Style(fg: style.fg, bold: true, reverse: true)
-            : style);
+Widget _cell(String text, TableCellState c, {Style style = Style.none}) => Text(
+  text,
+  style: c.isRowActive && c.isFocused
+      ? Style(fg: style.fg, bold: true, reverse: true)
+      : style,
+);
 
 /// Encadre un tableau et rend ses lignes cliquables.
 ///
@@ -24,6 +25,17 @@ void _frame<T>(
   int itemCount,
   Rect area,
 ) {
+  final rows = Rect(area.x + 1, area.y + 3, area.width - 2, area.height - 4);
+  s.clickZones.add(
+    ClickZone(
+      rows,
+      onClick: (x, y) {
+        final index = tableState.verticalScroll + (y - rows.y);
+        if (index >= 0 && index < itemCount) tableState.activeRow = index;
+      },
+    ),
+  );
+
   ctx.draw(
     Container(
       border: BorderStyle.single,
@@ -52,7 +64,8 @@ void renderUsers(RenderContext ctx, VigieState s, Rect area) {
         TableColumn(
           title: 'Nom',
           width: const TableConstraint.fill(2),
-          cellBuilder: (u, c) => _cell(u.name, c, style: const Style(bold: true)),
+          cellBuilder: (u, c) =>
+              _cell(u.name, c, style: const Style(bold: true)),
         ),
         TableColumn(
           title: 'UID',
@@ -62,8 +75,11 @@ void renderUsers(RenderContext ctx, VigieState s, Rect area) {
         TableColumn(
           title: 'Admin',
           width: const TableConstraint.length(6),
-          cellBuilder: (u, c) => _cell(u.isAdmin(s.AdminGroup) ? 'oui' : '-', c,
-              style: Style(fg: u.isAdmin(s.AdminGroup) ? Color.yellow : null)),
+          cellBuilder: (u, c) => _cell(
+            u.isAdmin(s.AdminGroup) ? 'oui' : '-',
+            c,
+            style: Style(fg: u.isAdmin(s.AdminGroup) ? Color.yellow : null),
+          ),
         ),
         TableColumn(
           title: 'État',
@@ -119,21 +135,28 @@ void renderProcesses(RenderContext ctx, VigieState s, Rect area) {
         TableColumn(
           title: 'Utilisateur',
           width: const TableConstraint.length(12),
-          cellBuilder: (p, c) => _cell(p.user, c, style: const Style(dim: true)),
+          cellBuilder: (p, c) =>
+              _cell(p.user, c, style: const Style(dim: true)),
         ),
         TableColumn(
           title: 'CPU %',
           width: const TableConstraint.length(6),
           headerAlign: TextAlign.right,
-          cellBuilder: (p, c) => _cell(p.cpu.toStringAsFixed(1).padLeft(6), c,
-              style: Style(fg: heat(p.cpu))),
+          cellBuilder: (p, c) => _cell(
+            p.cpu.toStringAsFixed(1).padLeft(6),
+            c,
+            style: Style(fg: heat(p.cpu)),
+          ),
         ),
         TableColumn(
           title: 'RAM %',
           width: const TableConstraint.length(6),
           headerAlign: TextAlign.right,
-          cellBuilder: (p, c) => _cell(p.mem.toStringAsFixed(1).padLeft(6), c,
-              style: Style(fg: heat(p.mem))),
+          cellBuilder: (p, c) => _cell(
+            p.mem.toStringAsFixed(1).padLeft(6),
+            c,
+            style: Style(fg: heat(p.mem)),
+          ),
         ),
         TableColumn(
           title: 'Mémoire',
@@ -158,9 +181,8 @@ void renderProcesses(RenderContext ctx, VigieState s, Rect area) {
 // ─── Services ──────────────────────────────────────────────────────────────
 
 void renderServices(RenderContext ctx, VigieState s, Rect area) {
-  Color? stateColor(Service svc) => svc.isFailed
-      ? Color.red
-      : (svc.isRunning ? Color.green : null);
+  Color? stateColor(Service svc) =>
+      svc.isFailed ? Color.red : (svc.isRunning ? Color.green : null);
 
   _frame<Service>(
     ctx,
@@ -188,16 +210,23 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
         TableColumn(
           title: 'État',
           width: const TableConstraint.length(18),
-          cellBuilder: (svc, c) => _cell('${svc.active} (${svc.sub})', c,
-              style: Style(fg: stateColor(svc), dim: stateColor(svc) == null)),
+          cellBuilder: (svc, c) => _cell(
+            '${svc.active} (${svc.sub})',
+            c,
+            style: Style(fg: stateColor(svc), dim: stateColor(svc) == null),
+          ),
         ),
         TableColumn(
           title: 'Au boot',
           width: const TableConstraint.length(9),
-          cellBuilder: (svc, c) => _cell(svc.enabled, c,
-              style: Style(
-                  fg: svc.enabled == 'enabled' ? Color.cyan : null,
-                  dim: svc.enabled != 'enabled')),
+          cellBuilder: (svc, c) => _cell(
+            svc.enabled,
+            c,
+            style: Style(
+              fg: svc.enabled == 'enabled' ? Color.cyan : null,
+              dim: svc.enabled != 'enabled',
+            ),
+          ),
         ),
         TableColumn(
           title: 'Description',
