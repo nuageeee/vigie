@@ -41,6 +41,13 @@ class TextPrompt {
   });
 }
 
+class ClickZone {
+  final Rect rect;
+  final KeyEvent? key;
+  final void Function(int x, int y)? onClick;
+  const ClickZone(this.rect, {this.key, this.onClick});
+}
+
 class VigieState {
   final bool isRoot;
   final String AdminGroup;
@@ -64,6 +71,8 @@ class VigieState {
 
   bool _refreshing = false;
   bool _refreshAgain = false;
+
+  final clickZones =  <ClickZone>[];
 
   VigieState({required this.isRoot, required this.AdminGroup});
 

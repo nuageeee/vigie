@@ -44,7 +44,7 @@ Future<void> main(List<String> args) async {
       initialState: state,
       mode: const RenderMode.alternateScreen(),
       frameRate: const Duration(seconds: 2),
-      enableMouse: false,
+      enableMouse: true,
       render: render,
       onEvent: onEvent,
     );

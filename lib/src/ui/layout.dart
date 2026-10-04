@@ -86,6 +86,14 @@ void _topBar(RenderContext ctx, VigieState s, Rect area) {
         rect,
       );
     }
+
+    s.clickZones.add(
+      ClickZone(
+        Rect(rect.x, rect.y, rect.width, 2),
+        key: KeyEvent(char: '${i + 1}'),
+      ),
+    );
+
     x += label.length + 1;
   }
 }
@@ -136,6 +144,7 @@ int _buttons(
       Text(' $label ', style: const Style(reverse: true)),
       Rect(x + key.length + 1, y, label.length + 2, 1),
     );
+    s.clickZones.add(ClickZone(Rect(x, y, width, 1), key: ev));
     x += width + 1;
   }
   return x;

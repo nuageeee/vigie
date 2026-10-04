@@ -16,6 +16,11 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
     return;
   }
 
+  if (event is MouseEvent) {
+    await _HandleClick(s, event, handle);
+    return;
+  }
+
   if (event is! KeyEvent) return;
 
   final prompt = s.prompt;
@@ -175,5 +180,22 @@ Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   } else if (e.char != null && !e.ctrl && !e.alt) {
     p.value += e.char!;
     p.error = null;
+  }
+}
+
+Future<void> _HandleClick(VigieState s, MouseEvent e, RunHandle handle) async {
+  if (e.action != MouseAction.down || e.button != MouseButton.left) return;
+  if (s.prompt != null) return;
+
+  for (final zone in s.clickZones.reversed) {
+    if (!zone.rect.contains(e.x, e.y)) continue;
+    final key = zone.key;
+    if (key != null) {
+      await onEvent(s, key, handle);
+    } else {
+      zone.onClick?.call(e.x, e.y);
+      handle.requestRedraw();
+    }
+    return;
   }
 }
