@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/system/overview.dart';
 import 'package:vigie/src/system/shell.dart';
+import 'package:vigie/src/system/users.dart';
 
 enum Section {
   table('Dashboard'),
@@ -46,6 +47,9 @@ class VigieState {
   Section section = Section.table;
 
   Overview? overview;
+  List<SysUser> users = [];
+
+  final usersTable = TableState<SysUser>();
 
   String status = 'Ready !';
   bool statusError = false;
@@ -63,6 +67,13 @@ class VigieState {
     status = r.message;
     statusError = !r.ok;
   }
+  
+  T? _selected<T>(List<T> items, TableState<T> table) {
+    if (items.isEmpty) return null;
+    return items[table.activeRow.clamp(0, items.length - 1)];
+  }
+  
+  SysUser? get selectedUser => _selected(users, usersTable);
 
   void refreshInBackground({bool all = false}) {
     if (_refreshing) {
