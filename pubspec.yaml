@@ -1,7 +1,7 @@
 name: vigie
-description: A sample command-line application.
-version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+description: Gérer un serveur Linux depuis une seule interface terminal (utilisateurs, processus, services).
+version: 0.1.0
+repository: https://github.com/nuageeee/vigie
 
 environment:
   sdk: ^3.13.5
