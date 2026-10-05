@@ -41,6 +41,14 @@ Future<void> main(List<String> args) async {
     state.statusError = true;
   }
 
+  final i = args.indexOf('--section');
+  if (i >= 0 && i + 1 < args.length) {
+    final n = int.tryParse(args[i + 1]);
+    if (n != null && n >= 1 && n <= Section.values.length) {
+      state.section = Section.values[n - 1];
+    }
+  }
+
   try {
     await runTerminal<VigieState>(
       initialState: state,
@@ -53,5 +61,5 @@ Future<void> main(List<String> args) async {
   } finally {
     restoreTerminal();
   }
-  exit(state.openShell ? 42 : 0);
+  exit(state.openShell ? 100 + state.section.index + 1 : 0);
 }
