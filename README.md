@@ -104,7 +104,6 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 
 > ⚠️ Connecté en SSH, éviter d'arrêter `ssh.service` : vous perdrez l'accès au serveur.
 
----
 
 ### Options
 
@@ -113,6 +112,25 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 | `--no-mouse` | Désactive la souris (utile dans tmux sans `mouse on`, ou pour sélectionner du texte) |
 
 > 💡 Souris active : maintiens `Maj` pour sélectionner du texte dans le terminal.
+
+## Session Vigie (lancement à la connexion)
+
+`vigie-session` fait tourner Vigie en boucle : `!` ouvre un vrai bash,
+`exit` y revient, `q` termine la session.
+
+```bash
+sudo install -m 755 vigie-session /usr/local/bin/vigie-session
+```
+
+Pour arriver directement dans Vigie à chaque connexion SSH, ajoute à la fin de `~/.bash_profile` :
+
+```bash
+if [ -z "$VIGIE_SESSION" ] && [ -t 0 ] && [ -t 1 ] && command -v vigie-session >/dev/null; then
+  vigie-session
+fi
+```
+
+`q` te laisse ensuite dans un shell normal. `scp`, `rsync` et les commandes SSH directes ne sont pas affectés.
 
 ---
 
@@ -178,11 +196,12 @@ Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu e
 ## Feuille de route
 
 - [x] Support de la souris (onglets, lignes et boutons cliquables, molette)
+- [x] Lancement au démarrage: ce lance a l'ouverture d'une session (Si activé)
+- [x] Terminal intégré 
 - [ ] CPU instantané par processus via `/proc/<pid>/stat` (le `%CPU` de `ps` est une moyenne sur la vie du processus)
 - [ ] Recherche / filtre avec `/`
-- [ ] Journal d'un service (`journalctl -u`)
+- [ ] Journal d'un service (`journalctl -u`)/
 - [ ] Mode distant : gérer plusieurs serveurs via SSH
-- [ ] Lancement au démarrage: ce lance a l'ouverture d'une session (Si activé)
 
 ---
 
