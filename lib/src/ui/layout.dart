@@ -209,6 +209,7 @@ void _actionBar(RenderContext ctx, VigieState s, Rect area) {
   var x = _buttons(ctx, s, area.x + 1, area.y, area.right, actions);
 
   final general = [
+    ('!', 'terminal', _c('!'), Color.magenta),
     ('F5', 'rafraîchir', const KeyEvent(key: NamedKey.f5), Color.blue),
     ('q', 'quitter', _c('q'), Color.white),
   ];

@@ -54,7 +54,7 @@ Future<List<SysUser>> LoadUsers() async {
     final uid = int.tryParse(p[2]) ?? -1;
     if (!(uid == 0 || (uid >= 1000 && uid < 65534))) continue;
     final primary = primaryGroupByGid[p[3]];
-    final groups = [if (primary != null) primary, ...?groupsByUser[p[0]]];
+    final groups = [?primary, ...?groupsByUser[p[0]]];
     list.add(
       SysUser(
         p[0],

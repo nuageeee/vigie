@@ -48,6 +48,13 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
     handle.stop();
     return;
   }
+
+  if (event.char == '!') {
+    s.openShell = true;
+    handle.stop();
+    return;
+  } 
+
   final digit = int.tryParse(event.char ?? '');
   if (digit != null && digit >= 1 && digit <= Section.values.length) {
     s.section = Section.values[digit - 1];

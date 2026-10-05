@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# vigie-session : Vigie ↔ bash, sans jamais quitter l'outil.
+# VIGIE_CMD permet de tester en dev : VIGIE_CMD="dart run bin/vigie.dart"
+VIGIE_CMD="${VIGIE_CMD:-vigie}"
+export VIGIE_SESSION=1
+
+section=1
+while true; do
+  $VIGIE_CMD --section "$section" "$@"
+  code=$?
+
+  if [ "$code" -ge 101 ] && [ "$code" -le 199 ]; then
+    section=$((code - 100))
+    bash --rcfile <(echo '[ -f ~/.bashrc ] && . ~/.bashrc; PS1="\[\e[35m\](vigie)\[\e[0m\] $PS1"')
+  else
+    exit "$code"
+  fi
+done
