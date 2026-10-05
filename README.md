@@ -113,27 +113,6 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 
 > 💡 Souris active : maintiens `Maj` pour sélectionner du texte dans le terminal.
 
-## Session Vigie (lancement à la connexion)
-
-`vigie-session` fait tourner Vigie en boucle : `!` ouvre un vrai bash,
-`exit` y revient, `q` termine la session.
-
-```bash
-sudo install -m 755 vigie-session /usr/local/bin/vigie-session
-```
-
-Pour arriver directement dans Vigie à chaque connexion SSH, ajoute à la fin de `~/.bash_profile` :
-
-```bash
-if [ -z "$VIGIE_SESSION" ] && [ -t 0 ] && [ -t 1 ] && command -v vigie-session >/dev/null; then
-  vigie-session
-fi
-```
-
-`q` te laisse ensuite dans un shell normal. `scp`, `rsync` et les commandes SSH directes ne sont pas affectés.
-
----
-
 ## Développement
 
 ### Lancer depuis les sources
@@ -151,9 +130,10 @@ sudo "$(which dart)" run bin/vigie.dart   # avec les droits root
 Avec le package [`hotreloader`](https://pub.dev/packages/hotreloader) (en dev dependency), les modifications dans `lib/` s'appliquent sans relancer Vigie :
 
 ```bash
-dart run --enable-vm-service bin/vigie.dart
+dart run --enable-vm-service bin/vigie.dart --no-session
 ```
-
+> ⚠️ L'option "--no-session" est obligatoire en mode dév et hot-reload. 
+ 
 Se recharge à chaud : l'interface, les raccourcis, les commandes système.
 Demande de relancer : `bin/vigie.dart`, les paramètres de `runTerminal`, un nouveau champ dans l'état, une modification de l'`enum` des sections.
 

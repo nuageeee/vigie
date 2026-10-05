@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/session.dart';
 import 'package:vigie/vigie.dart';
 import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
@@ -19,6 +20,11 @@ void restoreTerminal() {
 
 Future<void> main(List<String> args) async {
   final mouse = !args.contains('--no-mouse');
+
+  if (Platform.environment['VIGIE_SESSION'] == null &&
+      !args.contains('--no-session')) {
+    await runSession(args);
+  }
 
   if (!Platform.isLinux) {
     stderr.writeln('Vigie only work on linux.');
@@ -61,5 +67,5 @@ Future<void> main(List<String> args) async {
   } finally {
     restoreTerminal();
   }
-  exit(state.openShell ? 100 + state.section.index + 1 : 0);
+  exit(state.openShell ? shellExitBase + state.section.index + 1 : 0);
 }

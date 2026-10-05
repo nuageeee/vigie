@@ -4,7 +4,7 @@
 
 ### Ajouté
 - Touche `!` (et bouton « terminal ») : ouvre un vrai bash, `exit` ramène dans Vigie
-- Script `vigie-session` pour enchaîner Vigie et le shell sans quitter l'outil
+- Shell intégré : le binaire gère seul l'aller-retour Vigie ↔ bash
 - Lancement automatique à la connexion via `~/.bash_profile` (voir README)
 - Arrêt propre sur SIGTERM / SIGHUP (terminal toujours restauré)
 
