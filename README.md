@@ -56,7 +56,7 @@ sudo install -m 755 vigie /usr/local/bin/vigie
 ### Compiler et installer
 
 ```bash
-git clone https://github.com/<ton-compte>/vigie.git
+git clone https://github.com/nuageeee/vigie.git
 cd vigie
 dart pub get
 dart compile exe bin/vigie.dart -o vigie

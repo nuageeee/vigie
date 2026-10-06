@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'shell.dart';
@@ -13,6 +14,7 @@ class Overview {
   final int memUsedKb;
   final int diskTotalKb;
   final int diskUsedKb;
+  final String ip;
 
   const Overview({
     required this.hostname,
@@ -25,10 +27,10 @@ class Overview {
     required this.memUsedKb,
     required this.diskTotalKb,
     required this.diskUsedKb,
+    required this.ip,
   });
 
-  double get memPercent =>
-      memTotalKb == 0 ? 0 : memUsedKb / memTotalKb * 100;
+  double get memPercent => memTotalKb == 0 ? 0 : memUsedKb / memTotalKb * 100;
   double get diskPercent =>
       diskTotalKb == 0 ? 0 : diskUsedKb / diskTotalKb * 100;
 }
@@ -39,7 +41,12 @@ class CpuSampler {
 
   double sample() {
     final first = readFile('/proc/stat').split('\n').first;
-    final v = first.split(RegExp(r'\s+')).skip(1).map(int.tryParse).whereType<int>().toList();
+    final v = first
+        .split(RegExp(r'\s+'))
+        .skip(1)
+        .map(int.tryParse)
+        .whereType<int>()
+        .toList();
     if (v.length < 5) return 0;
     final idle = v[3] + v[4]; // idle + iowait
     final total = v.fold<int>(0, (a, b) => a + b);
@@ -53,14 +60,30 @@ class CpuSampler {
 }
 
 String _osName() {
-  final m = RegExp(r'^PRETTY_NAME="?([^"\n]*)"?', multiLine: true)
-      .firstMatch(readFile('/etc/os-release'));
+  final m = RegExp(
+    r'^PRETTY_NAME="?([^"\n]*)"?',
+    multiLine: true,
+  ).firstMatch(readFile('/etc/os-release'));
   return m?.group(1) ?? 'Linux';
 }
 
 int _meminfo(String text, String key) {
   final m = RegExp('^$key:\\s+(\\d+)', multiLine: true).firstMatch(text);
   return int.tryParse(m?.group(1) ?? '') ?? 0;
+}
+
+Future<String> _mainIp() async {
+  final virtual = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
+  try {
+    final ifaces = await NetworkInterface.list(type: InternetAddressType.IPv4);
+    for (final iface in ifaces) {
+      if (virtual.hasMatch(iface.name)) continue;
+      for (final addr in iface.addresses) {
+        if (!addr.isLoopback) return addr.address;
+      }
+    }
+  } catch (_) {}
+  return '-';
 }
 
 Future<Overview> loadOverview(CpuSampler cpu) async {
@@ -85,6 +108,7 @@ Future<Overview> loadOverview(CpuSampler cpu) async {
     memUsedKb: total - available,
     diskTotalKb: disk.length > 2 ? int.tryParse(disk[1]) ?? 0 : 0,
     diskUsedKb: disk.length > 2 ? int.tryParse(disk[2]) ?? 0 : 0,
+    ip: await _mainIp(),
   );
 }
 

@@ -108,6 +108,7 @@ void _systemBar(RenderContext ctx, VigieState s, Rect area) {
     ('OS', o.os),
     ('Kernel', o.kernel),
     ('Uptime', formatUptime(o.uptime)),
+    ('IP', o.ip),
   ];
 
   var y = area.y + 1;
