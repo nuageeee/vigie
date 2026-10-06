@@ -1,4 +1,6 @@
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/system/overview.dart';
+import 'package:vigie/src/ui/components.dart';
 
 import '../state.dart';
 import '../system/processes.dart';
@@ -11,36 +13,45 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     return;
   }
 
+  void gauge(String title, double pct, String label, Rect r) => ctx.draw(
+    Container(
+      border: BorderStyle.single,
+      title: ' $title ',
+      padding: const EdgeInsets(left: 1, right: 1),
+      child: Gauge(
+        value: pct,
+        label: label,
+        style: Style(bg: colorFor(pct), fg: Color.black),
+      ),
+    ),
+    r,
+  );
+
+  final coreLines = s.cpu.cores.length.clamp(1, 8);
+
   final rows = Layout.vertical([
-    const Constraint.length(3),
+    Constraint.length(coreLines + 2),
     const Constraint.length(3),
     const Constraint.length(3),
     const Constraint.fill(1),
   ]).split(area);
 
-  Color colorFor(double pct) =>
-      pct >= 90 ? Color.red : (pct >= 70 ? Color.yellow : Color.green);
+  cpuPanels(ctx, s, rows[0]);
 
-  void gauge(String title, double pct, String label, Rect r) => ctx.draw(
-        Container(
-          border: BorderStyle.single,
-          title: ' $title ',
-          padding: const EdgeInsets(left: 1, right: 1),
-          child: Gauge(
-            value: pct,
-            label: label,
-            style: Style(bg: colorFor(pct), fg: Color.black),
-          ),
-        ),
-        r,
-      );
+  s.status = '${Disk}';
 
-  gauge('CPU', o.cpuUsage, '${o.cpuUsage.toStringAsFixed(0)} %  · charge ${o.load}',
-      rows[0]);
-  gauge('Mémoire', o.memPercent,
-      '${formatKb(o.memUsedKb)} / ${formatKb(o.memTotalKb)}', rows[1]);
-  gauge('Disque /', o.diskPercent,
-      '${formatKb(o.diskUsedKb)} / ${formatKb(o.diskTotalKb)}', rows[2]);
+  gauge(
+    'Mémoire',
+    o.memPercent,
+    '${formatKb(o.memUsedKb)} / ${formatKb(o.memTotalKb)}',
+    rows[1],
+  );
+  gauge(
+    'Disque /',
+    o.diskPercent,
+    '${formatKb(o.diskUsedKb)} / ${formatKb(o.diskTotalKb)}',
+    rows[2],
+  );
 
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
