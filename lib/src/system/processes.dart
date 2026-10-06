@@ -1,4 +1,4 @@
-import 'dart:io' show pid;
+import 'dart:io';
 
 import 'shell.dart';
 
@@ -13,31 +13,91 @@ class Proc {
   const Proc(this.pid, this.user, this.cpu, this.mem, this.rssKb, this.command);
 }
 
-/// Les processus triés par consommation CPU (les 300 premiers).
-Future<List<Proc>> loadProcesses() async {
-  final out = await capture('ps', [
-    '-eo',
-    'pid=,ppid=,user=,pcpu=,pmem=,rss=,comm=',
-    '--sort=-pcpu',
-  ]);
-  final list = <Proc>[];
-  for (final line in out.split('\n')) {
-    final p = splitColumns(line, 7);
-    if (p.length < 7) continue;
-    // On masque le `ps` que Vigie vient de lancer lui-même (son parent = Vigie).
-    if (p[1] == '$pid') continue;
-    list.add(Proc(
-      int.tryParse(p[0]) ?? 0,
-      p[2],
-      double.tryParse(p[3]) ?? 0,
-      double.tryParse(p[4]) ?? 0,
-      int.tryParse(p[5]) ?? 0,
-      p[6],
-    ));
-    if (list.length >= 300) break;
+class ProcSampler {
+  final _cpus = Platform.numberOfProcessors;
+  final _lastTicks = <int, int>{};
+  int _lastTotal = 0;
+
+  Future<List<Proc>> sample() async {
+    final total = _totalTicks();
+    final dTotal = total - _lastTotal;
+    _lastTotal = total;
+
+    final users = _uidToName();
+    final memTotalKb = _memTotalKb();
+    final seen = <int, int>{};
+    final list = <Proc>[];
+
+    for (final entry in Directory('/proc').listSync()) {
+      final pid = int.tryParse(entry.path.split('/').last);
+      if (pid == null) continue;
+
+      final stat = readFile('/proc/$pid/stat');
+      if (stat.isEmpty) continue;
+
+      final close = stat.lastIndexOf(')');
+      final f = stat.substring(close + 2).split(' ');
+
+      final ticks = (int.tryParse(f[11]) ?? 0) + (int.tryParse(f[12]) ?? 0);
+      seen[pid] = ticks;
+
+      final prev = _lastTicks[pid];
+      final cpu = (prev == null || dTotal < 0) ? 0.0 : (ticks - prev) * 100.0 * _cpus / dTotal;
+
+      final status = readFile('/proc/$pid/status');
+      if (_field(status, 'VmRSS') == null) continue;
+      final name = _field(status, 'Name');
+      final uid = (_field(status, 'Uid') ?? '').split(RegExp(r'\s+')).first;
+      final rssKb = int.tryParse(
+        (_field(status, 'VmRSS') ?? '0').split(' ').first
+      ) ?? 0;
+
+      list.add(Proc(
+        pid,
+        users[uid] ?? uid,
+        cpu,
+        memTotalKb == 0 ? 0 : rssKb * 100 / memTotalKb,
+        rssKb,
+        name!,
+      ));
+    }
+
+    _lastTicks..clear()..addAll(seen);
+
+    list.sort((a, b) => b.cpu.compareTo(a.cpu));
+    return list.take(300).toList();
   }
-  return list;
 }
+
+  int _totalTicks() {
+    final first = readFile('/proc/stat').split('\n').first;
+    return first
+        .split(RegExp(r'\s+'))
+        .skip(1)
+        .map(int.tryParse)
+        .whereType<int>()
+        .fold(0, (a, b) => a + b);
+  }
+
+  int _memTotalKb() {
+    final m = RegExp(r'^MemTotal:\s+(\d+)', multiLine: true)
+        .firstMatch(readFile('/proc/meminfo'));
+    return int.tryParse(m?.group(1) ?? '') ?? 0;
+  }
+
+  Map<String, String> _uidToName() {
+    final map = <String, String>{};
+    for (final line in readFile('/etc/passwd').split('\n')) {
+      final p = line.split(':');
+      if (p.length > 2) map[p[2]] = p[0];
+    }
+    return map;
+  }
+
+  String? _field(String status, String key) {
+    final m = RegExp('^$key:\\s*(.*)\$', multiLine: true).firstMatch(status);
+    return m?.group(1)?.trim();
+  }
 
 Future<CmdResult> killProcess(Proc p, {bool force = false}) => run(
       'kill',

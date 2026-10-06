@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 — 2026-10-06
+
+### Ajouté
+- CPU en direct par processus : mesuré entre deux lectures de `/proc`, comme htop
+  (le `%CPU` de `ps` était une moyenne sur toute la vie du processus)
+- Adresse IP dans la barre système
+- Dépôt APT signé : installation et mises à jour avec `apt`
+
+### Modifié
+- La liste des processus lit directement `/proc` (plus besoin de `ps`)
+- Les threads du noyau sont masqués, comme dans htop
+
 ## 0.3.0 — 2026-10-05
 
 ### Ajouté

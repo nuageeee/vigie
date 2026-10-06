@@ -46,12 +46,17 @@ Vigie est une interface en mode texte (TUI) qui regroupe au même endroit ce qu'
 - Linux avec **systemd**
 - [Dart SDK](https://dart.dev/get-dart) ≥ 3.3, uniquement pour compiler
 
-### Installation rapide (Linux x64)
+### Installation (Debian / Ubuntu)
 
 ```bash
-curl -L -o vigie https://github.com/nuageeee/vigie/releases/latest/download/vigie-linux-x64
-sudo install -m 755 vigie /usr/local/bin/vigie
+sudo install -d -m 0755 /etc/apt/keyrings
+curl -fsSL https://vigie.elnuagee.fr/nuage-apt.gpg | sudo tee /etc/apt/keyrings/nuage-apt.gpg >/dev/null
+echo "deb [signed-by=/etc/apt/keyrings/nuage-apt.gpg] https://vigie.elnuagee.fr stable main" \
+  | sudo tee /etc/apt/sources.list.d/nuage.list
+sudo apt update && sudo apt install vigie
 ```
+
+Mises à jour : `sudo apt update && sudo apt upgrade`.
 
 ### Compiler et installer
 
@@ -178,7 +183,7 @@ Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu e
 - [x] Support de la souris (onglets, lignes et boutons cliquables, molette)
 - [x] Lancement au démarrage: ce lance a l'ouverture d'une session (Si activé)
 - [x] Terminal intégré 
-- [ ] CPU instantané par processus via `/proc/<pid>/stat` (le `%CPU` de `ps` est une moyenne sur la vie du processus)
+- [x] CPU instantané par processus via `/proc/<pid>/stat` (le `%CPU` de `ps` est une moyenne sur la vie du processus)
 - [ ] Recherche / filtre avec `/`
 - [ ] Journal d'un service (`journalctl -u`)/
 - [ ] Mode distant : gérer plusieurs serveurs via SSH

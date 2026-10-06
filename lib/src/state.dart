@@ -52,6 +52,7 @@ class VigieState {
   final bool isRoot;
   final String AdminGroup;
   final cpu = CpuSampler();
+  final procSampler = ProcSampler();
   bool openShell = false;
 
   Section section = Section.table;
@@ -112,7 +113,7 @@ class VigieState {
   Future<void> refresh({bool all = false}) async {
     overview = await loadOverview(cpu);
     if (all || section == Section.users) users = await LoadUsers();
-    if (all || section == Section.process) processes = await loadProcesses();
+    if (all || section == Section.process) processes = await procSampler.sample();
     if (all || section == Section.services || section == Section.table) {
       services = await loadServices();
     }
