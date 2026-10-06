@@ -58,6 +58,11 @@ sudo apt update && sudo apt install vigie
 
 Mises à jour : `sudo apt update && sudo apt upgrade`.
 
+```bash
+curl -L -o vigie https://github.com/nuageeee/vigie/releases/latest/download/vigie-linux-x64
+sudo install -m 755 vigie /usr/local/bin/vigie
+```
+
 ### Compiler et installer
 
 ```bash
