@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-export PATH="$PATH:/usr/lib/dart/bin"
+export PATH="$PATH:/home/ubuntu/develop/flutter/bin"
 cd "$(dirname "$0")/.."
 
 version=$(grep '^version:' pubspec.yaml | awk '{print $2}')
