@@ -68,7 +68,7 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
   _box(
     ctx,
     area,
-    'Disques · ${disks.length} · Total · ${disks}',
+    'Disques · ${disks.length} · Total · $disks',
   );
 
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height -2);
@@ -82,7 +82,6 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
     final x = inner.x + (i ~/ perColumn) * colWidth;
     final y = inner.y + (i % perColumn);
     final w = colWidth - 1;
-    final used = disks[i].usage;
     final barWidth = (w - 10).clamp(1, w);
 
     final exact = barWidth * disks[i].Capacity / 100;

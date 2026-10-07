@@ -2,7 +2,6 @@ import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/ui/components.dart';
 
 import '../state.dart';
-import '../system/processes.dart';
 
 /// Vue d'ensemble : jauges CPU / RAM / disque + résumé des services.
 void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
@@ -11,22 +10,6 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     ctx.draw(const Text(' Chargement...'), area);
     return;
   }
-
-  s.status = o.disk.map((d) => d.Capacity).join();
-
-  void gauge(String title, double pct, String label, Rect r) => ctx.draw(
-    Container(
-      border: BorderStyle.single,
-      title: ' $title ',
-      padding: const EdgeInsets(left: 1, right: 1),
-      child: Gauge(
-        value: pct,
-        label: label,
-        style: Style(bg: colorFor(pct), fg: Color.black),
-      ),
-    ),
-    r,
-  );
 
   final coreLines = s.cpu.cores.length.clamp(1, 8);
   final diskLines = o.disk.length.clamp(1, 6);
