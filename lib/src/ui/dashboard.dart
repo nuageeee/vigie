@@ -36,23 +36,31 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     const Constraint.fill(1),
   ]).split(area);
 
-  s.status = 'Total = ${s.cpu.total} ' '${s.cpu.compteur}';
+  final diskLines = o.disk.length.clamp(1, 0);
+
+  final columns = Layout.horizontal([
+    Constraint.length(diskLines + 2),
+    const Constraint.fill(1),
+    const Constraint.fill(1),
+  ]).split(rows[1]);
 
   cpuPanels(ctx, s, rows[0]);
+  diskPanels(ctx, s, columns[0]);
 
   gauge(
     'Mémoire',
     o.memPercent,
     '${formatKb(o.memUsedKb)} / ${formatKb(o.memTotalKb)}',
-    rows[1],
+    rows[2],
   );
-  gauge(
+
+/*   gauge(
     'Disque /',
     o.diskPercent,
     '${formatKb(o.diskUsedKb)} / ${formatKb(o.diskTotalKb)}',
     rows[2],
   );
-
+ */
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
   final lines = StringBuffer()

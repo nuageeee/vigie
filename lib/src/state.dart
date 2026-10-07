@@ -54,8 +54,7 @@ class VigieState {
 
   final cpu = CpuSampler();
   final procSampler = ProcSampler();
-  final disk = getDisks();
-  
+
   bool openShell = false;
 
   Section section = Section.table;
@@ -120,5 +119,5 @@ class VigieState {
     if (all || section == Section.services || section == Section.table) {
       services = await loadServices();
     }
-  }
+  } 
 }

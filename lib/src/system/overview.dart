@@ -14,7 +14,7 @@ class Overview {
   final int memUsedKb;
   final int diskTotalKb;
   final int diskUsedKb;
-  final List disk;
+  final List<Disk> disk;
   final String ip;
 
   const Overview({
@@ -42,6 +42,9 @@ class CpuSampler {
   double total = 0;
   List<double> cores = [];
 
+  final _lastIdle = <String, int>{};
+  final _lastTotal = <String, int>{};
+
   int compteur = 0;
 
   void sample() {
@@ -62,8 +65,21 @@ class CpuSampler {
     }
     cores = newCores;
   }
-}
 
+  double _usage(String name, Iterable<String> fields) {
+    final v = fields.map(int.tryParse).whereType<int>().toList();
+    if (v.length < 5) return 0;
+
+    final idle = v[3] + v[4]; // idle + iowait
+    final sum = v.fold<int>(0, (a, b) => a + b);
+    final dIdle = idle - (_lastIdle[name] ?? idle);
+    final dTotal = sum - (_lastTotal[name] ?? sum);
+    _lastIdle[name] = idle;
+    _lastTotal[name] = sum;
+
+    return dTotal <= 0 ? 0 : (1 - dIdle / dTotal) * 100;
+  }
+}
 
 class Disk {
   final String name;
@@ -72,11 +88,22 @@ class Disk {
 
   Disk(this.name, this.usage, this.freeSpace);
 
-  double get Capacity => usage / (usage + freeSpace); 
+  double get Capacity => usage / (usage + freeSpace);
 }
 
 Future<List<Disk>> getDisks() async {
-  final diskList = await capture('df', ['-P', '-k', '-x', 'tmpfs', '-x', 'devtmpfs', '-x', 'overlay', '-x', 'squashfs']);
+  final diskList = await capture('df', [
+    '-P',
+    '-k',
+    '-x',
+    'tmpfs',
+    '-x',
+    'devtmpfs',
+    '-x',
+    'overlay',
+    '-x',
+    'squashfs',
+  ]);
 
   final disks = <Disk>[];
 
@@ -86,30 +113,10 @@ Future<List<Disk>> getDisks() async {
 
     final name = cols[0].split('/').last;
 
-    disks.add(Disk(
-      name,
-      int.parse(cols[2]),
-      int.parse(cols[3]),
-    ));
+    disks.add(Disk(name, int.parse(cols[2]), int.parse(cols[3])));
   }
 
   return disks;
-}
-
-double _usage(String name, Iterable<String> fields) {
-  final _lastIdle = <String, int>{};
-  final _lastTotal = <String, int>{};
-  final v = fields.map(int.tryParse).whereType<int>().toList();
-  if (v.length < 5) return 0;
-
-  final idle = v[3] + v[4]; // idle + iowait
-  final sum = v.fold<int>(0, (a, b) => a + b);
-  final dIdle = idle - (_lastIdle[name] ?? idle);
-  final dTotal = sum - (_lastTotal[name] ?? sum);
-  _lastIdle[name] = idle;
-  _lastTotal[name] = sum;
-
-  return dTotal <= 0 ? 0 : (1 - dIdle / dTotal) * 100;
 }
 
 String _osName() {
