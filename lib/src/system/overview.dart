@@ -88,7 +88,7 @@ class Disk {
 
   Disk(this.name, this.usage, this.freeSpace);
 
-  double get Capacity => usage / (usage + freeSpace);
+  double get Capacity => usage / (usage + freeSpace) * 100;
 }
 
 Future<List<Disk>> getDisks() async {

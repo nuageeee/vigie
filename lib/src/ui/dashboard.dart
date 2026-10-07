@@ -1,5 +1,4 @@
 import 'package:commander_ui/tui.dart';
-import 'package:vigie/src/system/overview.dart';
 import 'package:vigie/src/ui/components.dart';
 
 import '../state.dart';
@@ -12,6 +11,8 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     ctx.draw(const Text(' Chargement...'), area);
     return;
   }
+
+  s.status = o.disk.map((d) => d.Capacity).join();
 
   void gauge(String title, double pct, String label, Rect r) => ctx.draw(
     Container(
@@ -28,39 +29,23 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   );
 
   final coreLines = s.cpu.cores.length.clamp(1, 8);
+  final diskLines = o.disk.length.clamp(1, 6);
+
 
   final rows = Layout.vertical([
     Constraint.length(coreLines + 2),
-    const Constraint.length(3),
-    const Constraint.length(3),
+    Constraint.length(diskLines + 2),
     const Constraint.fill(1),
   ]).split(area);
 
-  final diskLines = o.disk.length.clamp(1, 0);
-
   final columns = Layout.horizontal([
-    Constraint.length(diskLines + 2),
     const Constraint.fill(1),
-    const Constraint.fill(1),
+    const Constraint.fill(1)
   ]).split(rows[1]);
 
   cpuPanels(ctx, s, rows[0]);
   diskPanels(ctx, s, columns[0]);
 
-  gauge(
-    'Mémoire',
-    o.memPercent,
-    '${formatKb(o.memUsedKb)} / ${formatKb(o.memTotalKb)}',
-    rows[2],
-  );
-
-/*   gauge(
-    'Disque /',
-    o.diskPercent,
-    '${formatKb(o.diskUsedKb)} / ${formatKb(o.diskTotalKb)}',
-    rows[2],
-  );
- */
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
   final lines = StringBuffer()
@@ -81,6 +66,6 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
       padding: const EdgeInsets(left: 1, right: 1),
       child: Paragraph(lines.toString()),
     ),
-    rows[3],
+    rows[2],
   );
 }
