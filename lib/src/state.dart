@@ -51,8 +51,11 @@ class ClickZone {
 class VigieState {
   final bool isRoot;
   final String AdminGroup;
+
   final cpu = CpuSampler();
   final procSampler = ProcSampler();
+  final disk = getDisks();
+  
   bool openShell = false;
 
   Section section = Section.table;

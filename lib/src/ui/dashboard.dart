@@ -36,9 +36,9 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     const Constraint.fill(1),
   ]).split(area);
 
-  cpuPanels(ctx, s, rows[0]);
+  s.status = 'Total = ${s.cpu.total} ' '${s.cpu.compteur}';
 
-  s.status = '${Disk}';
+  cpuPanels(ctx, s, rows[0]);
 
   gauge(
     'Mémoire',

@@ -42,7 +42,10 @@ class CpuSampler {
   double total = 0;
   List<double> cores = [];
 
+  int compteur = 0;
+
   void sample() {
+    compteur++;
     final newCores = <double>[];
 
     for (final line in readFile('/proc/stat').split('\n')) {
@@ -74,13 +77,14 @@ class Disk {
 
 Future<List<Disk>> getDisks() async {
   final diskList = await capture('df', ['-P', '-k', '-x', 'tmpfs', '-x', 'devtmpfs', '-x', 'overlay', '-x', 'squashfs']);
+
   final disks = <Disk>[];
 
   for (final line in diskList.split('\n').skip(1)) {
     final cols = line.trim().split(RegExp(r'\s+'));
     if (cols.length < 3) continue;
 
-    final name = line.split('/').last;
+    final name = cols[0].split('/').last;
 
     disks.add(Disk(
       name,

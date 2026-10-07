@@ -4,11 +4,24 @@ import 'package:vigie/vigie.dart';
 Color colorFor(double pct) =>
     pct >= 90 ? Color.red : (pct >= 50 ? Color.yellow : Color.green);
 
+const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
+
+void _box(RenderContext ctx, Rect area, String title, List comp) {
+  ctx.draw(Container(border: BorderStyle.single, title: title), area);
+  if (comp.isEmpty) return;
+}
 
 // cpuPanels class
 void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   final cores = s.cpu.cores;
-  const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
+
+/*   _box(
+    ctx,
+    area,
+    'CPU · ${cores.length} coeurs · ${s.cpu.total.toStringAsFixed(0)}%',
+    cores,
+  ); */
+    const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
 
   ctx.draw(
     Container(
@@ -19,7 +32,7 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
     area,
   );
   if (cores.isEmpty) return;
-
+ 
   // Inside border
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
   if (inner.height <= 0 || inner.width <= 0) return;
@@ -58,6 +71,7 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   }
 }
 
-void diskPanels(RenderContext ctx, VigieState s, Rect area) {
-  
+/* void diskPanels(RenderContext ctx, VigieState s, Rect area) {
+  final disks = s.disk;
 }
+ */
