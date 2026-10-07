@@ -1,4 +1,5 @@
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/system/processes.dart';
 
 import 'package:vigie/vigie.dart';
 
@@ -11,11 +12,45 @@ void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
 }
 
+void _inner(RenderContext ctx, Rect area, List comp) {
+  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
+  if (inner.height <= 0 || inner.width <= 0) return;
+
+  final perColumn = inner.height;
+  final columns = (comp.length / perColumn).ceil();
+  final colWidth = inner.width ~/ columns;
+
+  for (var i = 0; i < comp.length; i++) {
+    final x = inner.x + (i ~/ perColumn) * colWidth;
+    final y = inner.y + (i % perColumn);
+    final w = colWidth - 1;
+    final barWidth = (w - 10).clamp(1, w);
+
+    if (comp == 'cores') {
+      final exact = barWidth * pct / 100;
+      var full = exact.floor();
+      var rest = ((exact - full) * 8).round();
+      if (rest == 8) {
+        full++;
+        rest = 0;
+      }
+    } else if (comp == 'disks') {
+      final exact = barWidth * disks[i].Capacity / 100;
+      var full = exact.floor();
+      var rest = ((exact - full) * 8).round();
+      if (rest == 8) {
+        full++;
+        rest = 0;
+      }
+    }
+  }
+}
+
 // cpuPanels class
 void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   final cores = s.cpu.cores;
 
-_box(
+  _box(
     ctx,
     area,
     'CPU · ${cores.length} coeurs · ${s.cpu.total.toStringAsFixed(0)}%',
@@ -64,14 +99,15 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
   if (o == null) return;
 
   final disks = o.disk;
-
-  _box(
-    ctx,
-    area,
-    'Disques · ${disks.length} · Total · $disks',
+  final totalUsed = disks.fold<double>(
+    0,
+    (cumul, disks) => cumul + disks.usage,
   );
+  final convert = formatKb(totalUsed.toInt());
 
-  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height -2);
+  _box(ctx, area, 'Disques · ${disks.length} · Total · $convert');
+
+  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
   if (inner.height <= 0 || inner.width <= 0) return;
 
   final perColumn = inner.height;
@@ -89,16 +125,28 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
     var rest = ((exact - full) * 8).round();
     if (rest == 8) {
       full++;
-      rest=0;
+      rest = 0;
     }
 
-    ctx.draw(Text(disks[i].name, style: const Style(dim: true)), Rect(x, y, 4 + 1, 1));
-        ctx.draw(
+    ctx.draw(
+      Text(disks[i].name, style: const Style(dim: true)),
+      Rect(x, y, 4 + 1, 1),
+    );
+    ctx.draw(
       Text(
         '▉' * full + (rest > 0 ? huitiemes[rest] : ''),
         style: Style(fg: colorFor(exact)),
       ),
-      Rect(x + 4, y, barWidth, 1),
+      Rect(x + 6, y, barWidth, 1),
     );
   }
+}
+
+void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
+  final o = s.overview;
+  if (o == null) return;
+
+  final memory = o.memory;
+
+  _box(ctx, area, 'Mémoires · ${memory.length} · Utilisé · ${memory}');
 }

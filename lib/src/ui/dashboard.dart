@@ -27,7 +27,9 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   ]).split(rows[1]);
 
   cpuPanels(ctx, s, rows[0]);
+
   diskPanels(ctx, s, columns[0]);
+  memoryPanels(ctx, s, columns[1]);
 
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();

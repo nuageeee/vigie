@@ -10,8 +10,7 @@ class Overview {
   final Duration uptime;
   final String load;
   final double cpuUsage;
-  final int memTotalKb;
-  final int memUsedKb;
+  final List<Memory> memory;
   final int diskTotalKb;
   final int diskUsedKb;
   final List<Disk> disk;
@@ -24,17 +23,12 @@ class Overview {
     required this.uptime,
     required this.load,
     required this.cpuUsage,
-    required this.memTotalKb,
-    required this.memUsedKb,
+    required this.memory,
     required this.diskTotalKb,
     required this.diskUsedKb,
     required this.disk,
     required this.ip,
   });
-
-  double get memPercent => memTotalKb == 0 ? 0 : memUsedKb / memTotalKb * 100;
-  double get diskPercent =>
-      diskTotalKb == 0 ? 0 : diskUsedKb / diskTotalKb * 100;
 }
 
 class CpuSampler {
@@ -119,6 +113,31 @@ Future<List<Disk>> getDisks() async {
   return disks;
 }
 
+
+class Memory {
+  final String name;
+  final int total;
+  final int free;
+
+  Memory(this.name, this.total, this.free);
+  
+  int get used => total - free;
+  double get memPct => total == 0 ? 0 : used / total * 100;
+}
+
+List<Memory> getMemory() {
+  // Reading the memory for memory panels
+  final mem = readFile('/proc/meminfo');
+  final total = _meminfo(mem, 'MemTotal');
+  final available = _meminfo(mem, 'MemAvailable');
+  final swapTotal = _meminfo(mem, 'SwapTotal');
+  final swapFree = _meminfo(mem, 'SwapFree');
+
+  final memory = <Memory>[Memory("RAM", total, available), Memory("SWAP", swapTotal, swapFree)];
+
+  return memory;
+}
+
 String _osName() {
   final m = RegExp(
     r'^PRETTY_NAME="?([^"\n]*)"?',
@@ -147,9 +166,6 @@ Future<String> _mainIp() async {
 }
 
 Future<Overview> loadOverview(CpuSampler cpu) async {
-  final mem = readFile('/proc/meminfo');
-  final total = _meminfo(mem, 'MemTotal');
-  final available = _meminfo(mem, 'MemAvailable');
   cpu.sample();
 
   final df = (await capture('df', ['-Pk', '/'])).split('\n');
@@ -165,8 +181,7 @@ Future<Overview> loadOverview(CpuSampler cpu) async {
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
     cpuUsage: cpu.total,
-    memTotalKb: total,
-    memUsedKb: total - available,
+    memory: getMemory(),
     diskTotalKb: disk.length > 2 ? int.tryParse(disk[1]) ?? 0 : 0,
     diskUsedKb: disk.length > 2 ? int.tryParse(disk[2]) ?? 0 : 0,
     disk: (await getDisks()),
