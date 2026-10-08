@@ -14,7 +14,6 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   final coreLines = s.cpu.cores.length.clamp(1, 8);
   final diskLines = o.disk.length.clamp(1, 6);
 
-
   final rows = Layout.vertical([
     Constraint.length(coreLines + 2),
     Constraint.length(diskLines + 2),

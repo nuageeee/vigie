@@ -9,10 +9,7 @@ class Overview {
   final String kernel;
   final Duration uptime;
   final String load;
-  final double cpuUsage;
   final List<Memory> memory;
-  final int diskTotalKb;
-  final int diskUsedKb;
   final List<Disk> disk;
   final String ip;
 
@@ -22,10 +19,7 @@ class Overview {
     required this.kernel,
     required this.uptime,
     required this.load,
-    required this.cpuUsage,
     required this.memory,
-    required this.diskTotalKb,
-    required this.diskUsedKb,
     required this.disk,
     required this.ip,
   });
@@ -82,7 +76,7 @@ class Disk {
 
   Disk(this.name, this.usage, this.freeSpace);
 
-  double get Capacity => usage / (usage + freeSpace) * 100;
+  double get Capacity => usage == 0 ? 0 : usage / (usage + freeSpace) * 100;
 }
 
 Future<List<Disk>> getDisks() async {
@@ -113,14 +107,13 @@ Future<List<Disk>> getDisks() async {
   return disks;
 }
 
-
 class Memory {
   final String name;
   final int total;
   final int free;
 
   Memory(this.name, this.total, this.free);
-  
+
   int get used => total - free;
   double get memPct => total == 0 ? 0 : used / total * 100;
 }
@@ -133,9 +126,62 @@ List<Memory> getMemory() {
   final swapTotal = _meminfo(mem, 'SwapTotal');
   final swapFree = _meminfo(mem, 'SwapFree');
 
-  final memory = <Memory>[Memory("RAM", total, available), Memory("SWAP", swapTotal, swapFree)];
+  final memory = <Memory>[
+    Memory("RAM", total, available),
+    Memory("SWAP", swapTotal, swapFree),
+  ];
 
   return memory;
+}
+
+class Network {
+  int? _lastReceived;
+  int? _lastSent;
+  DateTime? _lastHour;
+  double received = 0;
+  double sent = 0;
+
+  final virtual = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
+  void sample() {
+    int totalReceived = 0;
+    int totalSent = 0;
+    double seconds = 0;
+    final netInt = readFile('/proc/net/dev');
+    final now = DateTime.now();
+
+    for (final line in netInt.split('\n').skip(2)) {
+      final lineCut = line.split(':');
+      if (lineCut.length < 2) continue;
+      final name = lineCut[0].trim();
+      if (virtual.hasMatch(name)) continue;
+      final facesReceived = lineCut[1].trim().split(RegExp(r'\s+'));
+
+      totalReceived += int.tryParse(facesReceived[0]) ?? 0;
+      totalSent += int.tryParse(facesReceived[8]) ?? 0;
+    }
+
+    final lastReceived = _lastReceived;
+    final lastSent = _lastSent;
+    final lastHour = _lastHour;
+
+    if (lastReceived != null && lastSent != null) {
+      if (lastHour != null) {
+        seconds = now.difference(lastHour).inMilliseconds / 1000;
+      }
+
+      if (seconds > 0) {
+        final gapReceived = totalReceived - lastReceived;
+        final gapSent = totalSent - lastSent;
+
+        if (gapReceived >= 0) received = gapReceived / seconds;
+        if (gapSent >= 0) sent = gapSent / seconds;
+      }
+    }
+
+    _lastReceived = totalReceived;
+    _lastSent = totalSent;
+    _lastHour = now;
+  }
 }
 
 String _osName() {
@@ -165,11 +211,9 @@ Future<String> _mainIp() async {
   return '-';
 }
 
-Future<Overview> loadOverview(CpuSampler cpu) async {
+Future<Overview> loadOverview(CpuSampler cpu, Network net) async {
   cpu.sample();
-
-  final df = (await capture('df', ['-Pk', '/'])).split('\n');
-  final disk = df.length > 1 ? splitColumns(df[1], 6) : const <String>[];
+  net.sample();
 
   final upSeconds =
       double.tryParse(readFile('/proc/uptime').split(' ').first) ?? 0;
@@ -180,11 +224,8 @@ Future<Overview> loadOverview(CpuSampler cpu) async {
     kernel: (await capture('uname', ['-r'])).trim(),
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
-    cpuUsage: cpu.total,
     memory: getMemory(),
-    diskTotalKb: disk.length > 2 ? int.tryParse(disk[1]) ?? 0 : 0,
-    diskUsedKb: disk.length > 2 ? int.tryParse(disk[2]) ?? 0 : 0,
-    disk: (await getDisks()),
+    disk: await getDisks(),
     ip: await _mainIp(),
   );
 }

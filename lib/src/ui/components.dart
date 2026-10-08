@@ -1,5 +1,4 @@
 import 'package:commander_ui/tui.dart';
-import 'package:vigie/src/system/processes.dart';
 
 import 'package:vigie/vigie.dart';
 
@@ -8,34 +7,35 @@ Color colorFor(double pct) =>
 
 const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
 
+String formatKb(int kb) {
+  if (kb >= 1024 * 1024) return '${(kb / 1024 / 1024).toStringAsFixed(1)} Go';
+  if (kb >= 1024) return '${(kb / 1024).toStringAsFixed(0)} Mo';
+  return '$kb Ko';
+}
+
 void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
 }
 
-// cpuPanels class
-void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
-  final cores = s.cpu.cores;
-
-  _box(
-    ctx,
-    area,
-    'CPU · ${cores.length} coeurs · ${s.cpu.total.toStringAsFixed(0)}%',
+void _drawBars(List<String> names, List<double> pcts, RenderContext ctx, Rect area) {
+  final longName = names.fold<int>(
+    0,
+    (max, names) => names.length > max ? names.length : max,
   );
 
-  // Inside border
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
   if (inner.height <= 0 || inner.width <= 0) return;
 
   final perColumn = inner.height;
-  final columns = (cores.length / perColumn).ceil();
+  final columns = (names.length / perColumn).ceil();
   final colWidth = inner.width ~/ columns;
 
-  for (var i = 0; i < cores.length; i++) {
+  for (var i = 0; i < names.length; i++) {
     final x = inner.x + (i ~/ perColumn) * colWidth;
     final y = inner.y + (i % perColumn);
     final w = colWidth - 1;
-    final pct = cores[i];
-    final barWidth = (w - 10).clamp(1, w);
+    final pct = pcts[i];
+    final barWidth = (w - longName - 7).clamp(1, w);
 
     final exact = barWidth * pct / 100;
     var full = exact.floor();
@@ -45,19 +45,33 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
       rest = 0;
     }
 
-    ctx.draw(Text('C$i', style: const Style(dim: true)), Rect(x, y, 4, 1));
+    ctx.draw(Text(names[i], style: const Style(dim: true)), Rect(x, y, longName, 1));
     ctx.draw(
       Text(
         '▉' * full + (rest > 0 ? huitiemes[rest] : ''),
         style: Style(fg: colorFor(pct)),
       ),
-      Rect(x + 4, y, barWidth, 1),
+      Rect(x + longName + 1, y, barWidth, 1),
     );
     ctx.draw(
       Text('${pct.toStringAsFixed(0)}%'.padLeft(5)),
-      Rect(x + 4 + barWidth + 1, y, 5, 1),
+      Rect(x + longName + barWidth + 1, y, 5, 1),
     );
   }
+}
+
+// cpuPanels class
+void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
+  final cores = s.cpu.cores;
+  final names = List.generate(cores.length, ((i) => 'C$i'));
+
+  _box(
+    ctx,
+    area,
+    'CPU · ${cores.length} coeurs · ${s.cpu.total.toStringAsFixed(0)}%',
+  );
+  
+  _drawBars(names, cores, ctx, area);
 }
 
 void diskPanels(RenderContext ctx, VigieState s, Rect area) {
@@ -73,39 +87,10 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
 
   _box(ctx, area, 'Disques · ${disks.length} · Total · $convert');
 
-  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
-  if (inner.height <= 0 || inner.width <= 0) return;
+  final names = disks.map((l) => l.name).toList();
+  final pct = disks.map((l) => l.Capacity).toList();
 
-  final perColumn = inner.height;
-  final columns = (disks.length / perColumn).ceil();
-  final colWidth = inner.width ~/ columns;
-
-  for (var i = 0; i < disks.length; i++) {
-    final x = inner.x + (i ~/ perColumn) * colWidth;
-    final y = inner.y + (i % perColumn);
-    final w = colWidth - 1;
-    final barWidth = (w - 10).clamp(1, w);
-
-    final exact = barWidth * disks[i].Capacity / 100;
-    var full = exact.floor();
-    var rest = ((exact - full) * 8).round();
-    if (rest == 8) {
-      full++;
-      rest = 0;
-    }
-
-    ctx.draw(
-      Text(disks[i].name, style: const Style(dim: true)),
-      Rect(x, y, 4 + 1, 1),
-    );
-    ctx.draw(
-      Text(
-        '▉' * full + (rest > 0 ? huitiemes[rest] : ''),
-        style: Style(fg: colorFor(exact)),
-      ),
-      Rect(x + 6, y, barWidth, 1),
-    );
-  }
+  _drawBars(names, pct, ctx, area);
 }
 
 void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
@@ -126,42 +111,8 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
 
   _box(ctx, area, 'Mémoires · Utilisé · $convert · Total · $convertMemFree');
 
-  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
-  if (inner.height <= 0 || inner.width <= 0) return;
+  final names = memory.map((l) => l.name).toList();
+  final pct = memory.map((l) => l.memPct).toList();
 
-  final perColumn = inner.height;
-  final columns = (memory.length / perColumn).ceil();
-  final colWidth = inner.width ~/ columns;
-
-  for (var i = 0; i < memory.length; i++) {
-    final x = inner.x + (i ~/ perColumn) * colWidth;
-    final y = inner.y + (i % perColumn);
-    final w = colWidth - 1;
-    final pct = memory[i].memPct;
-    final barWidth = (w - 10).clamp(1, w);
-
-    final exact = barWidth * pct / 100;
-    var full = exact.floor();
-    var rest = ((exact - full) * 8).round();
-    if (rest == 8) {
-      full++;
-      rest = 0;
-    }
-
-    ctx.draw(
-      Text(memory[i].name, style: const Style(dim: true)),
-      Rect(x, y, 4 + 1, 1),
-    );
-    ctx.draw(
-      Text(
-        '▉' * full + (rest > 0 ? huitiemes[rest] : ''),
-        style: Style(fg: colorFor(exact)),
-      ),
-      Rect(x + 6, y, barWidth, 1),
-    );
-    ctx.draw(
-      Text('${pct.toStringAsFixed(0)}%'.padLeft(5)),
-      Rect(x + 4 + barWidth + 1, y, 5, 1),
-    );
-  }
+  _drawBars(names, pct, ctx, area);
 }
