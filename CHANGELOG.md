@@ -1,6 +1,6 @@
 # Changelog
 
-## [Non publié]
+## [0.6.0] - 2026-10-09
 
 ### Ajouté
 - **Interface en français et en anglais** : la langue suit celle du système (`LANG`), français si elle commence par `fr`, anglais sinon.
