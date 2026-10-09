@@ -47,6 +47,13 @@ class Strings {
   final String Function(String name) serviceDisabled;
   final String Function(String command, int pid) processTermSent;
   final String Function(String command, int pid) processKilled;
+  final String Function(String name) userCreated;
+  final String Function(String name) userDeleted;
+  final String Function(String name) passwordChanged;
+  final String Function(String name) userUnlocked;
+  final String Function(String name) userLocked;
+  final String Function(String name, String group) adminRevoked;
+  final String Function(String name, String group) adminGranted;
 
   // ─── Saisies ───────────────────────────────────────────────────────────────
   final String newUserTitle;
@@ -163,6 +170,13 @@ class Strings {
     required this.serviceDisabled,
     required this.processTermSent,
     required this.processKilled,
+    required this.userCreated,
+    required this.userDeleted,
+    required this.passwordChanged,
+    required this.userUnlocked,
+    required this.userLocked,
+    required this.adminRevoked,
+    required this.adminGranted,
     required this.newUserTitle,
     required this.newUserLabel,
     required this.usernameRule,
@@ -283,6 +297,13 @@ final fr = Strings(
   serviceDisabled: (n) => '$n désactivé au démarrage',
   processTermSent: (cmd, pid) => "Signal d'arrêt envoyé à $cmd ($pid)",
   processKilled: (cmd, pid) => '$cmd ($pid) tué',
+  userCreated: (n) => 'Utilisateur $n créé (pense à lui donner un mot de passe : p)',
+  userDeleted: (n) => 'Utilisateur $n supprimé',
+  passwordChanged: (n) => 'Mot de passe de $n modifié',
+  userUnlocked: (n) => '$n déverrouillé',
+  userLocked: (n) => '$n verrouillé',
+  adminRevoked: (n, g) => '$n retiré du groupe $g',
+  adminGranted: (n, g) => '$n ajouté au groupe $g',
   newUserTitle: ' Nouvel utilisateur ',
   newUserLabel: 'Nom',
   usernameRule: 'Minuscules, chiffres, - et _ uniquement (32 max)',
@@ -385,6 +406,13 @@ final en = Strings(
   serviceDisabled: (n) => '$n disabled at boot',
   processTermSent: (cmd, pid) => 'Stop signal sent to $cmd ($pid)',
   processKilled: (cmd, pid) => '$cmd ($pid) killed',
+  userCreated: (n) => 'User $n created (remember to set a password: p)',
+  userDeleted: (n) => 'User $n deleted',
+  passwordChanged: (n) => 'Password for $n changed',
+  userUnlocked: (n) => '$n unlocked',
+  userLocked: (n) => '$n locked',
+  adminRevoked: (n, g) => '$n removed from group $g',
+  adminGranted: (n, g) => '$n added to group $g',
   newUserTitle: ' New user ',
   newUserLabel: 'Name',
   usernameRule: 'Lowercase, digits, - and _ only (32 max)',

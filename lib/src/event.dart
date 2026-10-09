@@ -142,6 +142,7 @@ void _userKeys(VigieState s, String c) {
             ? null
             : s.t.usernameRule,
         onSubmit: addUser,
+        done: s.t.userCreated,
       );
     case 'p' when u != null:
       if (!_requireRoot(s)) return;
@@ -151,10 +152,13 @@ void _userKeys(VigieState s, String c) {
         obscure: true,
         validate: (v) => v.length >= 8 ? null : s.t.passwordRule,
         onSubmit: (v) => setPassword(u, v),
+        done: (_) => s.t.passwordChanged(u.name),
       );
     case 'v' when u != null:
-      _ask(s, u.locked == true ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
-          () => toggleLock(u));
+      final unlock = u.locked == true;
+      _ask(s, unlock ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
+          () => toggleLock(u),
+          unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name));
     case 'g' when u != null:
       final isIn = u.groups.contains(s.AdminGroup);
       _ask(
@@ -162,14 +166,17 @@ void _userKeys(VigieState s, String c) {
           isIn
               ? s.t.askRevokeAdmin(s.AdminGroup, u.name)
               : s.t.askGrantAdmin(s.AdminGroup, u.name),
-          () => toggleAdmin(u, s.AdminGroup));
+          () => toggleAdmin(u, s.AdminGroup),
+          isIn
+              ? s.t.adminRevoked(u.name, s.AdminGroup)
+              : s.t.adminGranted(u.name, s.AdminGroup));
     case 'D' when u != null:
       if (u.uid == 0) {
         s.setStatus(CmdResult(false, message: s.t.cannotDeleteRoot));
         return;
       }
       _ask(s, s.t.askDeleteUser(u.name, u.home),
-          () => deleteUser(u));
+          () => deleteUser(u), s.t.userDeleted(u.name));
   }
 }
 
