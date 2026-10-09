@@ -222,7 +222,7 @@ final fr = Strings(
   refreshing: 'Rafraîchissement...',
   rootRequired: 'Action impossible : relance Vigie avec sudo',
   loading: ' Chargement...',
-  sectionDashboard: 'Accueil',
+  sectionDashboard: 'Aperçu',
   sectionUsers: 'Utilisateurs',
   sectionProcesses: 'Processus',
   sectionServices: 'Services',
