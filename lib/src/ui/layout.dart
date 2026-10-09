@@ -99,16 +99,16 @@ void _topBar(RenderContext ctx, VigieState s, Rect area) {
 }
 
 void _systemBar(RenderContext ctx, VigieState s, Rect area) {
-  ctx.draw(Container(border: BorderStyle.single, title: "Système"), area);
+  ctx.draw(Container(border: BorderStyle.single, title: s.t.system), area);
   final o = s.overview;
   if (o == null) return;
 
   final info = [
-    ('Hôte', o.hostname),
-    ('OS', o.os),
-    ('Kernel', o.kernel),
-    ('Uptime', formatUptime(o.uptime)),
-    ('IP', o.ip),
+    (s.t.host, o.hostname),
+    (s.t.os, o.os),
+    (s.t.kernel, o.kernel),
+    (s.t.uptime, formatUptime(o.uptime)),
+    (s.t.ip, o.ip),
   ];
 
   var y = area.y + 1;
@@ -162,8 +162,8 @@ void _statusBar(RenderContext ctx, VigieState s, Rect area) {
       Rect(area.x, area.y, q.length + 1, 1),
     );
     _buttons(ctx, s, area.x + q.length + 2, area.y, area.right, [
-      ('o', 'Oui', _c('o'), Color.green),
-      ('n', 'Non', _c('n'), Color.red),
+      (s.t.yesKey, s.t.yes, _c(s.t.yesKey), Color.green),
+      (s.t.noKey, s.t.no, _c(s.t.noKey), Color.red),
     ]);
     return;
   }
@@ -179,7 +179,7 @@ void _statusBar(RenderContext ctx, VigieState s, Rect area) {
 void _actionBar(RenderContext ctx, VigieState s, Rect area) {
   if (s.prompt != null) {
     ctx.draw(
-      const Text(' Entrée valider · Échap annuler', style: Style(dim: true)),
+      Text(s.t.promptHelp, style: const Style(dim: true)),
       area,
     );
     return;
@@ -188,31 +188,31 @@ void _actionBar(RenderContext ctx, VigieState s, Rect area) {
   final actions = switch (s.section) {
     Section.table => <(String, String, KeyEvent, Color)>[],
     Section.users => [
-      ('a', 'ajouter', _c('a'), Color.green),
-      ('p', 'mot de passe', _c('p'), Color.cyan),
-      ('v', 'verrouiller', _c('v'), Color.yellow),
-      ('g', 'admin', _c('g'), Color.yellow),
-      ('D', 'supprimer', _c('D'), Color.red),
+      ('a', s.t.btnAdd, _c('a'), Color.green),
+      ('p', s.t.btnPassword, _c('p'), Color.cyan),
+      ('v', s.t.btnLock, _c('v'), Color.yellow),
+      ('g', s.t.btnAdmin, _c('g'), Color.yellow),
+      ('D', s.t.btnDelete, _c('D'), Color.red),
     ],
     Section.process => [
-      ('t', 'arrêter', _c('t'), Color.yellow),
-      ('K', 'tuer', _c('K'), Color.red),
+      ('t', s.t.btnTerm, _c('t'), Color.yellow),
+      ('K', s.t.btnKill, _c('K'), Color.red),
     ],
     Section.services => [
-      ('s', 'démarrer', _c('s'), Color.green),
-      ('x', 'arrêter', _c('x'), Color.red),
-      ('r', 'redémarrer', _c('r'), Color.yellow),
-      ('e', 'activer boot', _c('e'), Color.cyan),
-      ('d', 'désactiver boot', _c('d'), Color.cyan),
+      ('s', s.t.btnStart, _c('s'), Color.green),
+      ('x', s.t.btnStop, _c('x'), Color.red),
+      ('r', s.t.btnRestart, _c('r'), Color.yellow),
+      ('e', s.t.btnEnable, _c('e'), Color.cyan),
+      ('d', s.t.btnDisable, _c('d'), Color.cyan),
     ],
   };
 
   var x = _buttons(ctx, s, area.x + 1, area.y, area.right, actions);
 
   final general = [
-    ('!', 'terminal', _c('!'), Color.magenta),
-    ('F5', 'rafraîchir', const KeyEvent(key: NamedKey.f5), Color.blue),
-    ('q', 'quitter', _c('q'), Color.white),
+    ('!', s.t.btnTerminal, _c('!'), Color.magenta),
+    ('F5', s.t.btnRefresh, const KeyEvent(key: NamedKey.f5), Color.blue),
+    ('q', s.t.btnQuit, _c('q'), Color.white),
   ];
   final generalWidth =
       general.fold<int>(0, (w, b) => w + b.$1.length + b.$2.length + 3 + 1) - 1;
