@@ -2,7 +2,7 @@ import 'dart:io';
 
 const shellExitBase = 100;
 
-Future<Never> runSession(List<String> args) async {
+Future<Never> runSession(List<String> args, String lang) async {
   Process? current;
 
   ProcessSignal.sigint.watch().listen((_) {});
@@ -12,14 +12,14 @@ Future<Never> runSession(List<String> args) async {
   });
 
   final self = _selfCommand();
-  final userArgs = _withoutSection(args);
+  final userArgs = _withoutOptions(args, const ['--section', '--lang']);
   final rc = _writeRcFile();
   var section = 1;
 
   while (true) {
     current = await Process.start(
       self.first,
-      [...self.skip(1), ...userArgs, '--section', '${section}'],
+      [...self.skip(1), ...userArgs, '--lang', lang, '--section', '${section}'],
       mode: ProcessStartMode.inheritStdio,
       environment: {'VIGIE_SESSION': '1'}
     );
@@ -47,10 +47,10 @@ List<String> _selfCommand() {
   return viaDart ? [exe, Platform.script.toFilePath()] : [exe];
 }
 
-List<String> _withoutSection(List<String> args) {
+List<String> _withoutOptions(List<String> args, List<String> options) {
   final out = <String>[];
   for (var i = 0; i < args.length; i++) {
-    if (args[i] == '--section') { i++; continue; }
+    if (options.contains(args[i])) { i++; continue; }
     out.add(args[i]);
   }
   return out;

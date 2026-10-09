@@ -33,11 +33,11 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   if (pending != null) {
     if (event.char == 'o' || event.char == 'y') {
       s.pending = null;
-      s.setStatus(await pending.run());
+      s.setResult(await pending.run(), pending.done);
       s.refreshInBackground();
     } else if (event.char == 'n' || event.key == NamedKey.escape) {
       s.pending = null;
-      s.setStatus(const CmdResult(true, 'Annulé'));
+      s.setMessage(s.t.cancelled);
     }
     handle.requestRedraw();
     return;
@@ -58,15 +58,14 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   final digit = int.tryParse(event.char ?? '');
   if (digit != null && digit >= 1 && digit <= Section.values.length) {
     s.section = Section.values[digit - 1];
-    s.status = 'Prêt';
-    s.statusError = false;
+    s.setMessage(s.t.ready);
     handle.requestRedraw(); // changement de section instantané
     s.refreshInBackground();
     return;
   }
   if (event.key == NamedKey.f5) {
     s.refreshInBackground(all: true);
-    s.setStatus(const CmdResult(true, 'Rafraîchissement...'));
+    s.setMessage(s.t.refreshing);
     handle.requestRedraw();
     return;
   }
@@ -89,39 +88,44 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
 
 bool _requireRoot(VigieState s) {
   if (s.isRoot) return true;
-  s.setStatus(
-      const CmdResult(false, 'Action impossible : relance Vigie avec sudo'));
+  s.setMessage(s.t.rootRequired, error: true);
   return false;
 }
 
-void _ask(VigieState s, String question, Future<CmdResult> Function() run) {
-  if (_requireRoot(s)) s.pending = PendingAction(question, run);
+void _ask(
+  VigieState s,
+  String question,
+  Future<CmdResult> Function() run,
+  String done,
+) {
+  if (_requireRoot(s)) s.pending = PendingAction(question, run, done);
 }
 
 void _serviceKeys(VigieState s, String c) {
   final svc = s.selectedService;
   if (svc == null) return;
-  final (verb, question) = switch (c) {
-    's' => ('start', 'Démarrer ${svc.name} ?'),
-    'x' => ('stop', 'Arrêter ${svc.name} ?'),
-    'r' => ('restart', 'Redémarrer ${svc.name} ?'),
-    'e' => ('enable', 'Activer ${svc.name} au démarrage ?'),
-    'd' => ('disable', 'Désactiver ${svc.name} au démarrage ?'),
-    _ => ('', ''),
+  final n = svc.name;
+  final (verb, question, done) = switch (c) {
+    's' => ('start', s.t.askStart(n), s.t.serviceStarted(n)),
+    'x' => ('stop', s.t.askStop(n), s.t.serviceStopped(n)),
+    'r' => ('restart', s.t.askRestart(n), s.t.serviceRestarted(n)),
+    'e' => ('enable', s.t.askEnable(n), s.t.serviceEnabled(n)),
+    'd' => ('disable', s.t.askDisable(n), s.t.serviceDisabled(n)),
+    _ => ('', '', ''),
   };
   if (verb.isEmpty) return;
-  _ask(s, question, () => serviceAction(verb, svc));
+  _ask(s, question, () => serviceAction(verb, svc), done);
 }
 
 void _processKeys(VigieState s, String c) {
   final p = s.selectedProcess;
   if (p == null) return;
   if (c == 't') {
-    _ask(s, 'Demander l\'arrêt de ${p.command} (PID ${p.pid}) ?',
-        () => killProcess(p));
+    _ask(s, s.t.askTerm(p.command, p.pid), () => killProcess(p),
+        s.t.processTermSent(p.command, p.pid));
   } else if (c == 'K') {
-    _ask(s, 'TUER ${p.command} (PID ${p.pid}) sans sommation ?',
-        () => killProcess(p, force: true));
+    _ask(s, s.t.askKill(p.command, p.pid), () => killProcess(p, force: true),
+        s.t.processKilled(p.command, p.pid));
   }
 }
 
@@ -131,47 +135,54 @@ void _userKeys(VigieState s, String c) {
     case 'a':
       if (!_requireRoot(s)) return;
       s.prompt = TextPrompt(
-        title: ' Nouvel utilisateur ',
-        label: 'Nom',
+        title: s.t.newUserTitle,
+        label: s.t.newUserLabel,
         validate: (v) => usernamePattern.hasMatch(v)
             ? null
-            : 'Minuscules, chiffres, - et _ uniquement (32 max)',
+            : s.t.usernameRule,
         onSubmit: addUser,
+        done: s.t.userCreated,
       );
     case 'p' when u != null:
       if (!_requireRoot(s)) return;
       s.prompt = TextPrompt(
-        title: ' Mot de passe de ${u.name} ',
-        label: 'Nouveau mot de passe',
+        title: s.t.passwordTitle(u.name),
+        label: s.t.passwordLabel,
         obscure: true,
-        validate: (v) => v.length >= 8 ? null : '8 caractères minimum',
+        validate: (v) => v.length >= 8 ? null : s.t.passwordRule,
         onSubmit: (v) => setPassword(u, v),
+        done: (_) => s.t.passwordChanged(u.name),
       );
     case 'v' when u != null:
-      _ask(s, '${u.locked == true ? 'Déverrouiller' : 'Verrouiller'} ${u.name} ?',
-          () => toggleLock(u));
+      final unlock = u.locked == true;
+      _ask(s, unlock ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
+          () => toggleLock(u),
+          unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name));
     case 'g' when u != null:
       final isIn = u.groups.contains(s.AdminGroup);
       _ask(
           s,
           isIn
-              ? 'Retirer les droits admin (${s.AdminGroup}) à ${u.name} ?'
-              : 'Donner les droits admin (${s.AdminGroup}) à ${u.name} ?',
-          () => toggleAdmin(u, s.AdminGroup));
+              ? s.t.askRevokeAdmin(s.AdminGroup, u.name)
+              : s.t.askGrantAdmin(s.AdminGroup, u.name),
+          () => toggleAdmin(u, s.AdminGroup),
+          isIn
+              ? s.t.adminRevoked(u.name, s.AdminGroup)
+              : s.t.adminGranted(u.name, s.AdminGroup));
     case 'D' when u != null:
       if (u.uid == 0) {
-        s.setStatus(const CmdResult(false, 'On ne supprime pas root 🙂'));
+        s.setMessage(s.t.cannotDeleteRoot, error: true);
         return;
       }
-      _ask(s, 'SUPPRIMER ${u.name} et son dossier ${u.home} ?',
-          () => deleteUser(u));
+      _ask(s, s.t.askDeleteUser(u.name, u.home),
+          () => deleteUser(u), s.t.userDeleted(u.name));
   }
 }
 
 Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   if (e.key == NamedKey.escape) {
     s.prompt = null;
-    s.setStatus(const CmdResult(true, 'Annulé'));
+    s.setMessage(s.t.cancelled);
   } else if (e.key == NamedKey.backspace) {
     if (p.value.isNotEmpty) p.value = p.value.substring(0, p.value.length - 1);
     p.error = null;
@@ -182,7 +193,7 @@ Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
       return;
     }
     s.prompt = null;
-    s.setStatus(await p.onSubmit(p.value));
+    s.setResult(await p.onSubmit(p.value), p.done(p.value));
     s.refreshInBackground();
   } else if (e.char != null && !e.ctrl && !e.alt) {
     p.value += e.char!;

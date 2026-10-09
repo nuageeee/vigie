@@ -87,6 +87,7 @@ scp vigie mon-serveur:/tmp/ && ssh mon-serveur 'sudo install -m 755 /tmp/vigie /
 vigie          # consultation seule
 sudo vigie     # consultation + actions (créer un compte, redémarrer un service…)
 sudo vigie --no-mouse # consultation + actions sans support de la souris
+vigie --lang en       # interface en anglais
 ```
 
 ### Raccourcis clavier
@@ -97,7 +98,7 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 | | `↑` `↓` / `j` `k` | Naviguer dans la liste |
 | | `F5` | Tout rafraîchir |
 | | `q` | Quitter |
-| Confirmation | `o` / `n` (ou `Échap`) | Valider / annuler |
+| Confirmation | `o` ou `y` / `n` (ou `Échap`) | Valider / annuler |
 | Saisie | `Entrée` / `Échap` | Valider / annuler |
 | **Utilisateurs** | `a` | Ajouter un utilisateur |
 | | `p` | Changer le mot de passe |
@@ -120,6 +121,7 @@ sudo vigie --no-mouse # consultation + actions sans support de la souris
 | Option | Effet |
 |---|---|
 | `--no-mouse` | Désactive la souris (utile dans tmux sans `mouse on`, ou pour sélectionner du texte) |
+| `--lang fr\|en` | Langue de l'interface. Par défaut, celle du système (`LANG`) : français si elle commence par `fr`, sinon anglais |
 
 > 💡 Souris active : maintiens `Maj` pour sélectionner du texte dans le terminal.
 

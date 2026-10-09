@@ -63,7 +63,7 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   _box(
     ctx,
     area,
-    'CPU · ${cores.length} coeurs · ${s.cpu.total.toStringAsFixed(0)}%',
+    s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0)),
   );
   
   _drawBars(names, cores, ctx, area);
@@ -78,9 +78,9 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
     0,
     (cumul, disks) => cumul + disks.usage,
   );
-  final convert = formatKb(totalUsed.toInt());
+  final convert = formatKb(totalUsed.toInt(), s.t);
 
-  _box(ctx, area, 'Disques · ${disks.length} · Total · $convert');
+  _box(ctx, area, s.t.disksTitle(disks.length, convert));
 
   final names = disks.map((l) => l.name).toList();
   final pct = disks.map((l) => l.capacity).toList();
@@ -97,14 +97,14 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
     0,
     (cumul, memory) => cumul + memory.total
   );
-  final convertMemFree = formatKb(totalMemory.toInt());
+  final convertMemFree = formatKb(totalMemory.toInt(), s.t);
   final totalUsed = memory.fold<double>(
     0,
     (cumul, memory) => cumul + memory.total - memory.free,
   );
-  final convert = formatKb(totalUsed.toInt());
+  final convert = formatKb(totalUsed.toInt(), s.t);
 
-  _box(ctx, area, 'Mémoires · Utilisé · $convert · Total · $convertMemFree');
+  _box(ctx, area, s.t.memoryTitle(convert, convertMemFree));
 
   final names = memory.map((l) => l.name).toList();
   final pct = memory.map((l) => l.memPct).toList();
@@ -116,7 +116,7 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
 void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final n = s.net;
 
-  _box(ctx, area, 'Réseaux');
+  _box(ctx, area, s.t.network);
 
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height -2);
   if (inner.height < 2 || inner.width <= 0) return;
@@ -124,11 +124,11 @@ void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final sent = n.sent;
 
   ctx.draw(
-    Text('↓ ${formatOc(received.toInt())}'),
+    Text('↓ ${formatOc(received.toInt(), s.t)}'),
     Rect(inner.x, inner.y, inner.width, 1)
   );
   ctx.draw(
-    Text('↑ ${formatOc(sent.toInt())}'),
+    Text('↑ ${formatOc(sent.toInt(), s.t)}'),
     Rect(inner.x, inner.y + 1, inner.width, 1)
   );
 }

@@ -70,36 +70,19 @@ Future<List<SysUser>> LoadUsers() async {
   return list;
 }
 
-Future<CmdResult> addUser(String name) => run('useradd', [
-  '-m',
-  '-s',
-  '/bin/bash',
-  name,
-], success: 'Utilisateur $name créé (pense à lui donner un mot de passe : p)');
+Future<CmdResult> addUser(String name) =>
+    run('useradd', ['-m', '-s', '/bin/bash', name]);
 
-Future<CmdResult> deleteUser(SysUser u) =>
-    run('userdel', ['-r', u.name], success: 'Utilisateur ${u.name} supprimé');
+Future<CmdResult> deleteUser(SysUser u) => run('userdel', ['-r', u.name]);
 
-Future<CmdResult> setPassword(SysUser u, String password) => run(
-  'chpasswd',
-  [],
-  stdinData: '${u.name}:$password\n',
-  success: 'Mot de passe de ${u.name} modifié',
-);
+Future<CmdResult> setPassword(SysUser u, String password) =>
+    run('chpasswd', [], stdinData: '${u.name}:$password\n');
 
 Future<CmdResult> toggleLock(SysUser u) => u.locked == true
-    ? run('usermod', ['-U', u.name], success: '${u.name} déverrouillé')
-    : run('usermod', ['-L', u.name], success: '${u.name} verrouillé');
+    ? run('usermod', ['-U', u.name])
+    : run('usermod', ['-L', u.name]);
 
 Future<CmdResult> toggleAdmin(SysUser u, String adminGroup) =>
     u.groups.contains(adminGroup)
-    ? run('gpasswd', [
-        '-d',
-        u.name,
-        adminGroup,
-      ], success: '${u.name} retiré du groupe $adminGroup')
-    : run('gpasswd', [
-        '-a',
-        u.name,
-        adminGroup,
-      ], success: '${u.name} ajouté au groupe $adminGroup');
+    ? run('gpasswd', ['-d', u.name, adminGroup])
+    : run('gpasswd', ['-a', u.name, adminGroup]);

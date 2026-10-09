@@ -7,7 +7,7 @@ import '../state.dart';
 void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   final o = s.overview;
   if (o == null) {
-    ctx.draw(const Text(' Chargement...'), area);
+    ctx.draw(Text(s.t.loading), area);
     return;
   }
 
@@ -40,19 +40,19 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
   final lines = StringBuffer()
-    ..writeln('Services actifs : $running / ${s.services.length}')
-    ..writeln('Services en échec : ${failed.length}');
+    ..writeln(s.t.servicesRunning(running, s.services.length))
+    ..writeln(s.t.servicesFailed(failed.length));
   for (final f in failed.take(10)) {
     lines.writeln('  ✗ ${f.name}');
   }
   if (failed.isNotEmpty) {
-    lines.writeln('\n→ touche 4 pour aller les gérer');
+    lines.writeln('\n${s.t.goToServices}');
   }
 
   ctx.draw(
     Container(
       border: BorderStyle.single,
-      title: ' Services ',
+      title: s.t.servicesTitle,
       borderColor: failed.isEmpty ? null : const Style(fg: Color.red),
       padding: const EdgeInsets(left: 1, right: 1),
       child: Paragraph(lines.toString()),

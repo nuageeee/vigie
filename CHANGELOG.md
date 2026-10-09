@@ -1,5 +1,19 @@
 # Changelog
 
+## [Non publié]
+
+### Ajouté
+- **Interface en français et en anglais** : la langue suit celle du système (`LANG`), français si elle commence par `fr`, anglais sinon.
+- Option `--lang fr|en` pour forcer la langue ; elle est transmise à la session relancée après le terminal intégré (`!`).
+
+### Modifié
+- Tous les textes de l'interface sont regroupés dans `lib/src/ui/strings.dart`.
+- Les unités suivent la langue : `o`/`Ko`/`Mo`/`Go` et `j` en français, `B`/`KB`/`MB`/`GB` et `d` en anglais.
+- Les textes qui restaient en anglais dans l'interface française (onglets, statut au démarrage, mode lecture seule…) sont traduits.
+
+### Corrigé
+- Les actions (services, processus, utilisateurs) s'exécutaient mais étaient toujours signalées en échec (« Impossible to launch … : Bad state: Stream has already been listened to ») : la sortie d'erreur des commandes était lue sur `stdout` au lieu de `stderr`.
+
 ## [0.5.0] - 2026-10-09
 
 ### Ajouté
