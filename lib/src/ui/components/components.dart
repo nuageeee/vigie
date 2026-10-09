@@ -78,7 +78,7 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
     0,
     (cumul, disks) => cumul + disks.usage,
   );
-  final convert = formatKb(totalUsed.toInt());
+  final convert = formatKb(totalUsed.toInt(), s.t);
 
   _box(ctx, area, 'Disques · ${disks.length} · Total · $convert');
 
@@ -97,12 +97,12 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
     0,
     (cumul, memory) => cumul + memory.total
   );
-  final convertMemFree = formatKb(totalMemory.toInt());
+  final convertMemFree = formatKb(totalMemory.toInt(), s.t);
   final totalUsed = memory.fold<double>(
     0,
     (cumul, memory) => cumul + memory.total - memory.free,
   );
-  final convert = formatKb(totalUsed.toInt());
+  final convert = formatKb(totalUsed.toInt(), s.t);
 
   _box(ctx, area, 'Mémoires · Utilisé · $convert · Total · $convertMemFree');
 
@@ -124,11 +124,11 @@ void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final sent = n.sent;
 
   ctx.draw(
-    Text('↓ ${formatOc(received.toInt())}'),
+    Text('↓ ${formatOc(received.toInt(), s.t)}'),
     Rect(inner.x, inner.y, inner.width, 1)
   );
   ctx.draw(
-    Text('↑ ${formatOc(sent.toInt())}'),
+    Text('↑ ${formatOc(sent.toInt(), s.t)}'),
     Rect(inner.x, inner.y + 1, inner.width, 1)
   );
 }

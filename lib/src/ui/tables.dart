@@ -163,7 +163,7 @@ void renderProcesses(RenderContext ctx, VigieState s, Rect area) {
           title: s.t.colMemory,
           width: const TableConstraint.length(9),
           headerAlign: TextAlign.right,
-          cellBuilder: (p, c) => _cell(formatKb(p.rssKb).padLeft(9), c),
+          cellBuilder: (p, c) => _cell(formatKb(p.rssKb, s.t).padLeft(9), c),
         ),
         TableColumn(
           title: s.t.colCommand,

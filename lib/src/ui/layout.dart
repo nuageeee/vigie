@@ -107,7 +107,7 @@ void _systemBar(RenderContext ctx, VigieState s, Rect area) {
     (s.t.host, o.hostname),
     (s.t.os, o.os),
     (s.t.kernel, o.kernel),
-    (s.t.uptime, formatUptime(o.uptime)),
+    (s.t.uptime, formatUptime(o.uptime, s.t)),
     (s.t.ip, o.ip),
   ];
 
