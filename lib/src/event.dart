@@ -122,11 +122,11 @@ void _processKeys(VigieState s, String c) {
   final p = s.selectedProcess;
   if (p == null) return;
   if (c == 't') {
-    _ask(s, s.t.askTerm(p.command, p.pid),
-        () => killProcess(p));
+    _ask(s, s.t.askTerm(p.command, p.pid), () => killProcess(p),
+        s.t.processTermSent(p.command, p.pid));
   } else if (c == 'K') {
-    _ask(s, s.t.askKill(p.command, p.pid),
-        () => killProcess(p, force: true));
+    _ask(s, s.t.askKill(p.command, p.pid), () => killProcess(p, force: true),
+        s.t.processKilled(p.command, p.pid));
   }
 }
 

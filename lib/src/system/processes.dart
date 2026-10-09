@@ -99,10 +99,5 @@ class ProcSampler {
     return m?.group(1)?.trim();
   }
 
-Future<CmdResult> killProcess(Proc p, {bool force = false}) => run(
-      'kill',
-      [force ? '-KILL' : '-TERM', '${p.pid}'],
-      success: force
-          ? '${p.command} (${p.pid}) tué'
-          : 'Signal d\'arrêt envoyé à ${p.command} (${p.pid})',
-    );
+Future<CmdResult> killProcess(Proc p, {bool force = false}) =>
+    run('kill', [force ? '-KILL' : '-TERM', '${p.pid}']);

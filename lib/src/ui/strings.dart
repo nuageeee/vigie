@@ -45,6 +45,8 @@ class Strings {
   final String Function(String name) serviceRestarted;
   final String Function(String name) serviceEnabled;
   final String Function(String name) serviceDisabled;
+  final String Function(String command, int pid) processTermSent;
+  final String Function(String command, int pid) processKilled;
 
   // ─── Saisies ───────────────────────────────────────────────────────────────
   final String newUserTitle;
@@ -159,6 +161,8 @@ class Strings {
     required this.serviceRestarted,
     required this.serviceEnabled,
     required this.serviceDisabled,
+    required this.processTermSent,
+    required this.processKilled,
     required this.newUserTitle,
     required this.newUserLabel,
     required this.usernameRule,
@@ -277,6 +281,8 @@ final fr = Strings(
   serviceRestarted: (n) => '$n redémarré',
   serviceEnabled: (n) => '$n activé au démarrage',
   serviceDisabled: (n) => '$n désactivé au démarrage',
+  processTermSent: (cmd, pid) => "Signal d'arrêt envoyé à $cmd ($pid)",
+  processKilled: (cmd, pid) => '$cmd ($pid) tué',
   newUserTitle: ' Nouvel utilisateur ',
   newUserLabel: 'Nom',
   usernameRule: 'Minuscules, chiffres, - et _ uniquement (32 max)',
@@ -377,6 +383,8 @@ final en = Strings(
   serviceRestarted: (n) => '$n restarted',
   serviceEnabled: (n) => '$n enabled at boot',
   serviceDisabled: (n) => '$n disabled at boot',
+  processTermSent: (cmd, pid) => 'Stop signal sent to $cmd ($pid)',
+  processKilled: (cmd, pid) => '$cmd ($pid) killed',
   newUserTitle: ' New user ',
   newUserLabel: 'Name',
   usernameRule: 'Lowercase, digits, - and _ only (32 max)',
