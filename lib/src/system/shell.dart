@@ -29,8 +29,10 @@ Future<CmdResult> run(
       }
       await p.stdin.close();
 
-      final out = await p.stdout.transform(utf8.decoder).join();
-      final err = await p.stdout.transform(utf8.decoder).join();
+      final outFuture = p.stdout.transform(utf8.decoder).join();
+      final errFuture = p.stderr.transform(utf8.decoder).join();
+      final out = await outFuture;
+      final err = await errFuture;
       final code = await p.exitCode;
 
       if (code == 0) return CmdResult(true, success);
