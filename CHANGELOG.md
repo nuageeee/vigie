@@ -1,5 +1,16 @@
 # Changelog
 
+## [Non publié]
+
+### Ajouté
+- **Interface en français et en anglais** : la langue suit celle du système (`LANG`), français si elle commence par `fr`, anglais sinon.
+- Option `--lang fr|en` pour forcer la langue ; elle est transmise à la session relancée après le terminal intégré (`!`).
+
+### Modifié
+- Tous les textes de l'interface sont regroupés dans `lib/src/ui/strings.dart`.
+- Les unités suivent la langue : `o`/`Ko`/`Mo`/`Go` et `j` en français, `B`/`KB`/`MB`/`GB` et `d` en anglais.
+- Les textes qui restaient en anglais dans l'interface française (onglets, statut au démarrage, mode lecture seule…) sont traduits.
+
 ## [0.5.0] - 2026-10-09
 
 ### Ajouté
