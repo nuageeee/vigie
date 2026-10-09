@@ -1,7 +1,7 @@
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/ui/components/components.dart';
 
 import '../state.dart';
-import '../system/processes.dart';
 
 /// Vue d'ensemble : jauges CPU / RAM / disque + résumé des services.
 void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
@@ -11,36 +11,31 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     return;
   }
 
+  final coreLines = s.cpu.cores.length.clamp(1, 8);
+  final diskLines = o.disk.length.clamp(1, 6);
+
   final rows = Layout.vertical([
-    const Constraint.length(3),
-    const Constraint.length(3),
-    const Constraint.length(3),
+    Constraint.length(coreLines + 2),
+    Constraint.length(diskLines + 2),
     const Constraint.fill(1),
   ]).split(area);
 
-  Color colorFor(double pct) =>
-      pct >= 90 ? Color.red : (pct >= 70 ? Color.yellow : Color.green);
+  final columnsTop = Layout.horizontal([
+    const Constraint.fill(1),
+    const Constraint.fill(1)
+  ]).split(rows[1]);
 
-  void gauge(String title, double pct, String label, Rect r) => ctx.draw(
-        Container(
-          border: BorderStyle.single,
-          title: ' $title ',
-          padding: const EdgeInsets(left: 1, right: 1),
-          child: Gauge(
-            value: pct,
-            label: label,
-            style: Style(bg: colorFor(pct), fg: Color.black),
-          ),
-        ),
-        r,
-      );
+  final columnsBottom = Layout.horizontal([
+    const Constraint.fill(1),
+    const Constraint.fill(1),
+  ]).split(rows[2]);
 
-  gauge('CPU', o.cpuUsage, '${o.cpuUsage.toStringAsFixed(0)} %  · charge ${o.load}',
-      rows[0]);
-  gauge('Mémoire', o.memPercent,
-      '${formatKb(o.memUsedKb)} / ${formatKb(o.memTotalKb)}', rows[1]);
-  gauge('Disque /', o.diskPercent,
-      '${formatKb(o.diskUsedKb)} / ${formatKb(o.diskTotalKb)}', rows[2]);
+  cpuPanels(ctx, s, rows[0]);
+
+  diskPanels(ctx, s, columnsTop[0]);
+  memoryPanels(ctx, s, columnsTop[1]);
+
+  networkPanels(ctx, s, columnsBottom[1]);
 
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
@@ -62,6 +57,6 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
       padding: const EdgeInsets(left: 1, right: 1),
       child: Paragraph(lines.toString()),
     ),
-    rows[3],
+    columnsBottom[0],
   );
 }

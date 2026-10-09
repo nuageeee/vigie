@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.0] - 2026-10-09
+
+### Ajouté
+- **Tableau de bord** entièrement revu :
+  - **CPU par cœur** : une barre par cœur, avec le pourcentage et une couleur selon la charge (vert, jaune ≥ 50 %, rouge ≥ 90 %). Barres précises au huitième de case. Passage automatique sur plusieurs colonnes si les cœurs ne tiennent pas en hauteur.
+  - **Disques** : toutes les partitions réelles (via `df`), avec leur taux d'occupation et l'espace total utilisé. Les systèmes de fichiers virtuels (`tmpfs`, `overlay` de Docker, `squashfs`…) sont ignorés.
+  - **Mémoire** : RAM et swap, calculées comme `free` (`MemAvailable`), avec l'utilisé et le total.
+  - **Réseau** : débits reçus (↓) et envoyés (↑) en direct, toutes interfaces physiques confondues (`lo`, Docker, `veth`, ponts et VPN exclus).
+- Disposition en panneaux côte à côte : Disques | Mémoire et Services | Réseau.
+
+### Modifié
+- Un seul composant de barres partagé par le CPU, les disques et la mémoire : alignement identique partout, largeur des libellés adaptée au nom le plus long.
+- Formateurs d'affichage (tailles, débits, uptime) regroupés côté interface.
+- Suppression de l'ancienne jauge disque, limitée à `/`.
+
+### Corrigé
+- Plus de plantage si une sortie système contient une ligne inattendue (lectures tolérantes, gardes de longueur).
+- Plus de division par zéro sur un serveur sans swap ou sur une partition vide.
+
 ## 0.4.0 — 2026-10-06
 
 ### Ajouté

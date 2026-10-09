@@ -1,4 +1,5 @@
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/ui/components/formators.dart';
 
 import '../state.dart';
 import '../system/processes.dart';

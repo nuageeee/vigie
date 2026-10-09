@@ -106,9 +106,3 @@ Future<CmdResult> killProcess(Proc p, {bool force = false}) => run(
           ? '${p.command} (${p.pid}) tué'
           : 'Signal d\'arrêt envoyé à ${p.command} (${p.pid})',
     );
-
-String formatKb(int kb) {
-  if (kb >= 1024 * 1024) return '${(kb / 1024 / 1024).toStringAsFixed(1)} Go';
-  if (kb >= 1024) return '${(kb / 1024).toStringAsFixed(0)} Mo';
-  return '$kb Ko';
-}
