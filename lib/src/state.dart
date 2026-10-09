@@ -6,6 +6,7 @@ import 'package:vigie/src/system/processes.dart';
 import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
+import 'package:vigie/src/ui/strings.dart';
 
 enum Section {
   table('Dashboard'),
@@ -51,6 +52,7 @@ class ClickZone {
 class VigieState {
   final bool isRoot;
   final String AdminGroup;
+  final Strings t;
 
   final cpu = CpuSampler();
   final net = Network();
@@ -69,7 +71,7 @@ class VigieState {
   final processesTable = TableState<Proc>();
   final servicesTable = TableState<Service>();
 
-  String status = 'Ready !';
+  late String status = t.ready;
   bool statusError = false;
   PendingAction? pending;
   TextPrompt? prompt;
@@ -79,7 +81,11 @@ class VigieState {
 
   final clickZones =  <ClickZone>[];
 
-  VigieState({required this.isRoot, required this.AdminGroup});
+  VigieState({
+    required this.isRoot,
+    required this.AdminGroup,
+    required this.t,
+  });
 
   final events = StreamController<Event>();
 

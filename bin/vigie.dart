@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/session.dart';
+import 'package:vigie/src/ui/strings.dart';
 import 'package:vigie/vigie.dart';
 import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
@@ -18,16 +19,23 @@ void restoreTerminal() {
   } catch (_) {}
 }
 
+String? _optionValue(List<String> args, String name) {
+  final i = args.indexOf(name);
+  return i >= 0 && i + 1 < args.length ? args[i + 1] : null;
+}
+
 Future<void> main(List<String> args) async {
   final mouse = !args.contains('--no-mouse');
+  final lang = langCode(_optionValue(args, '--lang') ?? Platform.localeName);
+  final t = stringsFor(lang);
 
   if (Platform.environment['VIGIE_SESSION'] == null &&
       !args.contains('--no-session')) {
-    await runSession(args);
+    await runSession(args, lang);
   }
 
   if (!Platform.isLinux) {
-    stderr.writeln('Vigie only work on linux.');
+    stderr.writeln(t.notLinux);
     exit(1);
   }
 
@@ -39,11 +47,15 @@ Future<void> main(List<String> args) async {
   }
 
   final isRoot = (await capture('id', ['-u'])).trim() == '0';
-  final state = VigieState(isRoot: isRoot, AdminGroup: detectAdminGroup());
+  final state = VigieState(
+    isRoot: isRoot,
+    AdminGroup: detectAdminGroup(),
+    t: t,
+  );
   await state.refresh(all: true);
 
   if (!isRoot) {
-    state.status = 'Read-only mode : start "sudo vigie" to act on the system';
+    state.status = t.readOnly;
     state.statusError = true;
   }
 
