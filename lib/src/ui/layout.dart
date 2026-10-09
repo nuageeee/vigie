@@ -48,7 +48,7 @@ void _topBar(RenderContext ctx, VigieState s, Rect area) {
 
   final labels = [
     for (var i = 0; i < Section.values.length; i++)
-      ' ${i + 1} ${Section.values[i].label} ',
+      ' ${i + 1} ${s.t.sectionLabel(Section.values[i])} ',
   ];
   final tabsWidth =
       labels.fold<int>(0, (w, l) => w + l.length) + labels.length - 1;

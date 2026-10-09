@@ -8,15 +8,7 @@ import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
 import 'package:vigie/src/ui/strings.dart';
 
-enum Section {
-  table('Dashboard'),
-  users('Users'),
-  process('Process'),
-  services('Services');
-
-  final String label;
-  const Section(this.label);
-}
+enum Section { table, users, process, services }
 
 class PendingAction {
   final String question;
