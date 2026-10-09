@@ -1,4 +1,5 @@
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/ui/components/formators.dart';
 
 import 'package:vigie/vigie.dart';
 
@@ -6,12 +7,6 @@ Color colorFor(double pct) =>
     pct >= 90 ? Color.red : (pct >= 50 ? Color.yellow : Color.green);
 
 const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
-
-String formatKb(int kb) {
-  if (kb >= 1024 * 1024) return '${(kb / 1024 / 1024).toStringAsFixed(1)} Go';
-  if (kb >= 1024) return '${(kb / 1024).toStringAsFixed(0)} Mo';
-  return '$kb Ko';
-}
 
 void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
@@ -88,7 +83,7 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
   _box(ctx, area, 'Disques · ${disks.length} · Total · $convert');
 
   final names = disks.map((l) => l.name).toList();
-  final pct = disks.map((l) => l.Capacity).toList();
+  final pct = disks.map((l) => l.capacity).toList();
 
   _drawBars(names, pct, ctx, area);
 }
@@ -115,4 +110,25 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
   final pct = memory.map((l) => l.memPct).toList();
 
   _drawBars(names, pct, ctx, area);
+}
+
+
+void networkPanels(RenderContext ctx, VigieState s, Rect area) {
+  final n = s.net;
+
+  _box(ctx, area, 'Réseaux');
+
+  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height -2);
+  if (inner.height < 2 || inner.width <= 0) return;
+  final received = n.received;
+  final sent = n.sent;
+
+  ctx.draw(
+    Text('↓ ${formatOc(received.toInt())}'),
+    Rect(inner.x, inner.y, inner.width, 1)
+  );
+  ctx.draw(
+    Text('↑ ${formatOc(sent.toInt())}'),
+    Rect(inner.x, inner.y + 1, inner.width, 1)
+  );
 }

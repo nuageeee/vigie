@@ -25,6 +25,8 @@ class Overview {
   });
 }
 
+final _virtualIfaces = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
+
 class CpuSampler {
   /// Dernières valeurs mesurées, en %.
   double total = 0;
@@ -33,10 +35,7 @@ class CpuSampler {
   final _lastIdle = <String, int>{};
   final _lastTotal = <String, int>{};
 
-  int compteur = 0;
-
   void sample() {
-    compteur++;
     final newCores = <double>[];
 
     for (final line in readFile('/proc/stat').split('\n')) {
@@ -76,7 +75,7 @@ class Disk {
 
   Disk(this.name, this.usage, this.freeSpace);
 
-  double get Capacity => usage == 0 ? 0 : usage / (usage + freeSpace) * 100;
+  double get capacity => usage == 0 ? 0 : usage / (usage + freeSpace) * 100;
 }
 
 Future<List<Disk>> getDisks() async {
@@ -97,11 +96,11 @@ Future<List<Disk>> getDisks() async {
 
   for (final line in diskList.split('\n').skip(1)) {
     final cols = line.trim().split(RegExp(r'\s+'));
-    if (cols.length < 3) continue;
+    if (cols.length < 5) continue;
 
     final name = cols[0].split('/').last;
 
-    disks.add(Disk(name, int.parse(cols[2]), int.parse(cols[3])));
+    disks.add(Disk(name, int.tryParse(cols[2]) ?? 0, int.tryParse(cols[3]) ?? 0));
   }
 
   return disks;
@@ -141,7 +140,6 @@ class Network {
   double received = 0;
   double sent = 0;
 
-  final virtual = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
   void sample() {
     int totalReceived = 0;
     int totalSent = 0;
@@ -153,8 +151,9 @@ class Network {
       final lineCut = line.split(':');
       if (lineCut.length < 2) continue;
       final name = lineCut[0].trim();
-      if (virtual.hasMatch(name)) continue;
+      if (_virtualIfaces.hasMatch(name)) continue;
       final facesReceived = lineCut[1].trim().split(RegExp(r'\s+'));
+      if (facesReceived.length < 9) continue;
 
       totalReceived += int.tryParse(facesReceived[0]) ?? 0;
       totalSent += int.tryParse(facesReceived[8]) ?? 0;
@@ -198,11 +197,10 @@ int _meminfo(String text, String key) {
 }
 
 Future<String> _mainIp() async {
-  final virtual = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
   try {
     final ifaces = await NetworkInterface.list(type: InternetAddressType.IPv4);
     for (final iface in ifaces) {
-      if (virtual.hasMatch(iface.name)) continue;
+      if (_virtualIfaces.hasMatch(iface.name)) continue;
       for (final addr in iface.addresses) {
         if (!addr.isLoopback) return addr.address;
       }
@@ -228,11 +226,4 @@ Future<Overview> loadOverview(CpuSampler cpu, Network net) async {
     disk: await getDisks(),
     ip: await _mainIp(),
   );
-}
-
-String formatUptime(Duration d) {
-  final days = d.inDays;
-  final h = d.inHours % 24;
-  final m = d.inMinutes % 60;
-  return days > 0 ? '${days}j ${h}h ${m}min' : '${h}h ${m}min';
 }

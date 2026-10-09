@@ -1,5 +1,5 @@
 import 'package:commander_ui/tui.dart';
-import 'package:vigie/src/ui/components.dart';
+import 'package:vigie/src/ui/components/components.dart';
 
 import '../state.dart';
 
@@ -20,15 +20,22 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     const Constraint.fill(1),
   ]).split(area);
 
-  final columns = Layout.horizontal([
+  final columnsTop = Layout.horizontal([
     const Constraint.fill(1),
     const Constraint.fill(1)
   ]).split(rows[1]);
 
+  final columnsBottom = Layout.horizontal([
+    const Constraint.fill(1),
+    const Constraint.fill(1),
+  ]).split(rows[2]);
+
   cpuPanels(ctx, s, rows[0]);
 
-  diskPanels(ctx, s, columns[0]);
-  memoryPanels(ctx, s, columns[1]);
+  diskPanels(ctx, s, columnsTop[0]);
+  memoryPanels(ctx, s, columnsTop[1]);
+
+  networkPanels(ctx, s, columnsBottom[1]);
 
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
@@ -50,6 +57,6 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
       padding: const EdgeInsets(left: 1, right: 1),
       child: Paragraph(lines.toString()),
     ),
-    rows[2],
+    columnsBottom[0],
   );
 }
