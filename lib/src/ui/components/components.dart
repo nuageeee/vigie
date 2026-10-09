@@ -63,7 +63,7 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   _box(
     ctx,
     area,
-    'CPU · ${cores.length} coeurs · ${s.cpu.total.toStringAsFixed(0)}%',
+    s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0)),
   );
   
   _drawBars(names, cores, ctx, area);
@@ -80,7 +80,7 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
   );
   final convert = formatKb(totalUsed.toInt(), s.t);
 
-  _box(ctx, area, 'Disques · ${disks.length} · Total · $convert');
+  _box(ctx, area, s.t.disksTitle(disks.length, convert));
 
   final names = disks.map((l) => l.name).toList();
   final pct = disks.map((l) => l.capacity).toList();
@@ -104,7 +104,7 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
   );
   final convert = formatKb(totalUsed.toInt(), s.t);
 
-  _box(ctx, area, 'Mémoires · Utilisé · $convert · Total · $convertMemFree');
+  _box(ctx, area, s.t.memoryTitle(convert, convertMemFree));
 
   final names = memory.map((l) => l.name).toList();
   final pct = memory.map((l) => l.memPct).toList();
@@ -116,7 +116,7 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
 void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final n = s.net;
 
-  _box(ctx, area, 'Réseaux');
+  _box(ctx, area, s.t.network);
 
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height -2);
   if (inner.height < 2 || inner.width <= 0) return;
