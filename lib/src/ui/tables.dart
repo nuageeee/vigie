@@ -54,50 +54,50 @@ void renderUsers(RenderContext ctx, VigieState s, Rect area) {
   _frame<SysUser>(
     ctx,
     s,
-    'Utilisateurs (${s.users.length})',
+    s.t.usersTitle(s.users.length),
     Table<SysUser>(
       id: Key.symbol(#users),
       items: s.users,
       state: s.usersTable,
       columnSeparator: ' │ ',
-      placeholder: 'Aucun utilisateur',
+      placeholder: s.t.noUsers,
       columns: [
         TableColumn(
-          title: 'Nom',
+          title: s.t.colName,
           width: const TableConstraint.fill(2),
           cellBuilder: (u, c) =>
               _cell(u.name, c, style: const Style(bold: true)),
         ),
         TableColumn(
-          title: 'UID',
+          title: s.t.colUid,
           width: const TableConstraint.length(6),
           cellBuilder: (u, c) => _cell('${u.uid}', c),
         ),
         TableColumn(
-          title: 'Admin',
+          title: s.t.colAdmin,
           width: const TableConstraint.length(6),
           cellBuilder: (u, c) => _cell(
-            u.isAdmin(s.AdminGroup) ? 'oui' : '-',
+            u.isAdmin(s.AdminGroup) ? s.t.adminYes : '-',
             c,
             style: Style(fg: u.isAdmin(s.AdminGroup) ? Color.yellow : null),
           ),
         ),
         TableColumn(
-          title: 'État',
+          title: s.t.colState,
           width: const TableConstraint.length(11),
           cellBuilder: (u, c) => switch (u.locked) {
-            true => _cell('verrouillé', c, style: const Style(fg: Color.red)),
-            false => _cell('actif', c, style: const Style(fg: Color.green)),
+            true => _cell(s.t.locked, c, style: const Style(fg: Color.red)),
+            false => _cell(s.t.active, c, style: const Style(fg: Color.green)),
             null => _cell('?', c, style: const Style(dim: true)),
           },
         ),
         TableColumn(
-          title: 'Shell',
+          title: s.t.colShell,
           width: const TableConstraint.fill(2),
           cellBuilder: (u, c) => _cell(u.shell, c),
         ),
         TableColumn(
-          title: 'Groupes',
+          title: s.t.colGroups,
           width: const TableConstraint.fill(3),
           cellBuilder: (u, c) =>
               _cell(u.groups.join(', '), c, style: const Style(dim: true)),
@@ -119,28 +119,28 @@ void renderProcesses(RenderContext ctx, VigieState s, Rect area) {
   _frame<Proc>(
     ctx,
     s,
-    'Processus (${s.processes.length}) · triés par CPU',
+    s.t.processesTitle(s.processes.length),
     Table<Proc>(
       id: Key.symbol(#processes),
       items: s.processes,
       state: s.processesTable,
       columnSeparator: ' │ ',
-      placeholder: 'Aucun processus',
+      placeholder: s.t.noProcesses,
       columns: [
         TableColumn(
-          title: 'PID',
+          title: s.t.colPid,
           width: const TableConstraint.length(7),
           headerAlign: TextAlign.right,
           cellBuilder: (p, c) => _cell('${p.pid}'.padLeft(7), c),
         ),
         TableColumn(
-          title: 'Utilisateur',
+          title: s.t.colUser,
           width: const TableConstraint.length(12),
           cellBuilder: (p, c) =>
               _cell(p.user, c, style: const Style(dim: true)),
         ),
         TableColumn(
-          title: 'CPU %',
+          title: s.t.colCpu,
           width: const TableConstraint.length(6),
           headerAlign: TextAlign.right,
           cellBuilder: (p, c) => _cell(
@@ -150,7 +150,7 @@ void renderProcesses(RenderContext ctx, VigieState s, Rect area) {
           ),
         ),
         TableColumn(
-          title: 'RAM %',
+          title: s.t.colRam,
           width: const TableConstraint.length(6),
           headerAlign: TextAlign.right,
           cellBuilder: (p, c) => _cell(
@@ -160,13 +160,13 @@ void renderProcesses(RenderContext ctx, VigieState s, Rect area) {
           ),
         ),
         TableColumn(
-          title: 'Mémoire',
+          title: s.t.colMemory,
           width: const TableConstraint.length(9),
           headerAlign: TextAlign.right,
           cellBuilder: (p, c) => _cell(formatKb(p.rssKb).padLeft(9), c),
         ),
         TableColumn(
-          title: 'Commande',
+          title: s.t.colCommand,
           width: const TableConstraint.fill(1),
           cellBuilder: (p, c) =>
               _cell(p.command, c, style: const Style(bold: true)),
@@ -188,13 +188,13 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
   _frame<Service>(
     ctx,
     s,
-    'Services systemd (${s.services.length})',
+    s.t.servicesTableTitle(s.services.length),
     Table<Service>(
       id: Key.symbol(#services),
       items: s.services,
       state: s.servicesTable,
       columnSeparator: ' │ ',
-      placeholder: 'Aucun service (systemd absent ?)',
+      placeholder: s.t.noServices,
       columns: [
         TableColumn(
           title: '',
@@ -203,13 +203,13 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
               _cell('●', c, style: Style(fg: stateColor(svc) ?? Color.white)),
         ),
         TableColumn(
-          title: 'Service',
+          title: s.t.colService,
           width: const TableConstraint.fill(2),
           cellBuilder: (svc, c) =>
               _cell(svc.name, c, style: const Style(bold: true)),
         ),
         TableColumn(
-          title: 'État',
+          title: s.t.colState,
           width: const TableConstraint.length(18),
           cellBuilder: (svc, c) => _cell(
             '${svc.active} (${svc.sub})',
@@ -218,7 +218,7 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
           ),
         ),
         TableColumn(
-          title: 'Au boot',
+          title: s.t.colBoot,
           width: const TableConstraint.length(9),
           cellBuilder: (svc, c) => _cell(
             svc.enabled,
@@ -230,7 +230,7 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
           ),
         ),
         TableColumn(
-          title: 'Description',
+          title: s.t.colDescription,
           width: const TableConstraint.fill(3),
           cellBuilder: (svc, c) =>
               _cell(svc.description, c, style: const Style(dim: true)),
