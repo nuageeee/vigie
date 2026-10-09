@@ -13,7 +13,8 @@ enum Section { table, users, process, services }
 class PendingAction {
   final String question;
   final Future<CmdResult> Function() run;
-  const PendingAction(this.question, this.run);
+  final String? done;
+  const PendingAction(this.question, this.run, [this.done]);
 }
 
 class TextPrompt {
@@ -22,6 +23,7 @@ class TextPrompt {
   final bool obscure;
   final String? Function(String value)? validate;
   final Future<CmdResult> Function(String value) onSubmit;
+  final String Function(String value)? done;
   String value = '';
   String? error;
 
@@ -29,6 +31,7 @@ class TextPrompt {
     required this.title,
     required this.label,
     required this.onSubmit,
+    this.done,
     this.obscure = false,
     this.validate,
   });
@@ -81,8 +84,8 @@ class VigieState {
 
   final events = StreamController<Event>();
 
-  void setStatus(CmdResult r) {
-    status = r.message;
+  void setStatus(CmdResult r, [String? done]) {
+    status = r.message ?? (r.ok ? done ?? '' : t.failure(r));
     statusError = !r.ok;
   }
 

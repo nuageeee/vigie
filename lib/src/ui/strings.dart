@@ -1,4 +1,5 @@
 import 'package:vigie/src/state.dart';
+import 'package:vigie/src/system/shell.dart';
 
 /// Textes de l'interface, une instance par langue (voir [stringsFor]).
 class Strings {
@@ -10,6 +11,8 @@ class Strings {
   final String refreshing;
   final String rootRequired;
   final String loading;
+  final String Function(String exe, int code) cmdFailed;
+  final String Function(String exe, Object error) cmdLaunchError;
 
   // ─── Onglets ───────────────────────────────────────────────────────────────
   final String sectionDashboard;
@@ -121,6 +124,8 @@ class Strings {
     required this.refreshing,
     required this.rootRequired,
     required this.loading,
+    required this.cmdFailed,
+    required this.cmdLaunchError,
     required this.sectionDashboard,
     required this.sectionUsers,
     required this.sectionProcesses,
@@ -212,6 +217,16 @@ class Strings {
     Section.process => sectionProcesses,
     Section.services => sectionServices,
   };
+
+  /// Message d'échec d'une commande : sa propre sortie si elle en a donné une,
+  /// sinon un message traduit.
+  String failure(CmdResult r) {
+    final output = r.output;
+    if (output != null && output.isNotEmpty) return output;
+    final error = r.error;
+    if (error != null) return cmdLaunchError(r.exe, error);
+    return cmdFailed(r.exe, r.exitCode ?? -1);
+  }
 }
 
 final fr = Strings(
@@ -222,6 +237,8 @@ final fr = Strings(
   refreshing: 'Rafraîchissement...',
   rootRequired: 'Action impossible : relance Vigie avec sudo',
   loading: ' Chargement...',
+  cmdFailed: (exe, code) => '$exe a échoué (code : $code)',
+  cmdLaunchError: (exe, e) => 'Impossible de lancer $exe : $e',
   sectionDashboard: 'Aperçu',
   sectionUsers: 'Utilisateurs',
   sectionProcesses: 'Processus',
@@ -315,6 +332,8 @@ final en = Strings(
   refreshing: 'Refreshing...',
   rootRequired: 'Action not allowed: restart Vigie with sudo',
   loading: ' Loading...',
+  cmdFailed: (exe, code) => '$exe failed (code: $code)',
+  cmdLaunchError: (exe, e) => 'Could not launch $exe: $e',
   sectionDashboard: 'Dashboard',
   sectionUsers: 'Users',
   sectionProcesses: 'Processes',

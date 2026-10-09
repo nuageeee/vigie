@@ -33,11 +33,11 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   if (pending != null) {
     if (event.char == 'o' || event.char == 'y') {
       s.pending = null;
-      s.setStatus(await pending.run());
+      s.setStatus(await pending.run(), pending.done);
       s.refreshInBackground();
     } else if (event.char == 'n' || event.key == NamedKey.escape) {
       s.pending = null;
-      s.setStatus(CmdResult(true, s.t.cancelled));
+      s.setStatus(CmdResult(true, message: s.t.cancelled));
     }
     handle.requestRedraw();
     return;
@@ -66,7 +66,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   }
   if (event.key == NamedKey.f5) {
     s.refreshInBackground(all: true);
-    s.setStatus(CmdResult(true, s.t.refreshing));
+    s.setStatus(CmdResult(true, message: s.t.refreshing));
     handle.requestRedraw();
     return;
   }
@@ -89,12 +89,17 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
 
 bool _requireRoot(VigieState s) {
   if (s.isRoot) return true;
-  s.setStatus(CmdResult(false, s.t.rootRequired));
+  s.setStatus(CmdResult(false, message: s.t.rootRequired));
   return false;
 }
 
-void _ask(VigieState s, String question, Future<CmdResult> Function() run) {
-  if (_requireRoot(s)) s.pending = PendingAction(question, run);
+void _ask(
+  VigieState s,
+  String question,
+  Future<CmdResult> Function() run, [
+  String? done,
+]) {
+  if (_requireRoot(s)) s.pending = PendingAction(question, run, done);
 }
 
 void _serviceKeys(VigieState s, String c) {
@@ -159,7 +164,7 @@ void _userKeys(VigieState s, String c) {
           () => toggleAdmin(u, s.AdminGroup));
     case 'D' when u != null:
       if (u.uid == 0) {
-        s.setStatus(CmdResult(false, s.t.cannotDeleteRoot));
+        s.setStatus(CmdResult(false, message: s.t.cannotDeleteRoot));
         return;
       }
       _ask(s, s.t.askDeleteUser(u.name, u.home),
@@ -170,7 +175,7 @@ void _userKeys(VigieState s, String c) {
 Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   if (e.key == NamedKey.escape) {
     s.prompt = null;
-    s.setStatus(CmdResult(true, s.t.cancelled));
+    s.setStatus(CmdResult(true, message: s.t.cancelled));
   } else if (e.key == NamedKey.backspace) {
     if (p.value.isNotEmpty) p.value = p.value.substring(0, p.value.length - 1);
     p.error = null;
@@ -181,7 +186,7 @@ Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
       return;
     }
     s.prompt = null;
-    s.setStatus(await p.onSubmit(p.value));
+    s.setStatus(await p.onSubmit(p.value), p.done?.call(p.value));
     s.refreshInBackground();
   } else if (e.char != null && !e.ctrl && !e.alt) {
     p.value += e.char!;

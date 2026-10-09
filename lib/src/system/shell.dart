@@ -1,10 +1,32 @@
 import 'dart:convert';
 import 'dart:io';
 
+/// Issue d'une commande, sans texte destiné à l'utilisateur : l'interface
+/// rédige le message.
 class CmdResult {
   final bool ok;
-  final String message;
-  const CmdResult(this.ok, this.message);
+  final String exe;
+
+  /// Code de sortie, si la commande a pu être lancée.
+  final int? exitCode;
+
+  /// Première ligne de stderr (ou de stdout), brute, en cas d'échec.
+  final String? output;
+
+  /// Exception levée si la commande n'a pas pu être lancée.
+  final Object? error;
+
+  /// Temporaire : message déjà rédigé, retiré une fois les appelants migrés.
+  final String? message;
+
+  const CmdResult(
+    this.ok, {
+    this.exe = '',
+    this.exitCode,
+    this.output,
+    this.error,
+    this.message,
+  });
 }
 
 Future<String> capture(String exe, List<String> args) async {
@@ -19,7 +41,7 @@ Future<String> capture(String exe, List<String> args) async {
 Future<CmdResult> run(
   String exe,
   List<String> args, {
-    required String success,
+    String? success,
     String? stdinData,
   }) async {
     try {
@@ -35,11 +57,13 @@ Future<CmdResult> run(
       final err = await errFuture;
       final code = await p.exitCode;
 
-      if (code == 0) return CmdResult(true, success);
+      if (code == 0) {
+        return CmdResult(true, exe: exe, exitCode: code, message: success);
+      }
       final msg = (err.trim().isNotEmpty ? err : out).trim().split('\n').first;
-      return CmdResult(false, msg.isEmpty ? '$exe has failed (code : $code)' : msg);
+      return CmdResult(false, exe: exe, exitCode: code, output: msg);
     } catch (e) {
-      return CmdResult(false, 'Impossible to launch $exe : $e');
+      return CmdResult(false, exe: exe, error: e);
     }
   }
 
