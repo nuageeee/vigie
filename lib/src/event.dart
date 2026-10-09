@@ -37,7 +37,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
       s.refreshInBackground();
     } else if (event.char == 'n' || event.key == NamedKey.escape) {
       s.pending = null;
-      s.setStatus(const CmdResult(true, 'Annulé'));
+      s.setStatus(CmdResult(true, s.t.cancelled));
     }
     handle.requestRedraw();
     return;
@@ -58,7 +58,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   final digit = int.tryParse(event.char ?? '');
   if (digit != null && digit >= 1 && digit <= Section.values.length) {
     s.section = Section.values[digit - 1];
-    s.status = 'Prêt';
+    s.status = s.t.ready;
     s.statusError = false;
     handle.requestRedraw(); // changement de section instantané
     s.refreshInBackground();
@@ -66,7 +66,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   }
   if (event.key == NamedKey.f5) {
     s.refreshInBackground(all: true);
-    s.setStatus(const CmdResult(true, 'Rafraîchissement...'));
+    s.setStatus(CmdResult(true, s.t.refreshing));
     handle.requestRedraw();
     return;
   }
@@ -89,8 +89,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
 
 bool _requireRoot(VigieState s) {
   if (s.isRoot) return true;
-  s.setStatus(
-      const CmdResult(false, 'Action impossible : relance Vigie avec sudo'));
+  s.setStatus(CmdResult(false, s.t.rootRequired));
   return false;
 }
 
@@ -102,11 +101,11 @@ void _serviceKeys(VigieState s, String c) {
   final svc = s.selectedService;
   if (svc == null) return;
   final (verb, question) = switch (c) {
-    's' => ('start', 'Démarrer ${svc.name} ?'),
-    'x' => ('stop', 'Arrêter ${svc.name} ?'),
-    'r' => ('restart', 'Redémarrer ${svc.name} ?'),
-    'e' => ('enable', 'Activer ${svc.name} au démarrage ?'),
-    'd' => ('disable', 'Désactiver ${svc.name} au démarrage ?'),
+    's' => ('start', s.t.askStart(svc.name)),
+    'x' => ('stop', s.t.askStop(svc.name)),
+    'r' => ('restart', s.t.askRestart(svc.name)),
+    'e' => ('enable', s.t.askEnable(svc.name)),
+    'd' => ('disable', s.t.askDisable(svc.name)),
     _ => ('', ''),
   };
   if (verb.isEmpty) return;
@@ -117,10 +116,10 @@ void _processKeys(VigieState s, String c) {
   final p = s.selectedProcess;
   if (p == null) return;
   if (c == 't') {
-    _ask(s, 'Demander l\'arrêt de ${p.command} (PID ${p.pid}) ?',
+    _ask(s, s.t.askTerm(p.command, p.pid),
         () => killProcess(p));
   } else if (c == 'K') {
-    _ask(s, 'TUER ${p.command} (PID ${p.pid}) sans sommation ?',
+    _ask(s, s.t.askKill(p.command, p.pid),
         () => killProcess(p, force: true));
   }
 }
@@ -131,39 +130,39 @@ void _userKeys(VigieState s, String c) {
     case 'a':
       if (!_requireRoot(s)) return;
       s.prompt = TextPrompt(
-        title: ' Nouvel utilisateur ',
-        label: 'Nom',
+        title: s.t.newUserTitle,
+        label: s.t.newUserLabel,
         validate: (v) => usernamePattern.hasMatch(v)
             ? null
-            : 'Minuscules, chiffres, - et _ uniquement (32 max)',
+            : s.t.usernameRule,
         onSubmit: addUser,
       );
     case 'p' when u != null:
       if (!_requireRoot(s)) return;
       s.prompt = TextPrompt(
-        title: ' Mot de passe de ${u.name} ',
-        label: 'Nouveau mot de passe',
+        title: s.t.passwordTitle(u.name),
+        label: s.t.passwordLabel,
         obscure: true,
-        validate: (v) => v.length >= 8 ? null : '8 caractères minimum',
+        validate: (v) => v.length >= 8 ? null : s.t.passwordRule,
         onSubmit: (v) => setPassword(u, v),
       );
     case 'v' when u != null:
-      _ask(s, '${u.locked == true ? 'Déverrouiller' : 'Verrouiller'} ${u.name} ?',
+      _ask(s, u.locked == true ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
           () => toggleLock(u));
     case 'g' when u != null:
       final isIn = u.groups.contains(s.AdminGroup);
       _ask(
           s,
           isIn
-              ? 'Retirer les droits admin (${s.AdminGroup}) à ${u.name} ?'
-              : 'Donner les droits admin (${s.AdminGroup}) à ${u.name} ?',
+              ? s.t.askRevokeAdmin(s.AdminGroup, u.name)
+              : s.t.askGrantAdmin(s.AdminGroup, u.name),
           () => toggleAdmin(u, s.AdminGroup));
     case 'D' when u != null:
       if (u.uid == 0) {
-        s.setStatus(const CmdResult(false, 'On ne supprime pas root 🙂'));
+        s.setStatus(CmdResult(false, s.t.cannotDeleteRoot));
         return;
       }
-      _ask(s, 'SUPPRIMER ${u.name} et son dossier ${u.home} ?',
+      _ask(s, s.t.askDeleteUser(u.name, u.home),
           () => deleteUser(u));
   }
 }
@@ -171,7 +170,7 @@ void _userKeys(VigieState s, String c) {
 Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   if (e.key == NamedKey.escape) {
     s.prompt = null;
-    s.setStatus(const CmdResult(true, 'Annulé'));
+    s.setStatus(CmdResult(true, s.t.cancelled));
   } else if (e.key == NamedKey.backspace) {
     if (p.value.isNotEmpty) p.value = p.value.substring(0, p.value.length - 1);
     p.error = null;
