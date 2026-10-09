@@ -55,8 +55,7 @@ Future<void> main(List<String> args) async {
   await state.refresh(all: true);
 
   if (!isRoot) {
-    state.status = t.readOnly;
-    state.statusError = true;
+    state.setMessage(t.readOnly, error: true);
   }
 
   final i = args.indexOf('--section');

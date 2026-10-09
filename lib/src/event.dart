@@ -33,11 +33,11 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   if (pending != null) {
     if (event.char == 'o' || event.char == 'y') {
       s.pending = null;
-      s.setStatus(await pending.run(), pending.done);
+      s.setResult(await pending.run(), pending.done);
       s.refreshInBackground();
     } else if (event.char == 'n' || event.key == NamedKey.escape) {
       s.pending = null;
-      s.setStatus(CmdResult(true, message: s.t.cancelled));
+      s.setMessage(s.t.cancelled);
     }
     handle.requestRedraw();
     return;
@@ -58,15 +58,14 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   final digit = int.tryParse(event.char ?? '');
   if (digit != null && digit >= 1 && digit <= Section.values.length) {
     s.section = Section.values[digit - 1];
-    s.status = s.t.ready;
-    s.statusError = false;
+    s.setMessage(s.t.ready);
     handle.requestRedraw(); // changement de section instantané
     s.refreshInBackground();
     return;
   }
   if (event.key == NamedKey.f5) {
     s.refreshInBackground(all: true);
-    s.setStatus(CmdResult(true, message: s.t.refreshing));
+    s.setMessage(s.t.refreshing);
     handle.requestRedraw();
     return;
   }
@@ -89,16 +88,16 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
 
 bool _requireRoot(VigieState s) {
   if (s.isRoot) return true;
-  s.setStatus(CmdResult(false, message: s.t.rootRequired));
+  s.setMessage(s.t.rootRequired, error: true);
   return false;
 }
 
 void _ask(
   VigieState s,
   String question,
-  Future<CmdResult> Function() run, [
-  String? done,
-]) {
+  Future<CmdResult> Function() run,
+  String done,
+) {
   if (_requireRoot(s)) s.pending = PendingAction(question, run, done);
 }
 
@@ -172,7 +171,7 @@ void _userKeys(VigieState s, String c) {
               : s.t.adminGranted(u.name, s.AdminGroup));
     case 'D' when u != null:
       if (u.uid == 0) {
-        s.setStatus(CmdResult(false, message: s.t.cannotDeleteRoot));
+        s.setMessage(s.t.cannotDeleteRoot, error: true);
         return;
       }
       _ask(s, s.t.askDeleteUser(u.name, u.home),
@@ -183,7 +182,7 @@ void _userKeys(VigieState s, String c) {
 Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   if (e.key == NamedKey.escape) {
     s.prompt = null;
-    s.setStatus(CmdResult(true, message: s.t.cancelled));
+    s.setMessage(s.t.cancelled);
   } else if (e.key == NamedKey.backspace) {
     if (p.value.isNotEmpty) p.value = p.value.substring(0, p.value.length - 1);
     p.error = null;
@@ -194,7 +193,7 @@ Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
       return;
     }
     s.prompt = null;
-    s.setStatus(await p.onSubmit(p.value), p.done?.call(p.value));
+    s.setResult(await p.onSubmit(p.value), p.done(p.value));
     s.refreshInBackground();
   } else if (e.char != null && !e.ctrl && !e.alt) {
     p.value += e.char!;

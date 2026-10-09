@@ -16,16 +16,12 @@ class CmdResult {
   /// Exception levée si la commande n'a pas pu être lancée.
   final Object? error;
 
-  /// Temporaire : message déjà rédigé, retiré une fois les appelants migrés.
-  final String? message;
-
   const CmdResult(
     this.ok, {
-    this.exe = '',
+    required this.exe,
     this.exitCode,
     this.output,
     this.error,
-    this.message,
   });
 }
 
@@ -41,7 +37,6 @@ Future<String> capture(String exe, List<String> args) async {
 Future<CmdResult> run(
   String exe,
   List<String> args, {
-    String? success,
     String? stdinData,
   }) async {
     try {
@@ -57,9 +52,7 @@ Future<CmdResult> run(
       final err = await errFuture;
       final code = await p.exitCode;
 
-      if (code == 0) {
-        return CmdResult(true, exe: exe, exitCode: code, message: success);
-      }
+      if (code == 0) return CmdResult(true, exe: exe, exitCode: code);
       final msg = (err.trim().isNotEmpty ? err : out).trim().split('\n').first;
       return CmdResult(false, exe: exe, exitCode: code, output: msg);
     } catch (e) {

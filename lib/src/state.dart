@@ -13,8 +13,8 @@ enum Section { table, users, process, services }
 class PendingAction {
   final String question;
   final Future<CmdResult> Function() run;
-  final String? done;
-  const PendingAction(this.question, this.run, [this.done]);
+  final String done;
+  const PendingAction(this.question, this.run, this.done);
 }
 
 class TextPrompt {
@@ -23,7 +23,7 @@ class TextPrompt {
   final bool obscure;
   final String? Function(String value)? validate;
   final Future<CmdResult> Function(String value) onSubmit;
-  final String Function(String value)? done;
+  final String Function(String value) done;
   String value = '';
   String? error;
 
@@ -31,7 +31,7 @@ class TextPrompt {
     required this.title,
     required this.label,
     required this.onSubmit,
-    this.done,
+    required this.done,
     this.obscure = false,
     this.validate,
   });
@@ -84,10 +84,14 @@ class VigieState {
 
   final events = StreamController<Event>();
 
-  void setStatus(CmdResult r, [String? done]) {
-    status = r.message ?? (r.ok ? done ?? '' : t.failure(r));
-    statusError = !r.ok;
+  void setMessage(String message, {bool error = false}) {
+    status = message;
+    statusError = error;
   }
+
+  /// Affiche [done] si la commande a réussi, sinon la raison de l'échec.
+  void setResult(CmdResult r, String done) =>
+      setMessage(r.ok ? done : t.failure(r), error: !r.ok);
 
   T? _selected<T>(List<T> items, TableState<T> table) {
     if (items.isEmpty) return null;
