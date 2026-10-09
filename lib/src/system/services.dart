@@ -58,14 +58,5 @@ Future<List<Service>> loadServices() async {
   return list;
 }
 
-Future<CmdResult> serviceAction(String verb, Service s) {
-  const labels = {
-    'start': 'démarré',
-    'stop': 'arrêté',
-    'restart': 'redémarré',
-    'enable': 'activé au démarrage',
-    'disable': 'désactivé au démarrage',
-  };
-  return run('systemctl', [verb, s.name],
-      success: '${s.name} ${labels[verb] ?? verb}');
-}
+Future<CmdResult> serviceAction(String verb, Service s) =>
+    run('systemctl', [verb, s.name]);

@@ -39,6 +39,13 @@ class Strings {
   final String Function(String name, String home) askDeleteUser;
   final String cannotDeleteRoot;
 
+  // ─── Résultats des actions ─────────────────────────────────────────────────
+  final String Function(String name) serviceStarted;
+  final String Function(String name) serviceStopped;
+  final String Function(String name) serviceRestarted;
+  final String Function(String name) serviceEnabled;
+  final String Function(String name) serviceDisabled;
+
   // ─── Saisies ───────────────────────────────────────────────────────────────
   final String newUserTitle;
   final String newUserLabel;
@@ -147,6 +154,11 @@ class Strings {
     required this.askGrantAdmin,
     required this.askDeleteUser,
     required this.cannotDeleteRoot,
+    required this.serviceStarted,
+    required this.serviceStopped,
+    required this.serviceRestarted,
+    required this.serviceEnabled,
+    required this.serviceDisabled,
     required this.newUserTitle,
     required this.newUserLabel,
     required this.usernameRule,
@@ -260,6 +272,11 @@ final fr = Strings(
   askGrantAdmin: (g, n) => 'Donner les droits admin ($g) à $n ?',
   askDeleteUser: (n, home) => 'SUPPRIMER $n et son dossier $home ?',
   cannotDeleteRoot: 'On ne supprime pas root 🙂',
+  serviceStarted: (n) => '$n démarré',
+  serviceStopped: (n) => '$n arrêté',
+  serviceRestarted: (n) => '$n redémarré',
+  serviceEnabled: (n) => '$n activé au démarrage',
+  serviceDisabled: (n) => '$n désactivé au démarrage',
   newUserTitle: ' Nouvel utilisateur ',
   newUserLabel: 'Nom',
   usernameRule: 'Minuscules, chiffres, - et _ uniquement (32 max)',
@@ -355,6 +372,11 @@ final en = Strings(
   askGrantAdmin: (g, n) => 'Grant admin rights ($g) to $n?',
   askDeleteUser: (n, home) => 'DELETE $n and their home $home?',
   cannotDeleteRoot: "Root can't be deleted 🙂",
+  serviceStarted: (n) => '$n started',
+  serviceStopped: (n) => '$n stopped',
+  serviceRestarted: (n) => '$n restarted',
+  serviceEnabled: (n) => '$n enabled at boot',
+  serviceDisabled: (n) => '$n disabled at boot',
   newUserTitle: ' New user ',
   newUserLabel: 'Name',
   usernameRule: 'Lowercase, digits, - and _ only (32 max)',

@@ -105,16 +105,17 @@ void _ask(
 void _serviceKeys(VigieState s, String c) {
   final svc = s.selectedService;
   if (svc == null) return;
-  final (verb, question) = switch (c) {
-    's' => ('start', s.t.askStart(svc.name)),
-    'x' => ('stop', s.t.askStop(svc.name)),
-    'r' => ('restart', s.t.askRestart(svc.name)),
-    'e' => ('enable', s.t.askEnable(svc.name)),
-    'd' => ('disable', s.t.askDisable(svc.name)),
-    _ => ('', ''),
+  final n = svc.name;
+  final (verb, question, done) = switch (c) {
+    's' => ('start', s.t.askStart(n), s.t.serviceStarted(n)),
+    'x' => ('stop', s.t.askStop(n), s.t.serviceStopped(n)),
+    'r' => ('restart', s.t.askRestart(n), s.t.serviceRestarted(n)),
+    'e' => ('enable', s.t.askEnable(n), s.t.serviceEnabled(n)),
+    'd' => ('disable', s.t.askDisable(n), s.t.serviceDisabled(n)),
+    _ => ('', '', ''),
   };
   if (verb.isEmpty) return;
-  _ask(s, question, () => serviceAction(verb, svc));
+  _ask(s, question, () => serviceAction(verb, svc), done);
 }
 
 void _processKeys(VigieState s, String c) {
