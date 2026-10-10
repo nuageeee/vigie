@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/state.dart';
 import 'package:vigie/src/ui/components/formators.dart';

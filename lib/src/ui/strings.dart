@@ -1,5 +1,14 @@
+import 'dart:io';
+
 import 'package:vigie/src/state.dart';
 import 'package:vigie/src/system/shell.dart';
+
+String errorObject(Object error) {
+  if (error is ProcessException) {
+    return error.message;
+  }
+  return error.toString().split('\n').first;
+}
 
 /// Textes de l'interface, une instance par langue (voir [stringsFor]).
 class Strings {
@@ -268,7 +277,7 @@ final fr = Strings(
   rootRequired: 'Action impossible : relance Vigie avec sudo',
   loading: ' Chargement...',
   cmdFailed: (exe, code) => '$exe a échoué (code : $code)',
-  cmdLaunchError: (exe, e) => 'Impossible de lancer $exe : $e',
+  cmdLaunchError: (exe, e) => 'Impossible de lancer $exe : ${errorObject(e)}',
   sectionDashboard: 'Aperçu',
   sectionUsers: 'Utilisateurs',
   sectionProcesses: 'Processus',
@@ -377,7 +386,7 @@ final en = Strings(
   rootRequired: 'Action not allowed: restart Vigie with sudo',
   loading: ' Loading...',
   cmdFailed: (exe, code) => '$exe failed (code: $code)',
-  cmdLaunchError: (exe, e) => 'Could not launch $exe: $e',
+  cmdLaunchError: (exe, e) => 'Could not launch $exe: ${errorObject(e)}',
   sectionDashboard: 'Dashboard',
   sectionUsers: 'Users',
   sectionProcesses: 'Processes',
