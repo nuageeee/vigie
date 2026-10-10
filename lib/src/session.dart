@@ -19,7 +19,7 @@ Future<Never> runSession(List<String> args, String lang) async {
   while (true) {
     current = await Process.start(
       self.first,
-      [...self.skip(1), ...userArgs, '--lang', lang, '--section', '${section}'],
+      [...self.skip(1), ...userArgs, '--lang', lang, '--section', '$section'],
       mode: ProcessStartMode.inheritStdio,
       environment: {'VIGIE_SESSION': '1'}
     );

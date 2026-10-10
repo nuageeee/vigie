@@ -1,9 +1,13 @@
+import 'dart:math';
+
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/state.dart';
 import 'package:vigie/src/ui/components/formators.dart';
 import 'package:vigie/src/ui/dashboard.dart';
 import 'package:vigie/src/ui/prompt.dart';
 import 'package:vigie/src/ui/tables.dart';
+
+typedef General = (String key, String label, KeyEvent ev, Color color);
 
 void render(RenderContext ctx, VigieState s) {
   final rows = Layout.vertical([
@@ -122,29 +126,43 @@ void _systemBar(RenderContext ctx, VigieState s, Rect area) {
   }
 }
 
+int _buttonWidth(int keyLength, int labelLength, {bool compact = false}) =>
+    compact
+    ? keyLength + 2
+    : keyLength + labelLength + 3; // espace + key + espace + label + espace
+int _generalsWidth(List<General> general, {bool compact = false}) =>
+    general.fold<int>(
+      0,
+      (w, b) =>
+          w + _buttonWidth(b.$1.length, b.$2.length, compact: compact) + 1,
+    ) -
+    1;
+
 int _buttons(
   RenderContext ctx,
   VigieState s,
   int x,
   int y,
   int maxX,
-  List<(String key, String label, KeyEvent ev, Color color)> buttons,
-) {
+  List<(String key, String label, KeyEvent ev, Color color)> buttons, {
+  bool compact = false,
+}) {
   for (final (key, label, ev, color) in buttons) {
-    final width =
-        key.length + label.length + 3; // espace + key + espace + label + espace
+    final width = _buttonWidth(key.length, label.length, compact: compact);
     if (x + width > maxX) break;
     ctx.draw(
       Text(
-        ' $key',
+        compact ? ' $key ' : ' $key',
         style: Style(fg: Color.black, bg: color, bold: true),
       ),
-      Rect(x, y, key.length + 1, 1),
+      compact ? Rect(x, y, key.length + 2, 1) : Rect(x, y, key.length + 1, 1),
     );
-    ctx.draw(
-      Text(' $label ', style: const Style(reverse: true)),
-      Rect(x + key.length + 1, y, label.length + 2, 1),
-    );
+    if (!compact) {
+      ctx.draw(
+        Text(' $label ', style: const Style(reverse: true)),
+        Rect(x + key.length + 1, y, label.length + 2, 1),
+      );
+    }
     s.clickZones.add(ClickZone(Rect(x, y, width, 1), key: ev));
     x += width + 1;
   }
@@ -178,12 +196,17 @@ void _statusBar(RenderContext ctx, VigieState s, Rect area) {
 
 void _actionBar(RenderContext ctx, VigieState s, Rect area) {
   if (s.prompt != null) {
-    ctx.draw(
-      Text(s.t.promptHelp, style: const Style(dim: true)),
-      area,
-    );
+    ctx.draw(Text(s.t.promptHelp, style: const Style(dim: true)), area);
     return;
   }
+
+  final general = [
+    ('!', s.t.btnTerminal, _c('!'), Color.magenta),
+    ('F5', s.t.btnRefresh, const KeyEvent(key: NamedKey.f5), Color.blue),
+    ('q', s.t.btnQuit, _c('q'), Color.white),
+  ];
+  final generalWidth = _generalsWidth(general);
+  final gx = area.right - generalWidth;
 
   final actions = switch (s.section) {
     Section.table => <(String, String, KeyEvent, Color)>[],
@@ -207,17 +230,9 @@ void _actionBar(RenderContext ctx, VigieState s, Rect area) {
     ],
   };
 
-  var x = _buttons(ctx, s, area.x + 1, area.y, area.right, actions);
+  final freeSpace = (gx - 1) - (area.x + 1);
+  final compact = (_generalsWidth(actions) > freeSpace);
 
-  final general = [
-    ('!', s.t.btnTerminal, _c('!'), Color.magenta),
-    ('F5', s.t.btnRefresh, const KeyEvent(key: NamedKey.f5), Color.blue),
-    ('q', s.t.btnQuit, _c('q'), Color.white),
-  ];
-  final generalWidth =
-      general.fold<int>(0, (w, b) => w + b.$1.length + b.$2.length + 3 + 1) - 1;
-  final gx = area.right - generalWidth;
-  if (gx > x) {
-    _buttons(ctx, s, gx, area.y, area.right, general);
-  }
+  _buttons(ctx, s, gx, area.y, area.right, general);
+  _buttons(ctx, s, area.x + 1, area.y, gx - 1, actions, compact: compact);
 }
