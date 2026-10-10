@@ -26,10 +26,11 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   final prompt = s.prompt;
   if (prompt != null) {
     await _handlePrompt(s, prompt, event);
+    handle.requestRedraw();
     return;
   }
 
-    final pending = s.pending;
+  final pending = s.pending;
   if (pending != null) {
     if (event.char == 'o' || event.char == 'y') {
       s.pending = null;
