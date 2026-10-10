@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.1] - 2026-10-10
+
+### Corrigé
+
+- Les boutons généraux restent désormais visible lors de la redimension du terminal. Les boutons d'actions quant a eux passe en format compact.
+- Le message d'erreur lors du lancement d'un commande passe désormais sur une seule ligne.
+- Le prompt de saisie est désormais en direct (2 seconde de redessin avant). 
+
 ## [0.6.0] - 2026-10-09
 
 ### Ajouté
