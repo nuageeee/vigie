@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:commander_ui/tui.dart';
-
 import 'shell.dart';
 
 class Overview {
