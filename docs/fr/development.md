@@ -1,6 +1,6 @@
 # Développement
 
-[English](../en/development.md) | **Français** · [Accueil de la documentation](index.md)
+[Accueil de la documentation](index.md)
 
 ## Lancer depuis les sources
 

@@ -1,6 +1,6 @@
 # Architecture
 
-[English](../en/architecture.md) | **Français** · [Accueil de la documentation](index.md)
+[Accueil de la documentation](index.md)
 
 ## Organisation du code
 

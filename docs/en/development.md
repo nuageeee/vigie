@@ -1,6 +1,6 @@
 # Development
 
-**English** | [Français](../fr/development.md) · [Documentation home](index.md)
+[Documentation home](index.md)
 
 ## Run from source
 

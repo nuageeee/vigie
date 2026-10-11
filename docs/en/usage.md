@@ -1,6 +1,6 @@
 # Usage
 
-**English** | [Français](../fr/usage.md) · [Documentation home](index.md)
+[Documentation home](index.md)
 
 ## Starting Vigie
 

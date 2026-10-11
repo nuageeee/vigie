@@ -1,0 +1,30 @@
+site_name: Vigie
+site_url: https://nuageeee.github.io/vigie/
+repo_url: https://github.com/nuageeee/vigie
+
+theme:
+  name: material
+  palette:
+    - scheme: slate          # mode sombre par défaut, ça colle à un outil terminal
+      toggle: { icon: material/brightness-4, name: Mode clair }
+    - scheme: default
+      toggle: { icon: material/brightness-7, name: Mode sombre }
+  features:
+    - content.code.copy      # bouton « copier » sur les blocs de commandes
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder # docs/en/… et docs/fr/…
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: fr
+          name: Français
+          build: true
+
+markdown_extensions:
+  - admonition               # les encadrés ⚠️ / 💡
+  - tables

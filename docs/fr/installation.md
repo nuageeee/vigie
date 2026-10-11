@@ -1,6 +1,6 @@
 # Installation
 
-[English](../en/installation.md) | **Français** · [Accueil de la documentation](index.md)
+[Accueil de la documentation](index.md)
 
 ## Prérequis
 

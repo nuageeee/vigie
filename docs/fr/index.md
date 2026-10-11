@@ -1,6 +1,5 @@
 # Documentation de Vigie
 
-[English](../en/index.md) | **Français**
 
 Vigie gère un serveur Linux depuis une seule fenêtre de terminal : tableau de bord, utilisateurs, processus et services systemd.
 

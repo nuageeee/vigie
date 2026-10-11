@@ -1,6 +1,5 @@
 # Vigie documentation
 
-**English** | [Français](../fr/index.md)
 
 Vigie manages a Linux server from a single terminal window: dashboard, users, processes and systemd services.
 

@@ -1,6 +1,6 @@
 # Installation
 
-**English** | [Français](../fr/installation.md) · [Documentation home](index.md)
+[Documentation home](index.md)
 
 ## Requirements
 

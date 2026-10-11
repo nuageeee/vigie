@@ -1,6 +1,6 @@
 # Architecture
 
-**English** | [Français](../fr/architecture.md) · [Documentation home](index.md)
+[Documentation home](index.md)
 
 ## Code layout
 
