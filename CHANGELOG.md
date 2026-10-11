@@ -1,86 +1,98 @@
 # Changelog
 
+## [0.7.0] - 2026-10-12
+
+### Added
+- **Network sparklines**: the Network panel now shows a live history graph next to the download (↓) and upload (↑) rates, covering about the last 3 minutes. Both curves are aligned and adapt to the panel width.
+- **Automated tests** (`dart test`) for every system parser: disks (`df`), memory (`/proc/meminfo`), network (`/proc/net/dev`) and CPU (`/proc/stat`), plus the sparkline renderer. Edge cases covered: empty input, missing keys, short or malformed lines, virtual interfaces and non-CPU lines.
+- **Continuous integration**: a GitHub Actions workflow runs `dart analyze` and `dart test` on every push to `main` and `feat/**` branches, and on pull requests.
+
+### Changed
+- System samplers now separate reading, parsing and computing. Parsing lives in pure functions (`parseDisks`, `parseMemory`, `parseNetwork`, `parseCpu`) that can be tested without touching the real machine.
+- The network sampler keeps a bounded history of recent rates (90 samples).
+
+### Fixed
+- Removed an unused import reported by the analyzer.
+
 ## [0.6.1] - 2026-10-10
 
-### Corrigé
-
-- Les boutons généraux restent désormais visible lors de la redimension du terminal. Les boutons d'actions quant a eux passe en format compact.
-- Le message d'erreur lors du lancement d'un commande passe désormais sur une seule ligne.
-- Le prompt de saisie est désormais en direct (2 seconde de redessin avant). 
+### Fixed
+- The global buttons now stay visible when the terminal is resized; action buttons switch to a compact layout when space runs out.
+- The error message shown when a command fails to launch now fits on a single line.
+- The input prompt now updates instantly (it previously waited up to 2 seconds for the next redraw).
 
 ## [0.6.0] - 2026-10-09
 
-### Ajouté
-- **Interface en français et en anglais** : la langue suit celle du système (`LANG`), français si elle commence par `fr`, anglais sinon.
-- Option `--lang fr|en` pour forcer la langue ; elle est transmise à la session relancée après le terminal intégré (`!`).
+### Added
+- **French and English interface**: the language follows the system locale (`LANG`): French if it starts with `fr`, English otherwise.
+- `--lang fr|en` option to force the language; it is passed on to the session restarted after the built-in terminal (`!`).
 
-### Modifié
-- Tous les textes de l'interface sont regroupés dans `lib/src/ui/strings.dart`.
-- Les unités suivent la langue : `o`/`Ko`/`Mo`/`Go` et `j` en français, `B`/`KB`/`MB`/`GB` et `d` en anglais.
-- Les textes qui restaient en anglais dans l'interface française (onglets, statut au démarrage, mode lecture seule…) sont traduits.
+### Changed
+- All interface texts are grouped in `lib/src/ui/strings.dart`.
+- Units follow the language: `o`/`Ko`/`Mo`/`Go` and `j` in French, `B`/`KB`/`MB`/`GB` and `d` in English.
+- Texts that were still in English in the French interface (tabs, startup status, read-only mode…) are now translated.
 
-### Corrigé
-- Les actions (services, processus, utilisateurs) s'exécutaient mais étaient toujours signalées en échec (« Impossible to launch … : Bad state: Stream has already been listened to ») : la sortie d'erreur des commandes était lue sur `stdout` au lieu de `stderr`.
+### Fixed
+- Actions (services, processes, users) ran successfully but were always reported as failed ("Impossible to launch … : Bad state: Stream has already been listened to"): the commands' error output was read from `stdout` instead of `stderr`.
 
 ## [0.5.0] - 2026-10-09
 
-### Ajouté
-- **Tableau de bord** entièrement revu :
-  - **CPU par cœur** : une barre par cœur, avec le pourcentage et une couleur selon la charge (vert, jaune ≥ 50 %, rouge ≥ 90 %). Barres précises au huitième de case. Passage automatique sur plusieurs colonnes si les cœurs ne tiennent pas en hauteur.
-  - **Disques** : toutes les partitions réelles (via `df`), avec leur taux d'occupation et l'espace total utilisé. Les systèmes de fichiers virtuels (`tmpfs`, `overlay` de Docker, `squashfs`…) sont ignorés.
-  - **Mémoire** : RAM et swap, calculées comme `free` (`MemAvailable`), avec l'utilisé et le total.
-  - **Réseau** : débits reçus (↓) et envoyés (↑) en direct, toutes interfaces physiques confondues (`lo`, Docker, `veth`, ponts et VPN exclus).
-- Disposition en panneaux côte à côte : Disques | Mémoire et Services | Réseau.
+### Added
+- **Dashboard** fully redesigned:
+  - **CPU per core**: one bar per core, with its percentage and a colour based on load (green, yellow ≥ 50 %, red ≥ 90 %). Bars are precise to one eighth of a cell. Automatically switches to several columns when the cores don't fit vertically.
+  - **Disks**: every real partition (via `df`), with its usage and the total space used. Virtual filesystems (`tmpfs`, Docker `overlay`, `squashfs`…) are ignored.
+  - **Memory**: RAM and swap, computed like `free` (`MemAvailable`), with used and total.
+  - **Network**: live received (↓) and sent (↑) rates across all physical interfaces (`lo`, Docker, `veth`, bridges and VPNs excluded).
+- Side-by-side panel layout: Disks | Memory and Services | Network.
 
-### Modifié
-- Un seul composant de barres partagé par le CPU, les disques et la mémoire : alignement identique partout, largeur des libellés adaptée au nom le plus long.
-- Formateurs d'affichage (tailles, débits, uptime) regroupés côté interface.
-- Suppression de l'ancienne jauge disque, limitée à `/`.
+### Changed
+- A single shared bar component for CPU, disks and memory: identical alignment everywhere, label width fitted to the longest name.
+- Display formatters (sizes, rates, uptime) grouped on the interface side.
+- Removed the old disk gauge, which only covered `/`.
 
-### Corrigé
-- Plus de plantage si une sortie système contient une ligne inattendue (lectures tolérantes, gardes de longueur).
-- Plus de division par zéro sur un serveur sans swap ou sur une partition vide.
+### Fixed
+- No more crash when a system output contains an unexpected line (tolerant parsing, length guards).
+- No more division by zero on a server without swap or on an empty partition.
 
-## 0.4.0 — 2026-10-06
+## [0.4.0] - 2026-10-06
 
-### Ajouté
-- CPU en direct par processus : mesuré entre deux lectures de `/proc`, comme htop
-  (le `%CPU` de `ps` était une moyenne sur toute la vie du processus)
-- Adresse IP dans la barre système
-- Dépôt APT signé : installation et mises à jour avec `apt`
+### Added
+- Live per-process CPU: measured between two reads of `/proc`, like htop (the `%CPU` from `ps` was an average over the whole process lifetime).
+- IP address in the system bar.
+- Signed APT repository: install and update with `apt`.
 
-### Modifié
-- La liste des processus lit directement `/proc` (plus besoin de `ps`)
-- Les threads du noyau sont masqués, comme dans htop
+### Changed
+- The process list reads `/proc` directly (`ps` is no longer needed).
+- Kernel threads are hidden, like in htop.
 
-## 0.3.0 — 2026-10-05
+## [0.3.0] - 2026-10-05
 
-### Ajouté
-- Touche `!` (et bouton « terminal ») : ouvre un vrai bash, `exit` ramène dans Vigie
-- Shell intégré : le binaire gère seul l'aller-retour Vigie ↔ bash
-- Lancement automatique à la connexion via `~/.bash_profile` (voir README)
-- Arrêt propre sur SIGTERM / SIGHUP (terminal toujours restauré)
+### Added
+- `!` key (and "terminal" button): opens a real bash shell; `exit` brings you back to Vigie.
+- Built-in shell: the binary handles the Vigie ↔ bash round trip on its own.
+- Automatic launch at login via `~/.bash_profile` (see README).
+- Clean shutdown on SIGTERM / SIGHUP (the terminal is always restored).
 
-## 0.2.0 — 2026-10-04
+## [0.2.0] - 2026-10-04
 
-### Ajouté
-- Support de la souris, façon btop :
-  - clic sur les onglets pour changer de section
-  - clic sur une ligne pour la sélectionner, molette pour défiler
-  - boutons d'action cliquables (barre du bas, confirmation Oui / Non)
-- Option `--no-mouse` pour désactiver la souris
+### Added
+- Mouse support, btop-style:
+  - click a tab to switch section
+  - click a row to select it, scroll with the wheel
+  - clickable action buttons (bottom bar, Yes / No confirmation)
+- `--no-mouse` option to disable the mouse.
 
-### Corrigé
-- Décalage d'affichage causé par la largeur variable des emojis (logo remplacé par `◉`)
-- Le terminal est toujours restauré à la sortie (mode souris, curseur), même après un plantage ou une coupure SSH
+### Fixed
+- Display offset caused by the variable width of emojis (logo replaced with `◉`).
+- The terminal is always restored on exit (mouse mode, cursor), even after a crash or an SSH disconnection.
 
-## 0.1.0 — 2026-10-04
+## [0.1.0] - 2026-10-04
 
-Première version publique.
+First public release.
 
-- Tableau de bord : jauges CPU, mémoire, disque, services en échec
-- Panneau système : hôte, OS, noyau, uptime
-- Utilisateurs : créer, mot de passe, verrouiller, droits admin, supprimer
-- Processus : liste triée par CPU, arrêt propre / forcé
-- Services systemd : démarrer, arrêter, redémarrer, activer / désactiver au boot
-- Confirmation avant chaque action, mode lecture seule hors root
+- Dashboard: CPU, memory and disk gauges, failed services
+- System panel: host, OS, kernel, uptime
+- Users: create, set password, lock, admin rights, delete
+- Processes: list sorted by CPU, graceful / forced kill
+- systemd services: start, stop, restart, enable / disable at boot
+- Confirmation before every action, read-only mode when not root
