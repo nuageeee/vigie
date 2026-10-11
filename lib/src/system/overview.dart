@@ -123,13 +123,11 @@ class Memory {
   double get memPct => total == 0 ? 0 : used / total * 100;
 }
 
-List<Memory> getMemory() {
-  // Reading the memory for memory panels
-  final mem = readFile('/proc/meminfo');
-  final total = _meminfo(mem, 'MemTotal');
-  final available = _meminfo(mem, 'MemAvailable');
-  final swapTotal = _meminfo(mem, 'SwapTotal');
-  final swapFree = _meminfo(mem, 'SwapFree');
+List<Memory> parseMemory(String text) {
+  final total = _meminfo(text, 'MemTotal');
+  final available = _meminfo(text, 'MemAvailable');
+  final swapTotal = _meminfo(text, 'SwapTotal');
+  final swapFree = _meminfo(text, 'SwapFree');
 
   final memory = <Memory>[
     Memory("RAM", total, available),
@@ -137,6 +135,12 @@ List<Memory> getMemory() {
   ];
 
   return memory;
+}
+
+List<Memory> getMemory() {
+  // Reading the memory for memory panels
+  final mem = readFile('/proc/meminfo');
+  return parseMemory(mem);
 }
 
 class Network {
