@@ -1,5 +1,7 @@
 # ◉ Vigie
 
+[![Dart](https://github.com/nuageeee/vigie/actions/workflows/ci.yml/badge.svg)](https://github.com/nuageeee/vigie/actions/workflows/ci.yml)
+
 **English** | [Français](README.fr.md)
 
 **Manage a Linux server from a single terminal window.**
