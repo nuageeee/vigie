@@ -1,52 +1,63 @@
 # ◉ Vigie
 
-**Gérer un serveur Linux depuis une seule fenêtre de terminal.**
+**English** | [Français](README.fr.md)
 
-Vigie est une interface en mode texte (TUI) qui regroupe au même endroit ce qu'on fait habituellement avec une dizaine de commandes : surveiller la machine, gérer les comptes utilisateurs, surveiller les processus et piloter les services systemd. Pas de navigateur, pas d'agent à installer, pas de port à ouvrir : un seul binaire, lancé en SSH.
+**Manage a Linux server from a single terminal window.**
+
+Vigie is a text-based user interface (TUI) that brings together what you usually do with a dozen commands: monitor the machine, manage user accounts, watch processes and control systemd services. No browser, no agent to install, no port to open: a single binary, run over SSH.
+
+The interface is available in **English** and **French**, detected from the system language (`LANG`) or forced with `--lang`.
 
 ![Vigie](screen.png)
+
 ---
 
-## Fonctionnalités
+## Features
 
-### Tableau de bord
-- Jauges **CPU**, **mémoire** et **disque** (`/`), colorées selon le niveau de charge (vert, jaune ≥ 70 %, rouge ≥ 90 %)
-- Charge moyenne (load average)
-- Nombre de services actifs et liste des **services en échec**
+### Dashboard
+- **CPU per core**: one bar per core with its percentage, colored by load (green, yellow ≥ 50 %, red ≥ 90 %), spread over several columns on machines with many cores
+- **Disks**: every real partition with its usage, and the total space used (virtual file systems such as `tmpfs`, Docker `overlay` or `squashfs` are ignored)
+- **Memory**: RAM and swap, computed like `free` (`MemAvailable`)
+- **Network**: live download (↓) and upload (↑) rates across all physical interfaces
+- Number of active services and list of **failed services**
 
-### Utilisateurs
-- Liste des comptes humains (root et UID ≥ 1000) : UID, shell, groupes, droits admin, état verrouillé ou actif
-- **Créer** un utilisateur (avec son dossier personnel)
-- **Changer le mot de passe**
-- **Verrouiller / déverrouiller** un compte
-- **Donner / retirer les droits admin** (groupe `sudo` ou `wheel`, détecté automatiquement selon la distribution)
-- **Supprimer** un utilisateur et son dossier
+### Users
+- List of human accounts (root and UID ≥ 1000): UID, shell, groups, admin rights, locked or active
+- **Create** a user (with a home directory)
+- **Change the password**
+- **Lock / unlock** an account
+- **Grant / revoke admin rights** (`sudo` or `wheel` group, detected automatically depending on the distribution)
+- **Delete** a user and their home directory
 
-### Processus
-- Processus triés par consommation CPU : PID, utilisateur, CPU %, RAM %, mémoire
-- **Arrêt propre** (SIGTERM) ou **arrêt forcé** (SIGKILL)
+### Processes
+- Processes sorted by CPU usage: PID, user, CPU %, RAM %, memory
+- Live CPU usage per process (read from `/proc/<pid>/stat`, unlike `ps`, which shows an average over the process lifetime)
+- **Graceful stop** (SIGTERM) or **forced stop** (SIGKILL)
 
 ### Services
-- Tous les services systemd, ceux en échec en premier
-- État actuel et état au démarrage
-- **Démarrer / arrêter / redémarrer**
-- **Activer / désactiver au démarrage**
+- All systemd services, failed ones first
+- Current state and boot state
+- **Start / stop / restart**
+- **Enable / disable at boot**
 
-### Pour tous les écrans
-- Rafraîchissement automatique toutes les 2 secondes, **sans bloquer le clavier**
-- **Confirmation obligatoire** (`o` / `n`) avant toute action qui modifie le système
-- **Mode lecture seule** automatique quand Vigie n'est pas lancé en root
-- Panneau système permanent : hôte, OS, noyau, uptime
+### Everywhere
+- Automatic refresh every 2 seconds, **without blocking the keyboard**
+- **Mouse support**: clickable tabs, rows and buttons, scroll wheel
+- **Integrated terminal** (`!`): drops you into a shell, and back to Vigie when you exit it
+- **Mandatory confirmation** (`y` / `n`) before any action that changes the system
+- Automatic **read-only mode** when Vigie is not run as root
+- Permanent system panel: host, OS, kernel, uptime, IP address
+- Buttons adapt to the terminal width: when space runs short, section buttons switch to a compact form, and the general buttons (terminal, refresh, quit) always stay visible
 
 ---
 
 ## Installation
 
-### Prérequis
-- Linux avec **systemd**
-- [Dart SDK](https://dart.dev/get-dart) ≥ 3.3, uniquement pour compiler
+### Requirements
+- Linux with **systemd**
+- [Dart SDK](https://dart.dev/get-dart) ≥ 3.3, only to build from source
 
-### Installation (Debian / Ubuntu)
+### Debian / Ubuntu (APT repository)
 
 ```bash
 sudo install -d -m 0755 /etc/apt/keyrings
@@ -56,14 +67,16 @@ echo "deb [signed-by=/etc/apt/keyrings/nuage-apt.gpg] https://vigie.elnuagee.fr 
 sudo apt update && sudo apt install vigie
 ```
 
-Mises à jour : `sudo apt update && sudo apt upgrade`.
+Updates: `sudo apt update && sudo apt upgrade`.
+
+### Any distribution (prebuilt binary)
 
 ```bash
 curl -L -o vigie https://github.com/nuageeee/vigie/releases/latest/download/vigie-linux-x64
 sudo install -m 755 vigie /usr/local/bin/vigie
 ```
 
-### Compiler et installer
+### Build from source
 
 ```bash
 git clone https://github.com/nuageeee/vigie.git
@@ -73,135 +86,143 @@ dart compile exe bin/vigie.dart -o vigie
 sudo install -m 755 vigie /usr/local/bin/vigie
 ```
 
-Le binaire obtenu est **autonome** : vous pouvez le copier sur n'importe quel serveur Linux de même architecture, sans installer Dart dessus.
+The resulting binary is **self-contained**: you can copy it to any Linux server with the same architecture, without installing Dart there.
 
 ```bash
-scp vigie mon-serveur:/tmp/ && ssh mon-serveur 'sudo install -m 755 /tmp/vigie /usr/local/bin/'
+scp vigie my-server:/tmp/ && ssh my-server 'sudo install -m 755 /tmp/vigie /usr/local/bin/'
 ```
 
 ---
 
-## Utilisation
+## Usage
 
 ```bash
-vigie          # consultation seule
-sudo vigie     # consultation + actions (créer un compte, redémarrer un service…)
-sudo vigie --no-mouse # consultation + actions sans support de la souris
-vigie --lang en       # interface en anglais
+vigie                  # view only
+sudo vigie             # view + actions (create an account, restart a service…)
+sudo vigie --no-mouse  # view + actions, without mouse support
+vigie --lang fr        # French interface
 ```
 
-### Raccourcis clavier
+### Keyboard shortcuts
 
-| Où | Touche | Action |
+| Where | Key | Action |
 |---|---|---|
-| Partout | `1` à `4` | Changer de section |
-| | `↑` `↓` / `j` `k` | Naviguer dans la liste |
-| | `F5` | Tout rafraîchir |
-| | `q` | Quitter |
-| Confirmation | `o` ou `y` / `n` (ou `Échap`) | Valider / annuler |
-| Saisie | `Entrée` / `Échap` | Valider / annuler |
-| **Utilisateurs** | `a` | Ajouter un utilisateur |
-| | `p` | Changer le mot de passe |
-| | `v` | Verrouiller / déverrouiller |
-| | `g` | Donner / retirer les droits admin |
-| | `D` | Supprimer (avec son dossier) |
-| **Processus** | `t` | Arrêt propre (SIGTERM) |
-| | `K` | Arrêt forcé (SIGKILL) |
-| **Services** | `s` | Démarrer |
-| | `x` | Arrêter |
-| | `r` | Redémarrer |
-| | `e` | Activer au démarrage |
-| | `d` | Désactiver au démarrage |
+| Everywhere | `1` to `4` | Switch section |
+| | `↑` `↓` / `j` `k` | Move through the list |
+| | `!` | Open the integrated terminal |
+| | `F5` | Refresh everything |
+| | `q` | Quit |
+| Confirmation | `y` or `o` / `n` (or `Esc`) | Confirm / cancel |
+| Text input | `Enter` / `Esc` | Confirm / cancel |
+| **Users** | `a` | Add a user |
+| | `p` | Change the password |
+| | `v` | Lock / unlock |
+| | `g` | Grant / revoke admin rights |
+| | `D` | Delete (with home directory) |
+| **Processes** | `t` | Graceful stop (SIGTERM) |
+| | `K` | Forced stop (SIGKILL) |
+| **Services** | `s` | Start |
+| | `x` | Stop |
+| | `r` | Restart |
+| | `e` | Enable at boot |
+| | `d` | Disable at boot |
 
-> ⚠️ Connecté en SSH, éviter d'arrêter `ssh.service` : vous perdrez l'accès au serveur.
-
+> ⚠️ When connected over SSH, avoid stopping `ssh.service`: you would lose access to the server.
 
 ### Options
 
-| Option | Effet |
+| Option | Effect |
 |---|---|
-| `--no-mouse` | Désactive la souris (utile dans tmux sans `mouse on`, ou pour sélectionner du texte) |
-| `--lang fr\|en` | Langue de l'interface. Par défaut, celle du système (`LANG`) : français si elle commence par `fr`, sinon anglais |
+| `--no-mouse` | Disables the mouse (useful in tmux without `mouse on`, or to select text) |
+| `--lang fr\|en` | Interface language. Defaults to the system language (`LANG`): French if it starts with `fr`, English otherwise |
 
-> 💡 Souris active : maintiens `Maj` pour sélectionner du texte dans le terminal.
+> 💡 With the mouse enabled, hold `Shift` to select text in the terminal.
 
-## Développement
+---
 
-### Lancer depuis les sources
+## Development
+
+### Run from source
 
 ```bash
-dart pub get                              # sans sudo
-dart run bin/vigie.dart                   # lecture seule
-sudo "$(which dart)" run bin/vigie.dart   # avec les droits root
+dart pub get                              # without sudo
+dart run bin/vigie.dart                   # read-only
+sudo "$(which dart)" run bin/vigie.dart   # with root privileges
 ```
 
-`sudo dart` seul ne fonctionne pas : `sudo` utilise son propre `PATH` (`secure_path`), qui ne contient pas Dart. Ne lancer pas non plus `dart pub get` avec `sudo`, sinon `.dart_tool/` appartient à root.
+`sudo dart` alone does not work: `sudo` uses its own `PATH` (`secure_path`), which does not include Dart. Do not run `dart pub get` with `sudo` either, otherwise `.dart_tool/` will belong to root.
 
 ### Hot reload
 
-Avec le package [`hotreloader`](https://pub.dev/packages/hotreloader) (en dev dependency), les modifications dans `lib/` s'appliquent sans relancer Vigie :
+With the [`hotreloader`](https://pub.dev/packages/hotreloader) package (a dev dependency), changes in `lib/` apply without restarting Vigie:
 
 ```bash
 dart run --enable-vm-service bin/vigie.dart --no-session
 ```
-> ⚠️ L'option "--no-session" est obligatoire en mode dév et hot-reload. 
- 
-Se recharge à chaud : l'interface, les raccourcis, les commandes système.
-Demande de relancer : `bin/vigie.dart`, les paramètres de `runTerminal`, un nouveau champ dans l'état, une modification de l'`enum` des sections.
+
+> ⚠️ The `--no-session` option is required in development and hot-reload mode.
+
+Reloaded on the fly: the interface, shortcuts, system commands.
+Requires a restart: `bin/vigie.dart`, the `runTerminal` parameters, a new field in the state, a change to the sections `enum`, a new class or a file move.
 
 ### Architecture
 
 ```
-bin/vigie.dart            Point d'entrée : détection root, lancement plein écran, restauration du terminal
-lib/src/state.dart        Tout l'état de l'application (section, données, confirmation, saisie)
-lib/src/events.dart       Gestion du clavier → modifie l'état
-lib/src/ui/               Rendu uniquement, ne lance jamais de commande
-  layout.dart             Barre d'onglets, panneau système, barre d'état, boutons
-  dashboard.dart          Jauges et résumé
-  tables.dart             Tableaux utilisateurs / processus / services
-  prompt.dart             Fenêtre de saisie
-lib/src/system/           Accès au système uniquement → renvoie des objets Dart simples
-  shell.dart              Lancement de commandes, lecture de fichiers
-  overview.dart           /proc/stat, /proc/meminfo, df, uptime, os-release
-  users.dart              /etc/passwd, /etc/group, /etc/shadow, useradd, usermod…
-  processes.dart          ps, kill
-  services.dart           systemctl
+bin/vigie.dart                Entry point: options, root detection, full-screen launch, terminal restore
+lib/src/session.dart          Supervisor: relaunches Vigie after the integrated terminal
+lib/src/state.dart            All application state (section, data, samplers, confirmation, input, language)
+lib/src/event.dart            Keyboard and mouse handling → updates the state
+lib/src/ui/                   Rendering only, never runs a command
+  layout.dart                 Tabs, system panel, status bar, buttons
+  dashboard.dart              Dashboard layout
+  components/                 Reusable panels (shared bars, formatters)
+  tables.dart                 Users / processes / services tables
+  strings.dart                All interface texts, in French and English
+lib/src/system/               System access only → returns plain Dart objects, never user-facing text
+  shell.dart                  Running commands, reading files
+  overview.dart               CPU, memory, disks, network, uptime, OS
+  users.dart                  /etc/passwd, /etc/group, /etc/shadow, useradd, usermod…
+  processes.dart              /proc/<pid>, kill
+  services.dart               systemctl
 ```
 
-Le principe : `render` redessine **tout** l'écran à partir de l'état (rendu en mode immédiat, via [commander_ui](https://pub.dev/packages/commander_ui)). L'interface ne parle jamais directement au système : tout passe par `lib/src/system/`.
+The principle: `render` redraws **the whole** screen from the state (immediate-mode rendering, via [commander_ui](https://pub.dev/packages/commander_ui)). The interface never talks to the system directly: everything goes through `lib/src/system/`.
 
-### D'où viennent les données
+### Where the data comes from
 
-| Donnée | Source |
+| Data | Source |
 |---|---|
-| CPU | `/proc/stat` (écart entre deux lectures) |
-| Mémoire | `/proc/meminfo` (`MemTotal`, `MemAvailable`) |
-| Disque | `df -Pk /` |
-| Uptime, charge | `/proc/uptime`, `/proc/loadavg` |
+| CPU (total and per core) | `/proc/stat` (difference between two readings) |
+| Memory and swap | `/proc/meminfo` (`MemTotal`, `MemAvailable`, `SwapTotal`, `SwapFree`) |
+| Disks | `df -P -k`, excluding virtual file systems |
+| Network | `/proc/net/dev` (difference between two readings) |
+| Uptime | `/proc/uptime` |
 | OS | `/etc/os-release` |
-| Utilisateurs | `/etc/passwd`, `/etc/group`, `/etc/shadow` (root) |
-| Processus | `ps -eo pid,ppid,user,pcpu,pmem,rss,comm` |
+| Users | `/etc/passwd`, `/etc/group`, `/etc/shadow` (root) |
+| Processes | `/proc/<pid>/stat`, `/proc/<pid>/status` |
 | Services | `systemctl list-units` + `systemctl list-unit-files` |
 
 ---
 
-## Feuille de route
+## Roadmap
 
-- [x] Support de la souris (onglets, lignes et boutons cliquables, molette)
-- [x] Lancement au démarrage: ce lance a l'ouverture d'une session (Si activé)
-- [x] Terminal intégré 
-- [x] CPU instantané par processus via `/proc/<pid>/stat` (le `%CPU` de `ps` est une moyenne sur la vie du processus)
-- [ ] Recherche / filtre avec `/`
-- [ ] Journal d'un service (`journalctl -u`)/
-- [ ] Mode distant : gérer plusieurs serveurs via SSH
+- [x] Mouse support (clickable tabs, rows and buttons, scroll wheel)
+- [x] Launch at login: starts when a session opens (if enabled)
+- [x] Integrated terminal
+- [x] Live CPU per process via `/proc/<pid>/stat` (`ps`'s `%CPU` is an average over the process lifetime)
+- [x] Full dashboard: CPU per core, disks, memory and swap, network
+- [x] English and French interface
+- [ ] Search / filter with `/`
+- [ ] Service logs (`journalctl -u`)
+- [ ] Remote mode: manage several servers over SSH
 
 ---
 
-## Construit avec
+## Built with
 
 - [Dart](https://dart.dev)
-- [commander_ui](https://pub.dev/packages/commander_ui) pour l'interface terminal
+- [commander_ui](https://pub.dev/packages/commander_ui) for the terminal interface
 
-## Licence
+## License
 
-Distribué sous licence [MIT](LICENSE).
+Distributed under the [MIT](LICENSE) license.
