@@ -29,6 +29,24 @@ class Overview {
 
 final _virtualIfaces = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
 
+Map<String, (int, int)> parseCpu(String text) {
+  final cpu = <String, (int, int)>{};
+
+  for (final line in text.split('\n')) {
+    if (!line.startsWith('cpu')) break;
+    final parts = line.split(RegExp(r'\s+'));
+    final name = parts.first;
+
+    final v = parts.map(int.tryParse).skip(1).whereType<int>().toList();
+    if (v.length < 5) continue;
+    final idle = v[3] + v[4];
+    final sum = v.fold<int>(0, (a, b) => a + b);
+
+    cpu[name] = (idle, sum);
+  }
+  return cpu;
+}
+
 class CpuSampler {
   /// Dernières valeurs mesurées, en %.
   double total = 0;
@@ -39,13 +57,11 @@ class CpuSampler {
 
   void sample() {
     final newCores = <double>[];
+    final lines = readFile('/proc/stat');
 
-    for (final line in readFile('/proc/stat').split('\n')) {
-      if (!line.startsWith('cpu')) break;
-      final parts = line.split(RegExp(r'\s+'));
-      final name = parts.first;
-      final usage = _usage(name, parts.skip(1));
-
+    final cpu = parseCpu(lines);
+    for (final MapEntry(key: name, value: (idle, sum)) in cpu.entries) {
+      final usage = _usage(name, idle, sum);
       if (name == 'cpu') {
         total = usage;
       } else {
@@ -55,12 +71,7 @@ class CpuSampler {
     cores = newCores;
   }
 
-  double _usage(String name, Iterable<String> fields) {
-    final v = fields.map(int.tryParse).whereType<int>().toList();
-    if (v.length < 5) return 0;
-
-    final idle = v[3] + v[4]; // idle + iowait
-    final sum = v.fold<int>(0, (a, b) => a + b);
+  double _usage(String name, int idle, int sum) {
     final dIdle = idle - (_lastIdle[name] ?? idle);
     final dTotal = sum - (_lastTotal[name] ?? sum);
     _lastIdle[name] = idle;
