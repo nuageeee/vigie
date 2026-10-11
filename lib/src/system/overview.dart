@@ -78,6 +78,23 @@ class Disk {
   double get capacity => usage == 0 ? 0 : usage / (usage + freeSpace) * 100;
 }
 
+List<Disk> parseDisks(String text) {
+  final disks = <Disk>[];
+
+  for (final line in text.split('\n').skip(1)) {
+    final cols = line.trim().split(RegExp(r'\s+'));
+    if (cols.length < 5) continue;
+
+    final name = cols[0].split('/').last;
+
+    disks.add(
+      Disk(name, int.tryParse(cols[2]) ?? 0, int.tryParse(cols[3]) ?? 0),
+    );
+  }
+
+  return disks;
+}
+
 Future<List<Disk>> getDisks() async {
   final diskList = await capture('df', [
     '-P',
@@ -92,18 +109,7 @@ Future<List<Disk>> getDisks() async {
     'squashfs',
   ]);
 
-  final disks = <Disk>[];
-
-  for (final line in diskList.split('\n').skip(1)) {
-    final cols = line.trim().split(RegExp(r'\s+'));
-    if (cols.length < 5) continue;
-
-    final name = cols[0].split('/').last;
-
-    disks.add(Disk(name, int.tryParse(cols[2]) ?? 0, int.tryParse(cols[3]) ?? 0));
-  }
-
-  return disks;
+  return parseDisks(diskList);
 }
 
 class Memory {
