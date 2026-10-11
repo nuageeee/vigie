@@ -10,4 +10,4 @@ Vigie gère un serveur Linux depuis une seule fenêtre de terminal : tableau de 
 | [Développement](development.md) | Lancer depuis les sources, hot reload, compilation |
 | [Architecture](architecture.md) | Organisation du code, principe du rendu, sources des données |
 
-← [Retour au README](../../README.fr.md)
+← [Retour au dépôt GitHub](https://github.com/nuageeee/vigie)

@@ -10,4 +10,4 @@ Vigie manages a Linux server from a single terminal window: dashboard, users, pr
 | [Development](development.md) | Running from source, hot reload, building |
 | [Architecture](architecture.md) | Code layout, rendering principle, data sources |
 
-← [Back to the README](../../README.md)
+← [Back to the repo github](https://github.com/nuageeee/vigie)
