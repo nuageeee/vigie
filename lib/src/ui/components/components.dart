@@ -1,4 +1,5 @@
 import 'package:commander_ui/tui.dart';
+import 'dart:math';
 import 'package:vigie/src/ui/components/formators.dart';
 
 import 'package:vigie/vigie.dart';
@@ -7,6 +8,18 @@ Color colorFor(double pct) =>
     pct >= 90 ? Color.red : (pct >= 50 ? Color.yellow : Color.green);
 
 const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
+const huitiemesVertical = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
+
+
+String formatHistory(List<double> history, int width) {
+  final recentValues = history.skip((history.length - width).clamp(0, history.length));
+  final maxValue = recentValues.fold<double>(0, (m, value) => max(m, value));
+  if (maxValue == 0) return huitiemesVertical[0] * recentValues.length;
+  return recentValues.map((value) {
+    final index = (huitiemesVertical.length - 1) * value / maxValue;
+    return huitiemesVertical[index.floor()];
+  }).join();
+}
 
 void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
