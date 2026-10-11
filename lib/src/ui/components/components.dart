@@ -1,5 +1,7 @@
 import 'package:commander_ui/tui.dart';
+
 import 'dart:math';
+
 import 'package:vigie/src/ui/components/formators.dart';
 
 import 'package:vigie/vigie.dart';
@@ -10,9 +12,10 @@ Color colorFor(double pct) =>
 const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
 const huitiemesVertical = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
 
-
 String formatHistory(List<double> history, int width) {
-  final recentValues = history.skip((history.length - width).clamp(0, history.length));
+  final recentValues = history.skip(
+    (history.length - width).clamp(0, history.length),
+  );
   final maxValue = recentValues.fold<double>(0, (m, value) => max(m, value));
   if (maxValue == 0) return huitiemesVertical[0] * recentValues.length;
   return recentValues.map((value) {
@@ -25,7 +28,12 @@ void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
 }
 
-void _drawBars(List<String> names, List<double> pcts, RenderContext ctx, Rect area) {
+void _drawBars(
+  List<String> names,
+  List<double> pcts,
+  RenderContext ctx,
+  Rect area,
+) {
   final longName = names.fold<int>(
     0,
     (max, names) => names.length > max ? names.length : max,
@@ -53,7 +61,10 @@ void _drawBars(List<String> names, List<double> pcts, RenderContext ctx, Rect ar
       rest = 0;
     }
 
-    ctx.draw(Text(names[i], style: const Style(dim: true)), Rect(x, y, longName, 1));
+    ctx.draw(
+      Text(names[i], style: const Style(dim: true)),
+      Rect(x, y, longName, 1),
+    );
     ctx.draw(
       Text(
         '▉' * full + (rest > 0 ? huitiemes[rest] : ''),
@@ -73,12 +84,8 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   final cores = s.cpu.cores;
   final names = List.generate(cores.length, ((i) => 'C$i'));
 
-  _box(
-    ctx,
-    area,
-    s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0)),
-  );
-  
+  _box(ctx, area, s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0)));
+
   _drawBars(names, cores, ctx, area);
 }
 
@@ -108,7 +115,7 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
   final memory = o.memory;
   final totalMemory = memory.fold<double>(
     0,
-    (cumul, memory) => cumul + memory.total
+    (cumul, memory) => cumul + memory.total,
   );
   final convertMemFree = formatKb(totalMemory.toInt(), s.t);
   final totalUsed = memory.fold<double>(
@@ -125,23 +132,29 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
   _drawBars(names, pct, ctx, area);
 }
 
-
 void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final n = s.net;
 
   _box(ctx, area, s.t.network);
 
-  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height -2);
+  final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
   if (inner.height < 2 || inner.width <= 0) return;
   final received = n.received;
   final sent = n.sent;
+  final receivedHistory = n.historyReceived;
+  final sentHistory = n.historySent;
 
-  ctx.draw(
-    Text('↓ ${formatOc(received.toInt(), s.t)}'),
-    Rect(inner.x, inner.y, inner.width, 1)
-  );
-  ctx.draw(
-    Text('↑ ${formatOc(sent.toInt(), s.t)}'),
-    Rect(inner.x, inner.y + 1, inner.width, 1)
-  );
+  final receivedTitle = '↓ ${formatOc(received.toInt(), s.t)}';
+  final sentTitle = '↑ ${formatOc(sent.toInt(), s.t)}';
+
+  final gap = 1;
+  final labelWidth = max(receivedTitle.length, sentTitle.length);
+  final sparkWidth = inner.width - labelWidth - gap;
+
+  ctx.draw(Text(receivedTitle), Rect(inner.x, inner.y, labelWidth, 1));
+  ctx.draw(Text(sentTitle), Rect(inner.x, inner.y + 2, labelWidth, 1));
+
+  if (sparkWidth <= 0) return;
+  ctx.draw(Text(formatHistory(receivedHistory, sparkWidth)), Rect(inner.x + labelWidth + gap, inner.y, labelWidth, 1));
+  ctx.draw(Text(formatHistory(sentHistory, sparkWidth)), Rect(inner.x + labelWidth + gap, inner.y + 2, labelWidth, 1));
 }
