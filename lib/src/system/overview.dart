@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'shell.dart';
 
 class Overview {
@@ -156,6 +157,7 @@ List<Memory> getMemory() {
 (int, int) parseNetwork(String text) {
   int totalReceived = 0;
   int totalSent = 0;
+
   for (final line in text.split('\n').skip(2)) {
     final lineCut = line.split(':');
     if (lineCut.length < 2) continue;
@@ -177,6 +179,15 @@ class Network {
   double received = 0;
   double sent = 0;
 
+  static const _max = 90;
+  final historyReceived = <double>[];
+  final historySent = <double>[];
+
+  void _push(List<double> history, double value) {
+    history.add(value);
+    if (history.length > _max) history.removeAt(0);
+  }
+
   void sample() {
     final netInt = readFile('/proc/net/dev');
     final now = DateTime.now();
@@ -196,6 +207,8 @@ class Network {
 
         if (gapReceived >= 0) received = gapReceived / seconds;
         if (gapSent >= 0) sent = gapSent / seconds;
+        _push(historyReceived, received);
+        _push(historySent, sent);
       }
     }
 
