@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:commander_ui/tui.dart';
+
 import 'shell.dart';
 
 class Overview {
@@ -143,6 +145,23 @@ List<Memory> getMemory() {
   return parseMemory(mem);
 }
 
+(int, int) parseNetwork(String text) {
+  int totalReceived = 0;
+  int totalSent = 0;
+  for (final line in text.split('\n').skip(2)) {
+    final lineCut = line.split(':');
+    if (lineCut.length < 2) continue;
+    final name = lineCut[0].trim();
+    if (_virtualIfaces.hasMatch(name)) continue;
+    final facesReceived = lineCut[1].trim().split(RegExp(r'\s+'));
+    if (facesReceived.length < 9) continue;
+
+    totalReceived += int.tryParse(facesReceived[0]) ?? 0;
+    totalSent += int.tryParse(facesReceived[8]) ?? 0;
+  }
+  return (totalReceived, totalSent);
+}
+
 class Network {
   int? _lastReceived;
   int? _lastSent;
@@ -151,32 +170,17 @@ class Network {
   double sent = 0;
 
   void sample() {
-    int totalReceived = 0;
-    int totalSent = 0;
-    double seconds = 0;
     final netInt = readFile('/proc/net/dev');
     final now = DateTime.now();
 
-    for (final line in netInt.split('\n').skip(2)) {
-      final lineCut = line.split(':');
-      if (lineCut.length < 2) continue;
-      final name = lineCut[0].trim();
-      if (_virtualIfaces.hasMatch(name)) continue;
-      final facesReceived = lineCut[1].trim().split(RegExp(r'\s+'));
-      if (facesReceived.length < 9) continue;
-
-      totalReceived += int.tryParse(facesReceived[0]) ?? 0;
-      totalSent += int.tryParse(facesReceived[8]) ?? 0;
-    }
+    final (totalReceived, totalSent) = parseNetwork(netInt);
 
     final lastReceived = _lastReceived;
     final lastSent = _lastSent;
     final lastHour = _lastHour;
 
-    if (lastReceived != null && lastSent != null) {
-      if (lastHour != null) {
-        seconds = now.difference(lastHour).inMilliseconds / 1000;
-      }
+    if (lastReceived != null && lastSent != null && lastHour != null) {
+      final seconds = now.difference(lastHour).inMilliseconds / 1000;
 
       if (seconds > 0) {
         final gapReceived = totalReceived - lastReceived;
