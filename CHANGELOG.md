@@ -10,6 +10,7 @@
 ### Changed
 - System samplers now separate reading, parsing and computing. Parsing lives in pure functions (`parseDisks`, `parseMemory`, `parseNetwork`, `parseCpu`) that can be tested without touching the real machine.
 - The network sampler keeps a bounded history of recent rates (90 samples).
+- License changed from GPL-3.0 to MIT.
 
 ### Fixed
 - Removed an unused import reported by the analyzer.
