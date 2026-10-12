@@ -1,7 +1,15 @@
 name: vigie
-description: Gérer un serveur Linux depuis une seule interface terminal (utilisateurs, processus, services).
+description: Monitor the machine, manage users, processes and systemd services all in one TUI, over SSH, without remembering a dozen commands.
 version: 0.7.0
 repository: https://github.com/nuageeee/vigie
+documentation: https://nuageeee.github.io/vigie/
+issue_tracker: 
+topics:
+  - tui
+  - linux
+  - sysadmin
+executables: 
+  vigie:
 
 environment:
   sdk: ^3.13.5
