@@ -13,7 +13,7 @@ tout dans une seule interface, en SSH, sans retenir une dizaine de commandes.
 
 [English](README.md) | **Français**
 
-![Tableau de bord de Vigie](screen.png)
+![Tableau de bord de Vigie](docs/demo.gif)
 
 </div>
 
