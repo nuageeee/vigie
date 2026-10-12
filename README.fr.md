@@ -1,24 +1,55 @@
+<div align="center">
+
 # ◉ Vigie
-
-[![Dart](https://github.com/nuageeee/vigie/actions/workflows/ci.yml/badge.svg)](https://github.com/nuageeee/vigie/actions/workflows/ci.yml)
-
-[English](README.md) | **Français**
 
 **Gérer un serveur Linux depuis une seule fenêtre de terminal.**
 
-Vigie est une interface en mode texte (TUI) qui regroupe au même endroit ce qu'on fait habituellement avec une dizaine de commandes : surveiller la machine, gérer les comptes utilisateurs, surveiller les processus et piloter les services systemd. Pas de navigateur, pas d'agent à installer, pas de port à ouvrir : un seul binaire, lancé en SSH. Disponible en français et en anglais.
+Surveiller la machine, gérer les utilisateurs, les processus et les services systemd :<br>
+tout dans une seule interface, en SSH, sans retenir une dizaine de commandes.
 
-![Vigie](screen.png)
+[![CI](https://github.com/nuageeee/vigie/actions/workflows/ci.yml/badge.svg)](https://github.com/nuageeee/vigie/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/nuageeee/vigie)](https://github.com/nuageeee/vigie/releases/latest)
+[![Licence : MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+
+[English](README.md) | **Français**
+
+![Tableau de bord de Vigie](screen.png)
+
+</div>
+
+## Pourquoi Vigie ?
+
+Des outils comme `htop` ou `btop` sont excellents pour **montrer** ce que fait un serveur. Vigie permet aussi d'**agir** dessus, depuis le même écran :
+
+|                                         | htop / btop | Cockpit / Webmin  | **Vigie** |
+|-----------------------------------------|:-----------:|:-----------------:|:---------:|
+| Surveillance en direct                  | ✅          | ✅                | ✅        |
+| Gestion des utilisateurs et des services systemd | ❌ | ✅           | ✅        |
+| Fonctionne dans une simple session SSH  | ✅          | ❌ (navigateur)   | ✅        |
+| Rien à exposer sur le réseau            | ✅          | ❌ (port web)     | ✅        |
+
+Un seul binaire, pas d'agent, pas de serveur web, pas de port ouvert. Disponible en **français et en anglais**.
 
 ## Fonctionnalités
 
-- **Tableau de bord** : CPU par cœur, disques, mémoire et swap, débits réseau en direct, services en échec
-- **Utilisateurs** : créer, changer le mot de passe, verrouiller / déverrouiller, donner / retirer les droits admin, supprimer
-- **Processus** : triés par CPU instantané, arrêt propre ou forcé
-- **Services** : démarrer, arrêter, redémarrer, activer / désactiver au démarrage
-- **Partout** : souris, terminal intégré, confirmation avant chaque modification, mode lecture seule automatique sans root
+- 📊 **Tableau de bord** : CPU par cœur, disques, mémoire et swap, débits réseau en direct avec leur historique, services en échec
+- 👤 **Utilisateurs** : créer, changer le mot de passe, verrouiller / déverrouiller, donner / retirer les droits admin, supprimer
+- ⚙️ **Processus** : triés par CPU instantané, arrêt propre ou forcé
+- 🔧 **Services** : démarrer, arrêter, redémarrer, activer / désactiver au démarrage
+- 🖱️ **Partout** : souris, terminal intégré (`!`), raccourcis clavier
 
-## Installation (Debian / Ubuntu)
+## Prudent par conception
+
+Vigie peut modifier votre système, alors il est conçu pour être prudent :
+
+- **Lecture seule par défaut** : sans `sudo`, Vigie se contente d'afficher, toutes les actions sont désactivées.
+- **Confirmation avant chaque modification** : rien ne se passe sur une simple touche.
+- **Rien d'exposé** : pas de service en arrière-plan, pas de port réseau, Vigie ne tourne que pendant que vous l'utilisez.
+- **Code ouvert** : chaque commande lancée par Vigie est visible dans le code ([licence MIT](LICENSE)).
+
+## Démarrage rapide
+
+Sur **Debian / Ubuntu** (x86_64), installation depuis le dépôt APT signé :
 
 ```bash
 sudo install -d -m 0755 /etc/apt/keyrings
@@ -28,9 +59,7 @@ echo "deb [signed-by=/etc/apt/keyrings/nuage-apt.gpg] https://vigie.elnuagee.fr 
 sudo apt update && sudo apt install vigie
 ```
 
-Autres distributions et compilation depuis les sources : voir [Installation](docs/fr/installation.md).
-
-## Utilisation
+Puis lancez-le :
 
 ```bash
 vigie            # consultation seule
@@ -38,11 +67,26 @@ sudo vigie       # consultation + actions
 vigie --lang en  # interface en anglais
 ```
 
+Autres distributions et compilation depuis les sources : voir [Installation](docs/fr/installation.md).
 Raccourcis clavier et options : voir [Utilisation](docs/fr/usage.md).
 
 ## Documentation
 
-📖 **[Documentation complète](docs/fr/index.md)** : installation, utilisation, développement, architecture.
+📖 **[Documentation complète](https://nuageeee.github.io/vigie/fr/)** : installation, utilisation, développement, architecture.
+
+## Vos retours sont les bienvenus !
+
+Vigie est un jeune projet, et les retours d'utilisation réelle sont ce qui l'aide le plus.
+
+- 💬 **Une question, une idée, ou envie de raconter comment vous l'utilisez ?** Rendez-vous dans les [Discussions](https://github.com/nuageeee/vigie/discussions).
+- 🐛 **Un bug ?** Ouvrez une [issue](https://github.com/nuageeee/vigie/issues), en précisant votre distribution, votre version de Vigie et votre terminal.
+- ⭐ **Vigie vous plaît ?** Une étoile aide d'autres personnes à découvrir le projet.
+
+**À venir :** versions ARM (Raspberry Pi), paquet AUR, activité disque et températures sur le tableau de bord.
+
+## Contribuer
+
+Les contributions sont les bienvenues ! Le [guide de développement](docs/fr/development.md) explique comment compiler Vigie, lancer les tests (`dart test`) et comment le code est organisé.
 
 ## Licence
 
