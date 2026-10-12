@@ -13,7 +13,7 @@ all in one TUI, over SSH, without remembering a dozen commands.
 
 **English** | [Français](README.fr.md)
 
-![Vigie dashboard](docs/demo.gif)
+![Vigie dashboard](https://raw.githubusercontent.com/nuageeee/vigie/refs/heads/main/docs/demo.gif)
 
 </div>
 

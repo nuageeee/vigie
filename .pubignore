@@ -1,0 +1,8 @@
+.dart_tool/
+pubspec.lock
+build/
+build.sh
+TODO.md
+docs/
+mkdocs.yml
+scripts/
