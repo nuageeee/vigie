@@ -27,6 +27,16 @@ class Overview {
 
 final _virtualIfaces = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
 
+/// Parses a text from /proc/stat into a map keyed by CPU name (cpu for the whole machine, cpu0, cpu1... for each one).
+/// 
+/// Expect lines like:
+/// ```
+/// cpu  2627260 15530 3606508 683539755 17686 0 150147 48289 0 0
+/// ```
+/// Return `name -> (idle, sum)`.
+/// Both values (idle, sum) are cumulative counters since boot, in ticks: idle is the time spent (idle + iowait), sum is the total of all columns.
+/// Line with fewer than 5 fields are skipped.
+
 Map<String, (int, int)> parseCpu(String text) {
   final cpu = <String, (int, int)>{};
 
