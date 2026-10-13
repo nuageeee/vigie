@@ -47,6 +47,9 @@ class Strings {
   final String Function(String group, String name) askGrantAdmin;
   final String Function(String name, String home) askDeleteUser;
   final String cannotDeleteRoot;
+  final String cannotDeleteYourself;
+  final String cannotLockYourself;
+  final String cannotRevokeOwnAdmin;
 
   // ─── Résultats des actions ─────────────────────────────────────────────────
   final String Function(String name) serviceStarted;
@@ -172,6 +175,9 @@ class Strings {
     required this.askGrantAdmin,
     required this.askDeleteUser,
     required this.cannotDeleteRoot,
+    required this.cannotDeleteYourself,
+    required this.cannotLockYourself,
+    required this.cannotRevokeOwnAdmin,
     required this.serviceStarted,
     required this.serviceStopped,
     required this.serviceRestarted,
@@ -299,6 +305,9 @@ final fr = Strings(
   askGrantAdmin: (g, n) => 'Donner les droits admin ($g) à $n ?',
   askDeleteUser: (n, home) => 'SUPPRIMER $n et son dossier $home ?',
   cannotDeleteRoot: 'On ne supprime pas root 🙂',
+  cannotDeleteYourself: 'On ne supprime pas son propre compte',
+  cannotLockYourself: 'Vous ne pouvez pas vous vérrouiller',
+  cannotRevokeOwnAdmin: 'Impossible de retirer vos propres droits administrateur',
   serviceStarted: (n) => '$n démarré',
   serviceStopped: (n) => '$n arrêté',
   serviceRestarted: (n) => '$n redémarré',
@@ -408,6 +417,9 @@ final en = Strings(
   askGrantAdmin: (g, n) => 'Grant admin rights ($g) to $n?',
   askDeleteUser: (n, home) => 'DELETE $n and their home $home?',
   cannotDeleteRoot: "Root can't be deleted 🙂",
+  cannotDeleteYourself: "You can't delete yourself",
+  cannotLockYourself: "You can't lock yourself",
+  cannotRevokeOwnAdmin: "You can't revoke your own admin rights",
   serviceStarted: (n) => '$n started',
   serviceStopped: (n) => '$n stopped',
   serviceRestarted: (n) => '$n restarted',

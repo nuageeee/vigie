@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/system/processes.dart';
 import 'package:vigie/src/system/services.dart';
@@ -54,7 +56,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
     s.openShell = true;
     handle.stop();
     return;
-  } 
+  }
 
   final digit = int.tryParse(event.char ?? '');
   if (digit != null && digit >= 1 && digit <= Section.values.length) {
@@ -122,11 +124,19 @@ void _processKeys(VigieState s, String c) {
   final p = s.selectedProcess;
   if (p == null) return;
   if (c == 't') {
-    _ask(s, s.t.askTerm(p.command, p.pid), () => killProcess(p),
-        s.t.processTermSent(p.command, p.pid));
+    _ask(
+      s,
+      s.t.askTerm(p.command, p.pid),
+      () => killProcess(p),
+      s.t.processTermSent(p.command, p.pid),
+    );
   } else if (c == 'K') {
-    _ask(s, s.t.askKill(p.command, p.pid), () => killProcess(p, force: true),
-        s.t.processKilled(p.command, p.pid));
+    _ask(
+      s,
+      s.t.askKill(p.command, p.pid),
+      () => killProcess(p, force: true),
+      s.t.processKilled(p.command, p.pid),
+    );
   }
 }
 
@@ -138,9 +148,7 @@ void _userKeys(VigieState s, String c) {
       s.prompt = TextPrompt(
         title: s.t.newUserTitle,
         label: s.t.newUserLabel,
-        validate: (v) => usernamePattern.hasMatch(v)
-            ? null
-            : s.t.usernameRule,
+        validate: (v) => usernamePattern.hasMatch(v) ? null : s.t.usernameRule,
         onSubmit: addUser,
         done: s.t.userCreated,
       );
@@ -156,27 +164,47 @@ void _userKeys(VigieState s, String c) {
       );
     case 'v' when u != null:
       final unlock = u.locked == true;
-      _ask(s, unlock ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
-          () => toggleLock(u),
-          unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name));
+      if (checkUserTarget(Platform.environment, u.name) != null && !unlock) {
+        s.setMessage(s.t.cannotLockYourself, error: true);
+        return;
+      }
+      _ask(
+        s,
+        unlock ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
+        () => toggleLock(u),
+        unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name),
+      );
     case 'g' when u != null:
       final isIn = u.groups.contains(s.AdminGroup);
+      if (checkUserTarget(Platform.environment, u.name) != null && isIn) {
+        s.setMessage(s.t.cannotRevokeOwnAdmin, error: true);
+        return;
+      }
       _ask(
-          s,
-          isIn
-              ? s.t.askRevokeAdmin(s.AdminGroup, u.name)
-              : s.t.askGrantAdmin(s.AdminGroup, u.name),
-          () => toggleAdmin(u, s.AdminGroup),
-          isIn
-              ? s.t.adminRevoked(u.name, s.AdminGroup)
-              : s.t.adminGranted(u.name, s.AdminGroup));
+        s,
+        isIn
+            ? s.t.askRevokeAdmin(s.AdminGroup, u.name)
+            : s.t.askGrantAdmin(s.AdminGroup, u.name),
+        () => toggleAdmin(u, s.AdminGroup),
+        isIn
+            ? s.t.adminRevoked(u.name, s.AdminGroup)
+            : s.t.adminGranted(u.name, s.AdminGroup),
+      );
     case 'D' when u != null:
       if (u.uid == 0) {
         s.setMessage(s.t.cannotDeleteRoot, error: true);
         return;
       }
-      _ask(s, s.t.askDeleteUser(u.name, u.home),
-          () => deleteUser(u), s.t.userDeleted(u.name));
+      if (checkUserTarget(Platform.environment, u.name) != null) {
+        s.setMessage(s.t.cannotDeleteYourself, error: true);
+        return;
+      }
+      _ask(
+        s,
+        s.t.askDeleteUser(u.name, u.home),
+        () => deleteUser(u),
+        s.t.userDeleted(u.name),
+      );
   }
 }
 
