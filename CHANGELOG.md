@@ -11,7 +11,7 @@
 - `Ctrl-C` inside the built-in shell only interrupts the running command, not the whole session.
 
 ### Thanks
-- Thanks to [name] for the security review that reported these issues.
+- Thanks to fraustiz for the security review that reported these issues.
 
 ## [0.7.1] - 2026-10-12
 
