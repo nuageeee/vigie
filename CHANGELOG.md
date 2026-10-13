@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.2] - 2026-10-13
+
+### Security
+- **Fixed a predictable temporary file used by the built-in shell (`!`).** When Vigie ran as root, the shell startup file was written to `/tmp/vigie-bashrc-<pid>`, a name another local user could guess and create in advance, potentially leading to code execution as root. The file now lives in a private, randomly named directory (mode `700`) and is removed on every exit path, including SIGTERM and SIGHUP.
+- **Added safeguards against locking yourself out.** Vigie now refuses, before asking for confirmation, to delete, lock, or revoke the admin rights of the account you are logged in with (detected through `SUDO_USER`).
+
+### Fixed
+- The session now forwards Vigie's real exit code instead of always returning 0.
+- `Ctrl-C` inside the built-in shell only interrupts the running command, not the whole session.
+
+### Thanks
+- Thanks to [name] for the security review that reported these issues.
+
 ## [0.7.1] - 2026-10-12
 
 ### Changed

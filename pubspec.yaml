@@ -1,6 +1,6 @@
 name: vigie
 description: Monitor the machine, manage users, processes and systemd services all in one TUI, over SSH, without remembering a dozen commands.
-version: 0.7.1
+version: 0.7.2
 repository: https://github.com/nuageeee/vigie
 documentation: https://nuageeee.github.io/vigie/
 issue_tracker: 
