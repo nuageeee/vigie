@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'shell.dart';
 
+double processCpuPercent(int ticks, int dTotal, int? prev, int cpus) =>
+    (prev == null || dTotal <= 0) ? 0.0 : (ticks - prev) * 100 * cpus / dTotal;
+
 class Proc {
   final int pid;
   final String user;
@@ -42,62 +45,67 @@ class ProcSampler {
       seen[pid] = ticks;
 
       final prev = _lastTicks[pid];
-      final cpu = (prev == null || dTotal <= 0) ? 0.0 : (ticks - prev) * 100.0 * _cpus / dTotal;
+      final cpu = processCpuPercent(ticks, dTotal, prev, _cpus);
 
       final status = readFile('/proc/$pid/status');
       if (_field(status, 'VmRSS') == null) continue;
       final name = _field(status, 'Name');
       final uid = (_field(status, 'Uid') ?? '').split(RegExp(r'\s+')).first;
-      final rssKb = int.tryParse(
-        (_field(status, 'VmRSS') ?? '0').split(' ').first
-      ) ?? 0;
+      final rssKb =
+          int.tryParse((_field(status, 'VmRSS') ?? '0').split(' ').first) ?? 0;
 
-      list.add(Proc(
-        pid,
-        users[uid] ?? uid,
-        cpu,
-        memTotalKb == 0 ? 0 : rssKb * 100 / memTotalKb,
-        rssKb,
-        name!,
-      ));
+      list.add(
+        Proc(
+          pid,
+          users[uid] ?? uid,
+          cpu,
+          memTotalKb == 0 ? 0 : rssKb * 100 / memTotalKb,
+          rssKb,
+          name!,
+        ),
+      );
     }
 
-    _lastTicks..clear()..addAll(seen);
+    _lastTicks
+      ..clear()
+      ..addAll(seen);
 
     list.sort((a, b) => b.cpu.compareTo(a.cpu));
     return list.take(300).toList();
   }
 }
 
-  int _totalTicks() {
-    final first = readFile('/proc/stat').split('\n').first;
-    return first
-        .split(RegExp(r'\s+'))
-        .skip(1)
-        .map(int.tryParse)
-        .whereType<int>()
-        .fold(0, (a, b) => a + b);
-  }
+int _totalTicks() {
+  final first = readFile('/proc/stat').split('\n').first;
+  return first
+      .split(RegExp(r'\s+'))
+      .skip(1)
+      .map(int.tryParse)
+      .whereType<int>()
+      .fold(0, (a, b) => a + b);
+}
 
-  int _memTotalKb() {
-    final m = RegExp(r'^MemTotal:\s+(\d+)', multiLine: true)
-        .firstMatch(readFile('/proc/meminfo'));
-    return int.tryParse(m?.group(1) ?? '') ?? 0;
-  }
+int _memTotalKb() {
+  final m = RegExp(
+    r'^MemTotal:\s+(\d+)',
+    multiLine: true,
+  ).firstMatch(readFile('/proc/meminfo'));
+  return int.tryParse(m?.group(1) ?? '') ?? 0;
+}
 
-  Map<String, String> _uidToName() {
-    final map = <String, String>{};
-    for (final line in readFile('/etc/passwd').split('\n')) {
-      final p = line.split(':');
-      if (p.length > 2) map[p[2]] = p[0];
-    }
-    return map;
+Map<String, String> _uidToName() {
+  final map = <String, String>{};
+  for (final line in readFile('/etc/passwd').split('\n')) {
+    final p = line.split(':');
+    if (p.length > 2) map[p[2]] = p[0];
   }
+  return map;
+}
 
-  String? _field(String status, String key) {
-    final m = RegExp('^$key:\\s*(.*)\$', multiLine: true).firstMatch(status);
-    return m?.group(1)?.trim();
-  }
+String? _field(String status, String key) {
+  final m = RegExp('^$key:\\s*(.*)\$', multiLine: true).firstMatch(status);
+  return m?.group(1)?.trim();
+}
 
 Future<CmdResult> killProcess(Proc p, {bool force = false}) =>
     run('kill', [force ? '-KILL' : '-TERM', '${p.pid}']);
