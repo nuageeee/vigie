@@ -58,7 +58,7 @@ enum SshRefusalReason { sshLockout }
 
 final _sshService = RegExp(r'^(ssh|sshd)(\.service|\.socket)?$');
 SshRefusalReason? checkServiceTarget(Map<String, String> env, String service, List<String> ancestors) {
-  final inSsh = env['SSH_CONNECTTION'] != null || hasSshAncestor(ancestors);
+  final inSsh = env['SSH_CONNECTION'] != null || hasSshAncestor(ancestors);
   final targetsSsh = _sshService.hasMatch(service);
   if (inSsh && targetsSsh) return SshRefusalReason.sshLockout;
   return null;
