@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Check tag
+        run: |
+          version="$(grep '^version:' pubspec.yaml | awk '{print $2}')"
+          [ "$GITHUB_REF_NAME" = "v$version" ] || { echo "Le tag $GITHUB_REF_NAME ne correspond pas à pubspec.yaml (v$version)" >&2; exit 1; }
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Install dependencies
+        run: dart pub get --enforce-lockfile
+
+      - name: Analyze
+        run: dart analyze
+
+      - name: Test
+        run: dart test
+
+      - name: Build
+        run: bash scripts/build-deb.sh
+
+      - name: Checksums
+        run: |
+          cd "build/$VERSION"
+          sha256sum "vigie_${VERSION}_amd64.deb" vigie-linux-x64 > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Release notes
+        run: |
+          awk "/^## \[${VERSION}\]/{f=1; next} /^## \[/{f=0} f" CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "Pas d'entrée [${VERSION}] dans CHANGELOG.md" >&2; exit 1; }
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "build/$VERSION/vigie_${VERSION}_amd64.deb" \
+            "build/$VERSION/vigie-linux-x64" \
+            "build/$VERSION/SHA256SUMS" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notes.md
