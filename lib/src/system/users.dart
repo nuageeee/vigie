@@ -32,7 +32,7 @@ String detectAdminGroup() {
 
 final usernamePattern = RegExp(r'^[a-z_][a-z0-9_-]{0,31}$');
 
-Future<List<SysUser>> LoadUsers() async {
+Future<List<SysUser>> loadUsers() async {
   final shadow = readFile('/etc/shadow');
   final lockedByName = <String, bool>{};
   for (final line in shadow.split('\n')) {

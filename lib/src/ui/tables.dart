@@ -77,9 +77,9 @@ void renderUsers(RenderContext ctx, VigieState s, Rect area) {
           title: s.t.colAdmin,
           width: const TableConstraint.length(6),
           cellBuilder: (u, c) => _cell(
-            u.isAdmin(s.AdminGroup) ? s.t.adminYes : '-',
+            u.isAdmin(s.adminGroup) ? s.t.adminYes : '-',
             c,
-            style: Style(fg: u.isAdmin(s.AdminGroup) ? Color.yellow : null),
+            style: Style(fg: u.isAdmin(s.adminGroup) ? Color.yellow : null),
           ),
         ),
         TableColumn(

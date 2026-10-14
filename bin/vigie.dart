@@ -49,7 +49,7 @@ Future<void> main(List<String> args) async {
   final isRoot = (await capture('id', ['-u'])).trim() == '0';
   final state = VigieState(
     isRoot: isRoot,
-    AdminGroup: detectAdminGroup(),
+    adminGroup: detectAdminGroup(),
     t: t,
   );
   await state.refresh(all: true);

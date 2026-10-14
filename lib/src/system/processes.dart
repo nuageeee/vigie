@@ -42,7 +42,7 @@ class ProcSampler {
       seen[pid] = ticks;
 
       final prev = _lastTicks[pid];
-      final cpu = (prev == null || dTotal < 0) ? 0.0 : (ticks - prev) * 100.0 * _cpus / dTotal;
+      final cpu = (prev == null || dTotal <= 0) ? 0.0 : (ticks - prev) * 100.0 * _cpus / dTotal;
 
       final status = readFile('/proc/$pid/status');
       if (_field(status, 'VmRSS') == null) continue;

@@ -46,7 +46,7 @@ class ClickZone {
 
 class VigieState {
   final bool isRoot;
-  final String AdminGroup;
+  final String adminGroup;
   final Strings t;
 
   final cpu = CpuSampler();
@@ -78,7 +78,7 @@ class VigieState {
 
   VigieState({
     required this.isRoot,
-    required this.AdminGroup,
+    required this.adminGroup,
     required this.t,
   });
 
@@ -120,7 +120,7 @@ class VigieState {
 
   Future<void> refresh({bool all = false}) async {
     overview = await loadOverview(cpu, net);
-    if (all || section == Section.users) users = await LoadUsers();
+    if (all || section == Section.users) users = await loadUsers();
     if (all || section == Section.process) processes = await procSampler.sample();
     if (all || section == Section.services || section == Section.table) {
       services = await loadServices();

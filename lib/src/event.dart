@@ -19,7 +19,7 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   }
 
   if (event is MouseEvent) {
-    await _HandleClick(s, event, handle);
+    await _handleClick(s, event, handle);
     return;
   }
 
@@ -180,7 +180,7 @@ void _userKeys(VigieState s, String c) {
         unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name),
       );
     case 'g' when u != null:
-      final isIn = u.groups.contains(s.AdminGroup);
+      final isIn = u.groups.contains(s.adminGroup);
       if (checkUserTarget(Platform.environment, u.name) != null && isIn) {
         s.setMessage(s.t.cannotRevokeOwnAdmin, error: true);
         return;
@@ -188,12 +188,12 @@ void _userKeys(VigieState s, String c) {
       _ask(
         s,
         isIn
-            ? s.t.askRevokeAdmin(s.AdminGroup, u.name)
-            : s.t.askGrantAdmin(s.AdminGroup, u.name),
-        () => toggleAdmin(u, s.AdminGroup),
+            ? s.t.askRevokeAdmin(s.adminGroup, u.name)
+            : s.t.askGrantAdmin(s.adminGroup, u.name),
+        () => toggleAdmin(u, s.adminGroup),
         isIn
-            ? s.t.adminRevoked(u.name, s.AdminGroup)
-            : s.t.adminGranted(u.name, s.AdminGroup),
+            ? s.t.adminRevoked(u.name, s.adminGroup)
+            : s.t.adminGranted(u.name, s.adminGroup),
       );
     case 'D' when u != null:
       if (u.uid == 0) {
@@ -235,7 +235,7 @@ Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   }
 }
 
-Future<void> _HandleClick(VigieState s, MouseEvent e, RunHandle handle) async {
+Future<void> _handleClick(VigieState s, MouseEvent e, RunHandle handle) async {
   if (e.action != MouseAction.down || e.button != MouseButton.left) return;
   if (s.prompt != null) return;
 
