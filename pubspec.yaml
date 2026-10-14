@@ -3,7 +3,7 @@ description: Monitor the machine, manage users, processes and systemd services a
 version: 0.7.3
 repository: https://github.com/nuageeee/vigie
 documentation: https://nuageeee.github.io/vigie/
-issue_tracker: 
+issue_tracker: https://github.com/nuageeee/vigie/issues
 topics:
   - tui
   - linux
