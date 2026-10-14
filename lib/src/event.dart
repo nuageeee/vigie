@@ -122,7 +122,12 @@ void _serviceKeys(VigieState s, String c) {
     s.setMessage(s.t.cantStopSsh(n), error: true);
     return;
   }
-  _ask(s, question, () => serviceAction(verb, svc), done);
+  _ask(s, question, () async { 
+    final result = await serviceAction(verb, svc);
+    invalidateServices();
+    return result;
+  }
+  , done);
 }
 
 void _processKeys(VigieState s, String c) {

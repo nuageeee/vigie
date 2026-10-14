@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'shell.dart';
 
+List<Service>? _lastServiceList;
+DateTime? _lastServicesRead;
+
 class Service {
   final String name;
   final String active; // active, inactive, failed...
@@ -64,8 +67,20 @@ SshRefusalReason? checkServiceTarget(Map<String, String> env, String service, Li
   return null;
 }
 
+const _servicesInterval = Duration(seconds: 10);
+
+void invalidateServices() {
+  _lastServicesRead = null;
+}
+
 /// Liste les services systemd chargés, avec leur état au démarrage.
 Future<List<Service>> loadServices() async {
+  final currentTime = DateTime.now();
+
+  if (_lastServiceList != null && _lastServicesRead != null && currentTime.difference(_lastServicesRead!) < _servicesInterval) {
+    return _lastServiceList!;
+  }
+
   final units = await capture('systemctl', [
     'list-units',
     '--type=service',
@@ -102,12 +117,15 @@ Future<List<Service>> loadServices() async {
       ),
     );
   }
+
   // Les services en échec d'abord, puis ceux qui tournent, puis le reste.
   int rank(Service s) => s.isFailed ? 0 : (s.isRunning ? 1 : 2);
   list.sort((a, b) {
     final r = rank(a) - rank(b);
     return r != 0 ? r : a.name.compareTo(b.name);
   });
+  _lastServiceList = list;
+  _lastServicesRead = currentTime;
   return list;
 }
 

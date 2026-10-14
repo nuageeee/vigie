@@ -99,6 +99,9 @@ class Disk {
   double get capacity => usage == 0 ? 0 : usage / (usage + freeSpace) * 100;
 }
 
+List<Disk>? _lastDiskList;
+DateTime? _lastHourLecture;
+
 List<Disk> parseDisks(String text) {
   final disks = <Disk>[];
 
@@ -233,6 +236,7 @@ String _osName() {
     r'^PRETTY_NAME="?([^"\n]*)"?',
     multiLine: true,
   ).firstMatch(readFile('/etc/os-release'));
+
   return m?.group(1) ?? 'Linux';
 }
 
@@ -254,21 +258,34 @@ Future<String> _mainIp() async {
   return '-';
 }
 
+String? _kernel;
+String? _osNameValue;
+
 Future<Overview> loadOverview(CpuSampler cpu, Network net) async {
   cpu.sample();
   net.sample();
+  final currentTime = DateTime.now();
+  const diskInterval = Duration(seconds: 30);
+
+  _kernel ??= (await capture('uname', ['-r'])).trim();
+  _osNameValue ??= _osName();
 
   final upSeconds =
       double.tryParse(readFile('/proc/uptime').split(' ').first) ?? 0;
 
+  if (_lastHourLecture == null || currentTime.difference(_lastHourLecture!) > diskInterval) {
+    _lastDiskList = await getDisks();
+    _lastHourLecture = currentTime;
+  }
+
   return Overview(
     hostname: Platform.localHostname,
-    os: _osName(),
-    kernel: (await capture('uname', ['-r'])).trim(),
+    os: _osNameValue!,
+    kernel: _kernel!,
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
     memory: getMemory(),
-    disk: await getDisks(),
+    disk: _lastDiskList!,
     ip: await _mainIp(),
   );
 }
