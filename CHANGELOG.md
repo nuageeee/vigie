@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.7.4] - 2026-10-14
+
+### Changed
+- Lower refresh cost: Vigie no longer launches system commands on every tick.
+  - The kernel version (`uname`) and OS name (`/etc/os-release`) are read once at startup.
+  - Disks (`df`) are refreshed every 30 seconds.
+  - Services (`systemctl`) are refreshed every 10 seconds, and immediately after any action taken from Vigie (start, stop, restart, enable, disable).
+- Code style: identifiers now follow Dart naming conventions, and the `non_constant_identifier_names` lint is enabled again.
+
+### Fixed
+- Per-process CPU usage could show `NaN` and break the process sorting when no time had elapsed between two readings.
+- The `issue_tracker` link in `pubspec.yaml` was empty.
+
+### Tests
+- Tests for per-process CPU usage (`processCpuPercent`): no previous reading, zero or negative elapsed time, normal case, and usage above 100% on several cores.
+
 ## [0.7.3] - 2026-10-14
 
 ### Security
