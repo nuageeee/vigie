@@ -105,6 +105,7 @@ void _ask(
 }
 
 void _serviceKeys(VigieState s, String c) {
+  const riskyOnSsh = {'stop', 'disable', 'restart'};
   final svc = s.selectedService;
   if (svc == null) return;
   final n = svc.name;
@@ -117,6 +118,10 @@ void _serviceKeys(VigieState s, String c) {
     _ => ('', '', ''),
   };
   if (verb.isEmpty) return;
+  if (riskyOnSsh.contains(verb) && checkServiceTarget(Platform.environment, n, readAncestorNames()) != null) {
+    s.setMessage(s.t.cantStopSsh(n), error: true);
+    return;
+  }
   _ask(s, question, () => serviceAction(verb, svc), done);
 }
 

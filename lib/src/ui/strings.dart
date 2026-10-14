@@ -57,6 +57,7 @@ class Strings {
   final String Function(String name) serviceRestarted;
   final String Function(String name) serviceEnabled;
   final String Function(String name) serviceDisabled;
+  final String Function(String name) cantStopSsh;
   final String Function(String command, int pid) processTermSent;
   final String Function(String command, int pid) processKilled;
   final String Function(String name) userCreated;
@@ -178,6 +179,7 @@ class Strings {
     required this.cannotDeleteYourself,
     required this.cannotLockYourself,
     required this.cannotRevokeOwnAdmin,
+    required this.cantStopSsh,
     required this.serviceStarted,
     required this.serviceStopped,
     required this.serviceRestarted,
@@ -313,6 +315,7 @@ final fr = Strings(
   serviceRestarted: (n) => '$n redémarré',
   serviceEnabled: (n) => '$n activé au démarrage',
   serviceDisabled: (n) => '$n désactivé au démarrage',
+  cantStopSsh: (n) => 'Refusé : $n est votre connexion SSH.',
   processTermSent: (cmd, pid) => "Signal d'arrêt envoyé à $cmd ($pid)",
   processKilled: (cmd, pid) => '$cmd ($pid) tué',
   userCreated: (n) => 'Utilisateur $n créé (pense à lui donner un mot de passe : p)',
@@ -425,6 +428,7 @@ final en = Strings(
   serviceRestarted: (n) => '$n restarted',
   serviceEnabled: (n) => '$n enabled at boot',
   serviceDisabled: (n) => '$n disabled at boot',
+  cantStopSsh: (n) => "Refused: $n is your SSH connection.",
   processTermSent: (cmd, pid) => 'Stop signal sent to $cmd ($pid)',
   processKilled: (cmd, pid) => '$cmd ($pid) killed',
   userCreated: (n) => 'User $n created (remember to set a password: p)',
