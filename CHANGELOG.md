@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.7.3] - 2026-10-14
+
+### Security
+- The SSH lockout guard now also works under `sudo`: since `sudo` removes `SSH_CONNECTION`, Vigie now walks its parent processes in `/proc` to detect an SSH session.
+- Fixed the guard refusing actions on every service during an SSH session: only `ssh`/`sshd` services and sockets are now protected (stop, disable, restart).
+
+### Changed
+- Releases are now built by GitHub Actions from the version tag, after `dart analyze` and `dart test`, instead of on a personal machine.
+- Each release ships a `SHA256SUMS` file to verify the downloaded `.deb` and binary (`sha256sum -c SHA256SUMS --ignore-missing`).
+- `pubspec.lock` is now committed, and builds fail if dependencies don't match it exactly.
+- The Debian package description is now in English.
+
+### Fixed
+- The build script no longer depends on a hardcoded local path.
+
+### Tests
+- Tests for the SSH guard (`checkServiceTarget`, `hasSshAncestor`, `parsePpid`), including regression cases for detecting SSH with or without `SSH_CONNECTION`.
+
 ## [0.7.2] - 2026-10-13
 
 ### Security
