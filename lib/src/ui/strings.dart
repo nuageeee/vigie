@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:vigie/src/state.dart';
+import 'package:vigie/src/system/guards.dart';
 import 'package:vigie/src/system/shell.dart';
 
 String errorObject(Object error) {
@@ -46,10 +47,6 @@ class Strings {
   final String Function(String group, String name) askRevokeAdmin;
   final String Function(String group, String name) askGrantAdmin;
   final String Function(String name, String home) askDeleteUser;
-  final String cannotDeleteRoot;
-  final String cannotDeleteYourself;
-  final String cannotLockYourself;
-  final String cannotRevokeOwnAdmin;
 
   // ─── Résultats des actions ─────────────────────────────────────────────────
   final String Function(String name) serviceStarted;
@@ -67,6 +64,11 @@ class Strings {
   final String Function(String name) userLocked;
   final String Function(String name, String group) adminRevoked;
   final String Function(String name, String group) adminGranted;
+  final String cannotDeleteRoot;
+  final String cannotDeleteYourself;
+  final String Function(RefusalReason r, String verb, String action)
+  refusalMessage;
+  final String Function(String v) verb;
 
   // ─── Saisies ───────────────────────────────────────────────────────────────
   final String newUserTitle;
@@ -177,8 +179,8 @@ class Strings {
     required this.askDeleteUser,
     required this.cannotDeleteRoot,
     required this.cannotDeleteYourself,
-    required this.cannotLockYourself,
-    required this.cannotRevokeOwnAdmin,
+    required this.refusalMessage,
+    required this.verb,
     required this.cantStopSsh,
     required this.serviceStarted,
     required this.serviceStopped,
@@ -308,8 +310,21 @@ final fr = Strings(
   askDeleteUser: (n, home) => 'SUPPRIMER $n et son dossier $home ?',
   cannotDeleteRoot: 'On ne supprime pas root 🙂',
   cannotDeleteYourself: 'On ne supprime pas son propre compte',
-  cannotLockYourself: 'Vous ne pouvez pas vous vérrouiller',
-  cannotRevokeOwnAdmin: 'Impossible de retirer vos propres droits administrateur',
+  verb: (v) => switch (v) {
+    'stop' => 'arrêter',
+    'disable' => 'désactiver',
+    'restart' => 'redémarrer',
+    'delete' => 'supprimer',
+    'lock' => 'verrouiller',
+    'revokeAdmin' => 'retirer les droits admin de',
+    _ => v,
+  },
+  refusalMessage: ((r, verb, action) => switch (r) {
+    RefusalReason.selfTarget =>
+      'Refusé : impossible de $verb votre propre compte.',
+    RefusalReason.sshLockout =>
+      'Refusé : impossible de $verb $action en session SSH, cela couperait votre connexion.',
+  }),
   serviceStarted: (n) => '$n démarré',
   serviceStopped: (n) => '$n arrêté',
   serviceRestarted: (n) => '$n redémarré',
@@ -318,7 +333,8 @@ final fr = Strings(
   cantStopSsh: (n) => 'Refusé : $n est votre connexion SSH.',
   processTermSent: (cmd, pid) => "Signal d'arrêt envoyé à $cmd ($pid)",
   processKilled: (cmd, pid) => '$cmd ($pid) tué',
-  userCreated: (n) => 'Utilisateur $n créé (pense à lui donner un mot de passe : p)',
+  userCreated: (n) =>
+      'Utilisateur $n créé (pense à lui donner un mot de passe : p)',
   userDeleted: (n) => 'Utilisateur $n supprimé',
   passwordChanged: (n) => 'Mot de passe de $n modifié',
   userUnlocked: (n) => '$n déverrouillé',
@@ -421,8 +437,20 @@ final en = Strings(
   askDeleteUser: (n, home) => 'DELETE $n and their home $home?',
   cannotDeleteRoot: "Root can't be deleted 🙂",
   cannotDeleteYourself: "You can't delete yourself",
-  cannotLockYourself: "You can't lock yourself",
-  cannotRevokeOwnAdmin: "You can't revoke your own admin rights",
+  verb: (v) => switch (v) {
+    'stop' => 'stop',
+    'disable' => 'disable',
+    'restart' => 'restart',
+    'delete' => 'delete',
+    'lock' => 'lock',
+    'revokeAdmin' => 'remove admin rights from',
+    _ => v,
+  },
+  refusalMessage: ((r, verb, action) => switch (r) {
+    RefusalReason.selfTarget => "Refused: you can't $verb your own account.",
+    RefusalReason.sshLockout =>
+      "Refused: you can't $verb $action over SSH, it would cut your connection.",
+  }),
   serviceStarted: (n) => '$n started',
   serviceStopped: (n) => '$n stopped',
   serviceRestarted: (n) => '$n restarted',

@@ -119,16 +119,17 @@ void _serviceKeys(VigieState s, String c) {
     _ => ('', '', ''),
   };
   if (verb.isEmpty) return;
-  if (riskyOnSsh.contains(verb) && checkServiceTarget(Platform.environment, n, readAncestorNames()) != null) {
+  if (riskyOnSsh.contains(verb) &&
+      checkServiceTarget(Platform.environment, n, readAncestorNames()) !=
+          null) {
     s.setMessage(s.t.cantStopSsh(n), error: true);
     return;
   }
-  _ask(s, question, () async { 
+  _ask(s, question, () async {
     final result = await serviceAction(verb, svc);
     invalidateServices();
     return result;
-  }
-  , done);
+  }, done);
 }
 
 void _processKeys(VigieState s, String c) {
@@ -175,8 +176,13 @@ void _userKeys(VigieState s, String c) {
       );
     case 'v' when u != null:
       final unlock = u.locked == true;
-      if (checkUserTarget(Platform.environment, u.name) != null && !unlock) {
-        s.setMessage(s.t.cannotLockYourself, error: true);
+      final reason = checkUserTarget(Platform.environment, u.name);
+      if (reason != null && !unlock) {
+        final verb = s.t.verb('lock');
+        s.setMessage(
+          s.t.refusalMessage(reason, verb, u.name),
+          error: true,
+        );
         return;
       }
       _ask(
@@ -187,8 +193,13 @@ void _userKeys(VigieState s, String c) {
       );
     case 'g' when u != null:
       final isIn = u.groups.contains(s.adminGroup);
-      if (checkUserTarget(Platform.environment, u.name) != null && isIn) {
-        s.setMessage(s.t.cannotRevokeOwnAdmin, error: true);
+      final reason = checkUserTarget(Platform.environment, u.name);
+      if (reason != null && isIn) {
+        final verb = s.t.verb('revokeAdmin');
+        s.setMessage(
+          s.t.refusalMessage(reason, verb, u.name),
+          error: true,
+        );
         return;
       }
       _ask(
@@ -206,8 +217,13 @@ void _userKeys(VigieState s, String c) {
         s.setMessage(s.t.cannotDeleteRoot, error: true);
         return;
       }
-      if (checkUserTarget(Platform.environment, u.name) != null) {
-        s.setMessage(s.t.cannotDeleteYourself, error: true);
+      final reason = checkUserTarget(Platform.environment, u.name);
+      if (reason != null) {
+        final verb = s.t.verb('delete');
+        s.setMessage(
+          s.t.refusalMessage(reason, verb, u.name),
+          error: true,
+        );
         return;
       }
       _ask(
