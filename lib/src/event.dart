@@ -137,9 +137,24 @@ void _serviceKeys(VigieState s, String c) {
 }
 
 void _processKeys(VigieState s, String c) {
+  final vigiePid = pid;
   final p = s.selectedProcess;
   if (p == null) return;
+  final (verb, question, done) = switch (c) {
+    't' => ('terminate', s.t.askTerm(p.command, p.pid), s.t.processTermSent(p.command, p.pid)),
+    'k' => ('kill', s.t.askKill(p.command, p.pid), s.t.processKilled(p.command, p.pid)),
+    _ => ('', '', '')
+  };
+  if (verb.isEmpty) return;
+  final reason = checkProcessTarget(p.pid, vigiePid);
   if (c == 't') {
+    if (reason != null) {
+      s.setMessage(
+        s.t.refusalMessage(reason, s.t.verb('term'), 't'),
+        error: true,
+      );
+      return;
+    }
     _ask(
       s,
       s.t.askTerm(p.command, p.pid),
@@ -147,6 +162,13 @@ void _processKeys(VigieState s, String c) {
       s.t.processTermSent(p.command, p.pid),
     );
   } else if (c == 'K') {
+    if (reason != null) {
+      s.setMessage(
+        s.t.refusalMessage(reason, s.t.verb('kill'), 't'),
+        error: true,
+      );
+      return;
+    }
     _ask(
       s,
       s.t.askKill(p.command, p.pid),
@@ -179,7 +201,7 @@ void _userKeys(VigieState s, String c) {
         done: (_) => s.t.passwordChanged(u.name),
       );
     case 'v' when u != null:
-      const action = 'lock';
+      const action = UserAction.lock;
       final unlock = u.locked == true;
       final reason = checkUserTarget(
         Platform.environment,
@@ -189,13 +211,13 @@ void _userKeys(VigieState s, String c) {
       );
       if (reason != null && !unlock) {
         s.setMessage(
-          s.t.refusalMessage(reason, s.t.verb(action), u.name),
+          s.t.refusalMessage(reason, s.t.verb(action.name), u.name),
           error: true,
         );
         return;
       }
     case 'g' when u != null:
-      const action = 'revokeAdmin';
+      const action = UserAction.revokeAdmin;
       final isIn = u.groups.contains(s.adminGroup);
       final reason = checkUserTarget(
         Platform.environment,
@@ -205,13 +227,13 @@ void _userKeys(VigieState s, String c) {
       );
       if (reason != null && isIn) {
         s.setMessage(
-          s.t.refusalMessage(reason, s.t.verb(action), u.name),
+          s.t.refusalMessage(reason, s.t.verb(action.name), u.name),
           error: true,
         );
         return;
       }
     case 'D' when u != null:
-      const action = 'delete';
+      const action = UserAction.delete;
       final reason = checkUserTarget(
         Platform.environment,
         u.name,
@@ -220,7 +242,7 @@ void _userKeys(VigieState s, String c) {
       );
       if (reason != null) {
         s.setMessage(
-          s.t.refusalMessage(reason, s.t.verb(action), u.name),
+          s.t.refusalMessage(reason, s.t.verb(action.name), u.name),
           error: true,
         );
         return;

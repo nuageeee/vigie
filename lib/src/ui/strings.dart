@@ -315,6 +315,8 @@ final fr = Strings(
     'disable' => 'désactiver',
     'restart' => 'redémarrer',
     'delete' => 'supprimer',
+    'term' => 'terminer',
+    'kill' => 'tuer',
     'lock' => 'verrouiller',
     'revokeAdmin' => 'retirer les droits admin de',
     _ => v,
@@ -326,6 +328,10 @@ final fr = Strings(
       'Refusé : impossible de $verb $action en session SSH, cela couperait votre connexion.',
     RefusalReason.rootTarget =>
       "Refusé : impossible de $verb $action, c'est le compte root,",
+    RefusalReason.initTarget =>
+      "Refusé : impossible de $verb le processus $action, c'est le processus init de systemd.",
+    RefusalReason.vigieTarget =>
+      "Refusé : impossible de $verb le processus $action, c'est vigie lui-même.",
   }),
   serviceStarted: (n) => '$n démarré',
   serviceStopped: (n) => '$n arrêté',
@@ -445,6 +451,8 @@ final en = Strings(
     'restart' => 'restart',
     'delete' => 'delete',
     'lock' => 'lock',
+    'term' => 'terminate',
+    'kill' => 'kill',
     'revokeAdmin' => 'remove admin rights from',
     _ => v,
   },
@@ -454,6 +462,10 @@ final en = Strings(
       "Refused: you can't $verb $action over SSH, it would cut your connection.",
     RefusalReason.rootTarget =>
       "Refused: you can't $verb $action, it's the root account.",
+    RefusalReason.initTarget =>
+      "Refused: you can't $verb the proccess $action, it's the systemd proccess.",
+    RefusalReason.vigieTarget =>
+      "Refused: you can't $verb the proccess $action, it's Vigie itself.",
   }),
   serviceStarted: (n) => '$n started',
   serviceStopped: (n) => '$n stopped',
