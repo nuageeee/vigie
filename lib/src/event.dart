@@ -126,7 +126,7 @@ void _serviceKeys(VigieState s, String c) {
       : null;
 
   if (reason != null) {
-    s.setMessage(s.t.refusalMessage(reason, verb, n), error: true);
+    s.setMessage(s.t.refusalMessage(reason, s.t.verb(verb), n), error: true);
     return;
   }
   _ask(s, question, () async {
@@ -179,65 +179,52 @@ void _userKeys(VigieState s, String c) {
         done: (_) => s.t.passwordChanged(u.name),
       );
     case 'v' when u != null:
+      const action = 'lock';
       final unlock = u.locked == true;
       final reason = checkUserTarget(
         Platform.environment,
         u.name,
         u.uid,
-        s.t.verb('lock'),
+        action,
       );
       if (reason != null && !unlock) {
-        final verb = s.t.verb('lock');
-        s.setMessage(s.t.refusalMessage(reason, verb, u.name), error: true);
+        s.setMessage(
+          s.t.refusalMessage(reason, s.t.verb(action), u.name),
+          error: true,
+        );
         return;
       }
-      _ask(
-        s,
-        unlock ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
-        () => toggleLock(u),
-        unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name),
-      );
     case 'g' when u != null:
+      const action = 'revokeAdmin';
       final isIn = u.groups.contains(s.adminGroup);
       final reason = checkUserTarget(
         Platform.environment,
         u.name,
         u.uid,
-        s.t.verb('revokeAdmin'),
+        action,
       );
       if (reason != null && isIn) {
-        final verb = s.t.verb('revokeAdmin');
-        s.setMessage(s.t.refusalMessage(reason, verb, u.name), error: true);
+        s.setMessage(
+          s.t.refusalMessage(reason, s.t.verb(action), u.name),
+          error: true,
+        );
         return;
       }
-      _ask(
-        s,
-        isIn
-            ? s.t.askRevokeAdmin(s.adminGroup, u.name)
-            : s.t.askGrantAdmin(s.adminGroup, u.name),
-        () => toggleAdmin(u, s.adminGroup),
-        isIn
-            ? s.t.adminRevoked(u.name, s.adminGroup)
-            : s.t.adminGranted(u.name, s.adminGroup),
-      );
     case 'D' when u != null:
+      const action = 'delete';
       final reason = checkUserTarget(
         Platform.environment,
         u.name,
         u.uid,
-        s.t.verb('delete'),
+        action,
       );
       if (reason != null) {
-        final verb = s.t.verb('delete');
-        s.setMessage(s.t.refusalMessage(reason, verb, u.name), error: true);
+        s.setMessage(
+          s.t.refusalMessage(reason, s.t.verb(action), u.name),
+          error: true,
+        );
         return;
       }
-      _ask(
-        s,
-        s.t.askDeleteUser(u.name, u.home),
-        () => deleteUser(u),
-        s.t.userDeleted(u.name),
-      );
   }
 }
 
