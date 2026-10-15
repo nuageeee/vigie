@@ -324,6 +324,8 @@ final fr = Strings(
       'Refusé : impossible de $verb votre propre compte.',
     RefusalReason.sshLockout =>
       'Refusé : impossible de $verb $action en session SSH, cela couperait votre connexion.',
+    RefusalReason.rootTarget =>
+      "Refusé : impossible de $verb $action, c'est le compte root,",
   }),
   serviceStarted: (n) => '$n démarré',
   serviceStopped: (n) => '$n arrêté',
@@ -450,6 +452,8 @@ final en = Strings(
     RefusalReason.selfTarget => "Refused: you can't $verb your own account.",
     RefusalReason.sshLockout =>
       "Refused: you can't $verb $action over SSH, it would cut your connection.",
+    RefusalReason.rootTarget =>
+      "Refused: you can't $verb $action, it's the root account.",
   }),
   serviceStarted: (n) => '$n started',
   serviceStopped: (n) => '$n stopped',

@@ -107,6 +107,7 @@ void _ask(
 
 void _serviceKeys(VigieState s, String c) {
   const riskyOnSsh = {'stop', 'disable', 'restart'};
+
   final svc = s.selectedService;
   if (svc == null) return;
   final n = svc.name;
@@ -119,10 +120,13 @@ void _serviceKeys(VigieState s, String c) {
     _ => ('', '', ''),
   };
   if (verb.isEmpty) return;
-  if (riskyOnSsh.contains(verb) &&
-      checkServiceTarget(Platform.environment, n, readAncestorNames()) !=
-          null) {
-    s.setMessage(s.t.cantStopSsh(n), error: true);
+
+  final reason = riskyOnSsh.contains(verb)
+      ? checkServiceTarget(Platform.environment, n, readAncestorNames())
+      : null;
+
+  if (reason != null) {
+    s.setMessage(s.t.refusalMessage(reason, verb, n), error: true);
     return;
   }
   _ask(s, question, () async {
@@ -176,13 +180,15 @@ void _userKeys(VigieState s, String c) {
       );
     case 'v' when u != null:
       final unlock = u.locked == true;
-      final reason = checkUserTarget(Platform.environment, u.name);
+      final reason = checkUserTarget(
+        Platform.environment,
+        u.name,
+        u.uid,
+        s.t.verb('lock'),
+      );
       if (reason != null && !unlock) {
         final verb = s.t.verb('lock');
-        s.setMessage(
-          s.t.refusalMessage(reason, verb, u.name),
-          error: true,
-        );
+        s.setMessage(s.t.refusalMessage(reason, verb, u.name), error: true);
         return;
       }
       _ask(
@@ -193,13 +199,15 @@ void _userKeys(VigieState s, String c) {
       );
     case 'g' when u != null:
       final isIn = u.groups.contains(s.adminGroup);
-      final reason = checkUserTarget(Platform.environment, u.name);
+      final reason = checkUserTarget(
+        Platform.environment,
+        u.name,
+        u.uid,
+        s.t.verb('revokeAdmin'),
+      );
       if (reason != null && isIn) {
         final verb = s.t.verb('revokeAdmin');
-        s.setMessage(
-          s.t.refusalMessage(reason, verb, u.name),
-          error: true,
-        );
+        s.setMessage(s.t.refusalMessage(reason, verb, u.name), error: true);
         return;
       }
       _ask(
@@ -213,17 +221,15 @@ void _userKeys(VigieState s, String c) {
             : s.t.adminGranted(u.name, s.adminGroup),
       );
     case 'D' when u != null:
-      if (u.uid == 0) {
-        s.setMessage(s.t.cannotDeleteRoot, error: true);
-        return;
-      }
-      final reason = checkUserTarget(Platform.environment, u.name);
+      final reason = checkUserTarget(
+        Platform.environment,
+        u.name,
+        u.uid,
+        s.t.verb('delete'),
+      );
       if (reason != null) {
         final verb = s.t.verb('delete');
-        s.setMessage(
-          s.t.refusalMessage(reason, verb, u.name),
-          error: true,
-        );
+        s.setMessage(s.t.refusalMessage(reason, verb, u.name), error: true);
         return;
       }
       _ask(
