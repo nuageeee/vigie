@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.5] - 2026-10-15
+
+### Security
+- Deleting the `root` account is now refused by the same guard as the other lockout protections. Locking `root` is still allowed, since it is a common hardening step.
+
+### Changed
+- All refusal rules now live in a single module (`guards.dart`) with one shared reason type, and all refusal messages go through one translated function. A new refusal cannot be added without its message in both languages.
+- Refusal messages now name the exact action that was blocked (delete, lock, remove admin rights, stop, disable, restart).
+
+### Tests
+- Tests for the user guard: root deletion refused, root lock and admin change allowed, self-targeting refused for every action, and normal actions on other users allowed.
+- Test folders reorganized into `parsers/`, `compute/` and `guards/`.
+
 ## [0.7.4] - 2026-10-14
 
 ### Changed
