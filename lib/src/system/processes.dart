@@ -109,3 +109,31 @@ String? _field(String status, String key) {
 
 Future<CmdResult> killProcess(Proc p, {bool force = false}) =>
     run('kill', [force ? '-KILL' : '-TERM', '${p.pid}']);
+
+int? parsePpid(String stat) {
+  final end = stat.lastIndexOf(')');
+  if (end == -1) return null;
+
+  final after = stat.substring(end + 1);
+  final pieces = after.trim().split(' ');
+  if (pieces.length < 2) return null;
+
+  return int.tryParse(pieces[1]);
+}
+
+List<String> readAncestorNames() {
+  var current = pid;
+  final parents = <String>[];
+  for (var i = 0; i < 64; i++) {
+    try {
+      final name = readFile('/proc/$current/comm').trim();
+      var stat = parsePpid(readFile('/proc/$current/stat'));
+      parents.add(name);
+      if (stat == null || stat <= 1) break;
+      current = stat;
+    } catch (_) {
+      break;
+    }
+  }
+  return parents;
+}

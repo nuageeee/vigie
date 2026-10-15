@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/system/guards.dart';
 import 'package:vigie/src/system/processes.dart';
 import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/system/shell.dart';

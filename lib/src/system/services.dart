@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'shell.dart';
 
 List<Service>? _lastServiceList;
@@ -22,49 +20,6 @@ class Service {
 
   bool get isRunning => active == 'active';
   bool get isFailed => active == 'failed';
-}
-
-final _sshProcess = RegExp(r'^(sshd|sshd-session)$');
-
-bool hasSshAncestor(List<String> ancestors) =>
-    ancestors.any((name) => _sshProcess.hasMatch(name));
-
-int? parsePpid(String stat) {
-  final end = stat.lastIndexOf(')');
-  if (end == -1) return null;
-
-  final after = stat.substring(end + 1);
-  final pieces = after.trim().split(' ');
-  if (pieces.length < 2) return null;
-
-  return int.tryParse(pieces[1]);
-}
-
-List<String> readAncestorNames() {
-  var current = pid;
-  final parents = <String>[];
-  for (var i = 0; i < 64; i++) {
-    try {
-      final name = readFile('/proc/$current/comm').trim();
-      var stat = parsePpid(readFile('/proc/$current/stat'));
-      parents.add(name);
-      if (stat == null || stat <= 1) break;
-      current = stat;
-    } catch (_) {
-      break;
-    }
-  }
-  return parents;
-}
-
-enum SshRefusalReason { sshLockout }
-
-final _sshService = RegExp(r'^(ssh|sshd)(\.service|\.socket)?$');
-SshRefusalReason? checkServiceTarget(Map<String, String> env, String service, List<String> ancestors) {
-  final inSsh = env['SSH_CONNECTION'] != null || hasSshAncestor(ancestors);
-  final targetsSsh = _sshService.hasMatch(service);
-  if (inSsh && targetsSsh) return SshRefusalReason.sshLockout;
-  return null;
 }
 
 const _servicesInterval = Duration(seconds: 10);

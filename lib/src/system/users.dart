@@ -20,10 +20,6 @@ class SysUser {
   bool isAdmin(String adminGroup) => uid == 0 || groups.contains(adminGroup);
 }
 
-enum RefusalReason { selfTarget }
-
-RefusalReason? checkUserTarget(Map<String, String> env, String user) => env['SUDO_USER'] == user ? RefusalReason.selfTarget : null;
-
 /// Groupe qui donne les droits sudo : `sudo` (Debian/Ubuntu) ou `wheel` (Arch, Fedora).
 String detectAdminGroup() {
   final groups = readFile('/etc/group');

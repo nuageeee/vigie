@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vigie/src/system/services.dart';
+import 'package:vigie/src/system/guards.dart';
 
 void main() {
   group('checkServiceTarget', () {
@@ -7,7 +7,7 @@ void main() {
       final env = {'SSH_CONNECTION': '203.0.113.5 52344 10.0.0.1 22'};
       expect(
         checkServiceTarget(env, 'ssh.socket', []),
-        SshRefusalReason.sshLockout,
+        RefusalReason.sshLockout,
       );
     });
     test('allows targeting sshguard in SSH', () {

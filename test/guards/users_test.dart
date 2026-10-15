@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:vigie/src/system/users.dart';
+import 'package:vigie/src/system/guards.dart';
 
 void main() {
   group('RefusalReason', () {
