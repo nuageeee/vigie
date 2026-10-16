@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.6] - 2026-10-16
+
+### Security
+- Killing PID 1 (the system's init process) is now refused, for both terminate (`t`) and kill (`K`).
+- Vigie now refuses to kill its own process.
+
+### Changed
+- User actions passed to the guards are now a typed `UserAction` enum instead of plain strings, so a translated label can no longer be passed by mistake.
+- The process actions share a single code path for confirmation and refusal, like the service actions.
+
+### Tests
+- Tests for the process guard: PID 1 refused, Vigie's own process refused, other processes allowed.
+
 ## [0.7.5] - 2026-10-15
 
 ### Security
