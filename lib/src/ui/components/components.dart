@@ -139,10 +139,10 @@ void networkPanels(RenderContext ctx, VigieState s, Rect area) {
 
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
   if (inner.height < 2 || inner.width <= 0) return;
-  final received = n.received;
-  final sent = n.sent;
-  final receivedHistory = n.historyReceived;
-  final sentHistory = n.historySent;
+  final received = n.rateIn;
+  final sent = n.rateOut;
+  final receivedHistory = n.historyRateIn;
+  final sentHistory = n.historyRateOut;
 
   final receivedTitle = '↓ ${formatOc(received.toInt(), s.t)}';
   final sentTitle = '↑ ${formatOc(sent.toInt(), s.t)}';

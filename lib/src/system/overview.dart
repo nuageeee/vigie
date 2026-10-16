@@ -26,9 +26,14 @@ class Overview {
 }
 
 final _virtualIfaces = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
+final _wholeDisk = RegExp(
+  r'^(sd[a-z]+|vd[a-z]+|xvd[a-z]+|nvme\d+n\d+|mmcblk\d+)$',
+);
+final _sectorSize = 512;
+  const _diskInterval = Duration(seconds: 30);
 
 /// Parses a text from /proc/stat into a map keyed by CPU name (cpu for the whole machine, cpu0, cpu1... for each one).
-/// 
+///
 /// Expect lines like:
 /// ```
 /// cpu  2627260 15530 3606508 683539755 17686 0 150147 48289 0 0
@@ -55,7 +60,8 @@ Map<String, (int, int)> parseCpu(String text) {
   return cpu;
 }
 
-double cpuUsagePercent(int dIdle, int dTotal) => dTotal <= 0 ? 0 : (1 - dIdle / dTotal) * 100;
+double cpuUsagePercent(int dIdle, int dTotal) =>
+    dTotal <= 0 ? 0 : (1 - dIdle / dTotal) * 100;
 
 class CpuSampler {
   /// Dernières valeurs mesurées, en %.
@@ -111,7 +117,8 @@ List<Disk> parseDisks(String text) {
   for (final line in text.split('\n').skip(1)) {
     final cols = line.trim().split(RegExp(r'\s+'));
     if (cols.length < 5) continue;
-    if (!cols[0].startsWith('/dev/') || cols[0].startsWith('/dev/loop')) continue;
+    if (!cols[0].startsWith('/dev/') || cols[0].startsWith('/dev/loop'))
+      continue;
     if (!seenDevices.add(cols[0])) continue;
 
     final name = cols[0].split('/').last;
@@ -122,6 +129,22 @@ List<Disk> parseDisks(String text) {
   }
 
   return disks;
+}
+
+(int, int) parseDiskStats(String text) {
+  int read = 0;
+  int write = 0;
+
+  for (final line in text.split('\n')) {
+    final cols = line.trim().split(RegExp(r'\s+'));
+    if (cols.length < 10) continue;
+    final name = cols[2];
+    if (!_wholeDisk.hasMatch(name)) continue;
+
+    read += (int.tryParse(cols[5]) ?? 0) * _sectorSize;
+    write += (int.tryParse(cols[9]) ?? 0) * _sectorSize;
+  }
+  return (read, write);
 }
 
 Future<List<Disk>> getDisks() async {
@@ -190,16 +213,23 @@ List<Memory> getMemory() {
   return (totalReceived, totalSent);
 }
 
-class Network {
-  int? _lastReceived;
-  int? _lastSent;
-  DateTime? _lastHour;
-  double received = 0;
-  double sent = 0;
+class RateSampler {
+  final String path;
+  final (int, int) Function(String) parse;
+
+  RateSampler(this.path, this.parse);
+
+
+  int? _lastTotalIn;
+  int? _lastTotalOut;
+  DateTime? _lastTime;
+  double rateIn = 0;
+  double rateOut = 0;
+
 
   static const _max = 90;
-  final historyReceived = <double>[];
-  final historySent = <double>[];
+  final historyRateIn = <double>[];
+  final historyRateOut = <double>[];
 
   void _push(List<double> history, double value) {
     history.add(value);
@@ -207,32 +237,32 @@ class Network {
   }
 
   void sample() {
-    final netInt = readFile('/proc/net/dev');
+    final text = readFile(path);
     final now = DateTime.now();
 
-    final (totalReceived, totalSent) = parseNetwork(netInt);
+    final (totalIn, totalOut) = parse(text);
 
-    final lastReceived = _lastReceived;
-    final lastSent = _lastSent;
-    final lastHour = _lastHour;
+    final lastTotalIn = _lastTotalIn;
+    final lastSentOut = _lastTotalOut;
+    final lastTime = _lastTime;
 
-    if (lastReceived != null && lastSent != null && lastHour != null) {
-      final seconds = now.difference(lastHour).inMilliseconds / 1000;
+    if (lastTotalIn != null && lastSentOut != null && lastTime != null) {
+      final seconds = now.difference(lastTime).inMilliseconds / 1000;
 
       if (seconds > 0) {
-        final gapReceived = totalReceived - lastReceived;
-        final gapSent = totalSent - lastSent;
+        final gapIn = totalIn - lastTotalIn;
+        final gapOut = totalOut - lastSentOut;
 
-        if (gapReceived >= 0) received = gapReceived / seconds;
-        if (gapSent >= 0) sent = gapSent / seconds;
-        _push(historyReceived, received);
-        _push(historySent, sent);
+        if (gapIn >= 0) rateIn = gapIn / seconds;
+        if (gapOut >= 0) rateOut = gapOut / seconds;
+        _push(historyRateIn, rateIn);
+        _push(historyRateOut, rateOut);
       }
     }
 
-    _lastReceived = totalReceived;
-    _lastSent = totalSent;
-    _lastHour = now;
+    _lastTotalIn = totalIn;
+    _lastTotalOut = totalOut;
+    _lastTime = now;
   }
 }
 
@@ -266,11 +296,11 @@ Future<String> _mainIp() async {
 String? _kernel;
 String? _osNameValue;
 
-Future<Overview> loadOverview(CpuSampler cpu, Network net) async {
+Future<Overview> loadOverview(CpuSampler cpu, RateSampler net, RateSampler diskIo) async {
   cpu.sample();
   net.sample();
+  diskIo.sample();
   final currentTime = DateTime.now();
-  const diskInterval = Duration(seconds: 30);
 
   _kernel ??= (await capture('uname', ['-r'])).trim();
   _osNameValue ??= _osName();
@@ -278,7 +308,8 @@ Future<Overview> loadOverview(CpuSampler cpu, Network net) async {
   final upSeconds =
       double.tryParse(readFile('/proc/uptime').split(' ').first) ?? 0;
 
-  if (_lastHourLecture == null || currentTime.difference(_lastHourLecture!) > diskInterval) {
+  if (_lastHourLecture == null ||
+      currentTime.difference(_lastHourLecture!) > _diskInterval) {
     _lastDiskList = await getDisks();
     _lastHourLecture = currentTime;
   }

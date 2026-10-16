@@ -50,7 +50,8 @@ class VigieState {
   final Strings t;
 
   final cpu = CpuSampler();
-  final net = Network();
+  final net = RateSampler('/proc/net/dev', parseNetwork);
+  final diskIo = RateSampler('/proc/diskstats', parseDiskStats);
   final procSampler = ProcSampler();
 
   bool openShell = false;
@@ -119,7 +120,7 @@ class VigieState {
   }
 
   Future<void> refresh({bool all = false}) async {
-    overview = await loadOverview(cpu, net);
+    overview = await loadOverview(cpu, net, diskIo);
     if (all || section == Section.users) users = await loadUsers();
     if (all || section == Section.process) processes = await procSampler.sample();
     if (all || section == Section.services || section == Section.table) {
