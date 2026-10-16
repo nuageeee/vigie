@@ -1,8 +1,10 @@
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/system/overview.dart';
 
 import 'dart:math';
 
 import 'package:vigie/src/ui/components/formators.dart';
+import 'package:vigie/src/ui/strings.dart';
 
 import 'package:vigie/vigie.dart';
 
@@ -26,6 +28,38 @@ String formatHistory(List<double> history, int width) {
 
 void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
+}
+
+void rateLines(
+  RenderContext ctx,
+  Strings t,
+  Rect area,
+  RateSampler sampler,
+  String labelIn,
+  String labelOut,
+) {
+  const rowGap = 2;
+  if (area.height < rowGap + 1) return;
+
+  final titleIn = '$labelIn ${formatOc(sampler.rateIn.toInt(), t)}';
+  final titleOut = '$labelOut ${formatOc(sampler.rateOut.toInt(), t)}';
+
+  final gap = 1;
+  final labelWidth = max(titleIn.length, titleOut.length);
+  final sparkWidth = area.width - labelWidth - gap;
+
+  ctx.draw(Text(titleIn), Rect(area.x, area.y, labelWidth, 1));
+  ctx.draw(Text(titleOut), Rect(area.x, area.y + 2, labelWidth, 1));
+
+  if (sparkWidth <= 0) return;
+  ctx.draw(
+    Text(formatHistory(sampler.historyRateIn, sparkWidth)),
+    Rect(area.x + labelWidth + gap, area.y, sparkWidth, 1),
+  );
+  ctx.draw(
+    Text(formatHistory(sampler.historyRateOut, sparkWidth)),
+    Rect(area.x + labelWidth + gap, area.y + rowGap, sparkWidth, 1),
+  );
 }
 
 void _drawBars(
@@ -108,6 +142,9 @@ void diskPanels(RenderContext ctx, VigieState s, Rect area) {
   _drawBars(names, pct, ctx, area);
 }
 
+
+
+
 void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
   final o = s.overview;
   if (o == null) return;
@@ -133,28 +170,9 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
 }
 
 void networkPanels(RenderContext ctx, VigieState s, Rect area) {
-  final n = s.net;
-
   _box(ctx, area, s.t.network);
 
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
-  if (inner.height < 2 || inner.width <= 0) return;
-  final received = n.rateIn;
-  final sent = n.rateOut;
-  final receivedHistory = n.historyRateIn;
-  final sentHistory = n.historyRateOut;
 
-  final receivedTitle = '↓ ${formatOc(received.toInt(), s.t)}';
-  final sentTitle = '↑ ${formatOc(sent.toInt(), s.t)}';
-
-  final gap = 1;
-  final labelWidth = max(receivedTitle.length, sentTitle.length);
-  final sparkWidth = inner.width - labelWidth - gap;
-
-  ctx.draw(Text(receivedTitle), Rect(inner.x, inner.y, labelWidth, 1));
-  ctx.draw(Text(sentTitle), Rect(inner.x, inner.y + 2, labelWidth, 1));
-
-  if (sparkWidth <= 0) return;
-  ctx.draw(Text(formatHistory(receivedHistory, sparkWidth)), Rect(inner.x + labelWidth + gap, inner.y, labelWidth, 1));
-  ctx.draw(Text(formatHistory(sentHistory, sparkWidth)), Rect(inner.x + labelWidth + gap, inner.y + 2, labelWidth, 1));
+  rateLines(ctx, s.t, inner, s.net, '↓', '↑');
 }
