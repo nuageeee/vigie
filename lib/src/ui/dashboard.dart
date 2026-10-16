@@ -1,7 +1,12 @@
+import 'dart:math';
+
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/ui/components/components.dart';
 
 import '../state.dart';
+
+const memoryLines = 2;
+const subtitleLines = 1;
 
 /// Vue d'ensemble : jauges CPU / RAM / disque + résumé des services.
 void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
@@ -14,15 +19,17 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   final coreLines = s.cpu.cores.length.clamp(1, 8);
   final diskLines = o.disk.length.clamp(1, 6);
 
+  final diskRowHeight = max(diskLines, memoryLines) + 1 + subtitleLines + rateLinesHeight;
+
   final rows = Layout.vertical([
     Constraint.length(coreLines + 2),
-    Constraint.length(diskLines + 2),
+    Constraint.length(diskRowHeight + 2),
     const Constraint.fill(1),
   ]).split(area);
 
   final columnsTop = Layout.horizontal([
     const Constraint.fill(1),
-    const Constraint.fill(1)
+    const Constraint.fill(1),
   ]).split(rows[1]);
 
   final columnsBottom = Layout.horizontal([

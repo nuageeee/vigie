@@ -113,6 +113,9 @@ class Strings {
   final String Function(int running, int total) servicesRunning;
   final String Function(int count) servicesFailed;
   final String goToServices;
+  final String diskActivity;
+  final String diskRead;
+  final String diskWrite;
 
   // ─── Tableaux ──────────────────────────────────────────────────────────────
   final String Function(int count) usersTitle;
@@ -231,6 +234,9 @@ class Strings {
     required this.servicesTitle,
     required this.servicesRunning,
     required this.servicesFailed,
+    required this.diskActivity,
+    required this.diskRead,
+    required this.diskWrite,
     required this.goToServices,
     required this.usersTitle,
     required this.noUsers,
@@ -386,6 +392,9 @@ final fr = Strings(
   servicesTitle: ' Services ',
   servicesRunning: (r, t) => 'Services actifs : $r / $t',
   servicesFailed: (n) => 'Services en échec : $n',
+  diskActivity: 'Activité · tous les disques',
+  diskRead: 'Lecture',
+  diskWrite: 'Écriture',
   goToServices: '→ touche 4 pour aller les gérer',
   usersTitle: (n) => 'Utilisateurs ($n)',
   noUsers: 'Aucun utilisateur',
@@ -521,6 +530,9 @@ final en = Strings(
   servicesTitle: ' Services ',
   servicesRunning: (r, t) => 'Running services: $r / $t',
   servicesFailed: (n) => 'Failed services: $n',
+  diskActivity: "Activity · all disks",
+  diskRead: 'Read',
+  diskWrite: 'Write',
   goToServices: '→ press 4 to manage them',
   usersTitle: (n) => 'Users ($n)',
   noUsers: 'No users',
