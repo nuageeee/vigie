@@ -140,42 +140,32 @@ void _processKeys(VigieState s, String c) {
   final vigiePid = pid;
   final p = s.selectedProcess;
   if (p == null) return;
-  final (verb, question, done) = switch (c) {
-    't' => ('terminate', s.t.askTerm(p.command, p.pid), s.t.processTermSent(p.command, p.pid)),
-    'k' => ('kill', s.t.askKill(p.command, p.pid), s.t.processKilled(p.command, p.pid)),
-    _ => ('', '', '')
+  final (verb, question, done, force) = switch (c) {
+    't' => (
+      'term',
+      s.t.askTerm(p.command, p.pid),
+      s.t.processTermSent(p.command, p.pid),
+      false,
+    ),
+    'K' => (
+      'kill',
+      s.t.askKill(p.command, p.pid),
+      s.t.processKilled(p.command, p.pid),
+      true,
+    ),
+    _ => ('', '', '', false),
   };
   if (verb.isEmpty) return;
   final reason = checkProcessTarget(p.pid, vigiePid);
-  if (c == 't') {
-    if (reason != null) {
-      s.setMessage(
-        s.t.refusalMessage(reason, s.t.verb('term'), 't'),
-        error: true,
-      );
-      return;
-    }
-    _ask(
-      s,
-      s.t.askTerm(p.command, p.pid),
-      () => killProcess(p),
-      s.t.processTermSent(p.command, p.pid),
-    );
-  } else if (c == 'K') {
-    if (reason != null) {
-      s.setMessage(
-        s.t.refusalMessage(reason, s.t.verb('kill'), 't'),
-        error: true,
-      );
-      return;
-    }
-    _ask(
-      s,
-      s.t.askKill(p.command, p.pid),
-      () => killProcess(p, force: true),
-      s.t.processKilled(p.command, p.pid),
-    );
+
+  if (reason != null) {
+    s.setMessage(s.t.refusalMessage(reason, s.t.verb(verb), p.command), error: true);
+    return;
   }
+  _ask(s, question, () {
+    final result = killProcess(p, force: force);
+    return result;
+  }, done);
 }
 
 void _userKeys(VigieState s, String c) {
