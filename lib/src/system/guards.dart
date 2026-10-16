@@ -1,4 +1,4 @@
-enum RefusalReason { selfTarget, sshLockout, rootTarget, initTarget, vigieTarget }
+enum RefusalReason { selfTarget, sshLockout, rootTarget, initTarget, vigieTarget, lastAdmin }
 enum UserAction { lock, delete, revokeAdmin }
 
 
@@ -17,8 +17,9 @@ RefusalReason? checkServiceTarget(Map<String, String> env, String service, List<
   return null;
 }
 
-RefusalReason? checkUserTarget(Map<String, String> env, String user, int uid, UserAction action) {
+RefusalReason? checkUserTarget({required Map<String, String> env, required String user, required int uid, required UserAction action, required bool isAdmin, required int adminNumber}) {
   if (uid == rootUid && UserAction.delete == action) return RefusalReason.rootTarget;
+  if (isAdmin && adminNumber <= 1) return RefusalReason.lastAdmin;
   if (env['SUDO_USER'] == user) return RefusalReason.selfTarget;
   return null;
 }

@@ -170,6 +170,7 @@ void _processKeys(VigieState s, String c) {
 
 void _userKeys(VigieState s, String c) {
   final u = s.selectedUser;
+  final adminCount =
   switch (c) {
     case 'a':
       if (!_requireRoot(s)) return;
@@ -194,10 +195,12 @@ void _userKeys(VigieState s, String c) {
       const action = UserAction.lock;
       final unlock = u.locked == true;
       final reason = checkUserTarget(
-        Platform.environment,
-        u.name,
-        u.uid,
-        action,
+        env: Platform.environment,
+        user: u.name,
+        uid: u.uid,
+        action: action,
+        isAdmin: u.groups.contains(s.adminGroup),
+        adminNumber: 
       );
       if (reason != null && !unlock) {
         s.setMessage(
