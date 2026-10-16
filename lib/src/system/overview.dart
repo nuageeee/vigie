@@ -55,6 +55,8 @@ Map<String, (int, int)> parseCpu(String text) {
   return cpu;
 }
 
+double cpuUsagePercent(int dIdle, int dTotal) => dTotal <= 0 ? 0 : (1 - dIdle / dTotal) * 100;
+
 class CpuSampler {
   /// Dernières valeurs mesurées, en %.
   double total = 0;
@@ -85,7 +87,7 @@ class CpuSampler {
     _lastIdle[name] = idle;
     _lastTotal[name] = sum;
 
-    return dTotal <= 0 ? 0 : (1 - dIdle / dTotal) * 100;
+    return cpuUsagePercent(dIdle, dTotal);
   }
 }
 
