@@ -5,6 +5,7 @@
 ### Security
 - Killing PID 1 (the system's init process) is now refused, for both terminate (`t`) and kill (`K`).
 - Vigie now refuses to kill its own process.
+- The last member of the administrator group can no longer be deleted, locked or have admin rights removed, so the server always keeps at least one account able to use `sudo`.
 
 ### Changed
 - User actions passed to the guards are now a typed `UserAction` enum instead of plain strings, so a translated label can no longer be passed by mistake.
@@ -12,6 +13,7 @@
 
 ### Tests
 - Tests for the process guard: PID 1 refused, Vigie's own process refused, other processes allowed.
+- Tests for the last-administrator guard, including the priority between root, last-admin and self-targeting refusals.
 
 ## [0.7.5] - 2026-10-15
 
