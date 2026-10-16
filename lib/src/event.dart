@@ -159,7 +159,10 @@ void _processKeys(VigieState s, String c) {
   final reason = checkProcessTarget(p.pid, vigiePid);
 
   if (reason != null) {
-    s.setMessage(s.t.refusalMessage(reason, s.t.verb(verb), p.command), error: true);
+    s.setMessage(
+      s.t.refusalMessage(reason, s.t.verb(verb), p.command),
+      error: true,
+    );
     return;
   }
   _ask(s, question, () {
@@ -170,7 +173,9 @@ void _processKeys(VigieState s, String c) {
 
 void _userKeys(VigieState s, String c) {
   final u = s.selectedUser;
-  final adminCount =
+  final adminCount = s.users
+      .where((x) => x.groups.contains(s.adminGroup))
+      .length;
   switch (c) {
     case 'a':
       if (!_requireRoot(s)) return;
@@ -200,7 +205,7 @@ void _userKeys(VigieState s, String c) {
         uid: u.uid,
         action: action,
         isAdmin: u.groups.contains(s.adminGroup),
-        adminNumber: 
+        adminCount: adminCount,
       );
       if (reason != null && !unlock) {
         s.setMessage(
@@ -209,14 +214,22 @@ void _userKeys(VigieState s, String c) {
         );
         return;
       }
+      _ask(
+        s,
+        unlock ? s.t.askUnlock(u.name) : s.t.askLock(u.name),
+        () => toggleLock(u),
+        unlock ? s.t.userUnlocked(u.name) : s.t.userLocked(u.name),
+      );
     case 'g' when u != null:
       const action = UserAction.revokeAdmin;
       final isIn = u.groups.contains(s.adminGroup);
       final reason = checkUserTarget(
-        Platform.environment,
-        u.name,
-        u.uid,
-        action,
+        env: Platform.environment,
+        user: u.name,
+        uid: u.uid,
+        action: action,
+        isAdmin: isIn,
+        adminCount: adminCount,
       );
       if (reason != null && isIn) {
         s.setMessage(
@@ -225,13 +238,25 @@ void _userKeys(VigieState s, String c) {
         );
         return;
       }
+      _ask(
+        s,
+        isIn
+            ? s.t.askRevokeAdmin(s.adminGroup, u.name)
+            : s.t.askGrantAdmin(s.adminGroup, u.name),
+        () => toggleAdmin(u, s.adminGroup),
+        isIn
+            ? s.t.adminRevoked(u.name, s.adminGroup)
+            : s.t.adminGranted(u.name, s.adminGroup),
+      );
     case 'D' when u != null:
       const action = UserAction.delete;
       final reason = checkUserTarget(
-        Platform.environment,
-        u.name,
-        u.uid,
-        action,
+        env: Platform.environment,
+        user: u.name,
+        uid: u.uid,
+        action: action,
+        isAdmin: u.groups.contains(s.adminGroup),
+        adminCount: adminCount,
       );
       if (reason != null) {
         s.setMessage(
@@ -240,6 +265,12 @@ void _userKeys(VigieState s, String c) {
         );
         return;
       }
+      _ask(
+        s,
+        s.t.askDeleteUser(u.name, u.home),
+        () => deleteUser(u),
+        s.t.userDeleted(u.name),
+      );
   }
 }
 

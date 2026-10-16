@@ -332,6 +332,8 @@ final fr = Strings(
       "Refusé : impossible de $verb le processus $action, c'est le processus init de systemd.",
     RefusalReason.vigieTarget =>
       "Refusé : impossible de $verb le processus $action, c'est vigie lui-même.",
+    RefusalReason.lastAdmin =>
+      "Refusé : impossible de $verb $action, c'est le dernier compte administrateur.",
   }),
   serviceStarted: (n) => '$n démarré',
   serviceStopped: (n) => '$n arrêté',
@@ -466,6 +468,8 @@ final en = Strings(
       "Refused: you can't $verb the proccess $action, it's the systemd proccess.",
     RefusalReason.vigieTarget =>
       "Refused: you can't $verb the proccess $action, it's Vigie itself.",
+    RefusalReason.lastAdmin =>
+      "Refused: you can't $verb $action, it's the last administrator account.",
   }),
   serviceStarted: (n) => '$n started',
   serviceStopped: (n) => '$n stopped',
