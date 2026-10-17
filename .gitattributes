@@ -1,0 +1,7 @@
+# Line endings: always LF in the repository and in working copies,
+# whatever the OS (bash scripts break with CRLF).
+* text=auto eol=lf
+
+*.png binary
+*.gif binary
+*.jpg binary

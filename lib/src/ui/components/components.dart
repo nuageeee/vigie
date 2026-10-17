@@ -3,7 +3,7 @@ import 'package:vigie/src/system/overview.dart';
 
 import 'dart:math';
 
-import 'package:vigie/src/ui/components/formators.dart';
+import 'package:vigie/src/ui/components/formatters.dart';
 import 'package:vigie/src/ui/strings.dart';
 
 import 'package:vigie/vigie.dart';
