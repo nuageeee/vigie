@@ -65,6 +65,7 @@ class VigieState {
 
   final usersTable = TableState<SysUser>();
   final processesTable = TableState<Proc>();
+  final topProcessesTable = TableState<Proc>()..activeRow = -1;
   final servicesTable = TableState<Service>();
 
   late String status = t.ready;
@@ -75,13 +76,9 @@ class VigieState {
   bool _refreshing = false;
   bool _refreshAgain = false;
 
-  final clickZones =  <ClickZone>[];
+  final clickZones = <ClickZone>[];
 
-  VigieState({
-    required this.isRoot,
-    required this.adminGroup,
-    required this.t,
-  });
+  VigieState({required this.isRoot, required this.adminGroup, required this.t});
 
   final events = StreamController<Event>();
 
@@ -122,9 +119,11 @@ class VigieState {
   Future<void> refresh({bool all = false}) async {
     overview = await loadOverview(cpu, net, diskIo);
     if (all || section == Section.users) users = await loadUsers();
-    if (all || section == Section.process) processes = await procSampler.sample();
+    if (all || section == Section.process || section == Section.table) {
+      processes = await procSampler.sample();
+    }
     if (all || section == Section.services || section == Section.table) {
       services = await loadServices();
     }
-  } 
+  }
 }

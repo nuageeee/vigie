@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/ui/components/components.dart';
+import 'package:vigie/src/ui/tables.dart';
 
 import '../state.dart';
 
@@ -19,11 +20,13 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   final coreLines = s.cpu.cores.length.clamp(1, 8);
   final diskLines = o.disk.length.clamp(1, 6);
 
-  final diskRowHeight = max(diskLines, memoryLines) + 1 + subtitleLines + rateLinesHeight;
+  final diskRowHeight =
+      max(diskLines, memoryLines) + 1 + subtitleLines + rateLinesHeight;
 
   final rows = Layout.vertical([
     Constraint.length(coreLines + 2),
     Constraint.length(diskRowHeight + 2),
+    Constraint.length(rateLinesHeight + 2),
     const Constraint.fill(1),
   ]).split(area);
 
@@ -38,6 +41,7 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
   ]).split(rows[2]);
 
   cpuPanels(ctx, s, rows[0]);
+  renderTopProcesses(ctx, s, rows[3]);
 
   diskPanels(ctx, s, columnsTop[0]);
   memoryPanels(ctx, s, columnsTop[1]);

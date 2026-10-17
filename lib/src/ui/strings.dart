@@ -116,6 +116,7 @@ class Strings {
   final String diskActivity;
   final String diskRead;
   final String diskWrite;
+  final String topProcesses;
 
   // ─── Tableaux ──────────────────────────────────────────────────────────────
   final String Function(int count) usersTitle;
@@ -237,6 +238,7 @@ class Strings {
     required this.diskActivity,
     required this.diskRead,
     required this.diskWrite,
+    required this.topProcesses,
     required this.goToServices,
     required this.usersTitle,
     required this.noUsers,
@@ -395,6 +397,7 @@ final fr = Strings(
   diskActivity: 'Activité · tous les disques',
   diskRead: 'Lecture',
   diskWrite: 'Écriture',
+  topProcesses: 'Top processus',
   goToServices: '→ touche 4 pour aller les gérer',
   usersTitle: (n) => 'Utilisateurs ($n)',
   noUsers: 'Aucun utilisateur',
@@ -533,6 +536,7 @@ final en = Strings(
   diskActivity: "Activity · all disks",
   diskRead: 'Read',
   diskWrite: 'Write',
+  topProcesses: 'Top processes',
   goToServices: '→ press 4 to manage them',
   usersTitle: (n) => 'Users ($n)',
   noUsers: 'No users',

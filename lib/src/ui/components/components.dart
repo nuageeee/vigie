@@ -216,3 +216,7 @@ void networkPanels(RenderContext ctx, VigieState s, Rect area) {
 
   rateLines(ctx, s.t, inner, s.net, '↓', '↑');
 }
+
+void topProcessesPanels(RenderContext ctx, VigieState s, Rect area) {
+  _box(ctx, area, s.t.topProcesses);
+}
