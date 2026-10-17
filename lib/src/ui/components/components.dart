@@ -75,7 +75,6 @@ void rateLines(
 ) {
   if (area.height < rateLinesHeight) return;
 
-  const gap = 1;
   final yIn = area.y;
   final yOut = area.y + rateLinesHeight - 1;
 
@@ -84,7 +83,6 @@ void rateLines(
 
   final labelWidth = max(labelIn.length, labelOut.length);
   final valueWidth = max(valueIn.length, valueOut.length);
-  final sparkWidth = area.width - labelWidth - gap - valueWidth - gap;
 
   historyLine(
     ctx,
