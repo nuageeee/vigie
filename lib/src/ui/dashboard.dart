@@ -17,7 +17,7 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
     return;
   }
 
-  final coreLines = s.cpu.cores.length.clamp(1, 8);
+  final coreLines = (s.cpu.cores.length / 2).ceil().clamp(1, 8);
   final diskLines = o.disk.length.clamp(1, 6);
 
   final diskRowHeight =

@@ -145,8 +145,21 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   final names = List.generate(cores.length, ((i) => 'C$i'));
 
   _box(ctx, area, s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0)));
+  
+  final columnsWidth = _longestName(names) + maxBarWidth + 8;
+  final barsWidth = 2 * columnsWidth + 4;
 
-  _drawBars(names, cores, ctx, area);
+  final barsArea = Rect(area.x, area.y, min(area.width, barsWidth), area.height);
+
+  _drawBars(names, cores, ctx, barsArea);
+
+  final historyX = barsArea.x + barsArea.width;
+  final historyWidth = historyX + area.right - 2;
+  if (historyWidth < 20) return;
+
+  ctx.draw(
+    Text('Total')
+  )
 }
 
 void diskPanels(RenderContext ctx, VigieState s, Rect area) {
