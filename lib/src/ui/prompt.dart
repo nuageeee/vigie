@@ -13,8 +13,8 @@ void renderPrompt(RenderContext ctx, TextPrompt p, Rect area) {
 
   final shown = p.obscure ? '•' * p.value.length : p.value;
   final text = StringBuffer()
-  ..writeln('${p.label} :')
-  ..writeln('> $shown');
+    ..writeln('${p.label} :')
+    ..writeln('> $shown');
 
   ctx.draw(
     Container(
@@ -23,7 +23,7 @@ void renderPrompt(RenderContext ctx, TextPrompt p, Rect area) {
       padding: const EdgeInsets(left: 2, right: 2, top: 1),
       child: Paragraph(text.toString()),
     ),
-    box
+    box,
   );
 
   final err = p.error;

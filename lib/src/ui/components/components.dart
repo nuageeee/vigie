@@ -72,11 +72,11 @@ void rateLines(
   if (sparkWidth <= 0) return;
   final sparkX = area.x + labelWidth + gap;
   ctx.draw(
-    Text(formatHistory(sampler.historyRateIn, sparkWidth)),
+    Text(formatHistory(sampler.historyIn.values, sparkWidth)),
     Rect(sparkX, yIn, sparkWidth, 1),
   );
   ctx.draw(
-    Text(formatHistory(sampler.historyRateOut, sparkWidth)),
+    Text(formatHistory(sampler.historyOut.values, sparkWidth)),
     Rect(sparkX, yOut, sparkWidth, 1),
   );
 }

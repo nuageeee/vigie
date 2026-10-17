@@ -37,28 +37,28 @@ Future<String> capture(String exe, List<String> args) async {
 Future<CmdResult> run(
   String exe,
   List<String> args, {
-    String? stdinData,
-  }) async {
-    try {
-      final p = await Process.start(exe, args);
-      if (stdinData != null) {
-        p.stdin.write(stdinData);
-      }
-      await p.stdin.close();
-
-      final outFuture = p.stdout.transform(utf8.decoder).join();
-      final errFuture = p.stderr.transform(utf8.decoder).join();
-      final out = await outFuture;
-      final err = await errFuture;
-      final code = await p.exitCode;
-
-      if (code == 0) return CmdResult(true, exe: exe, exitCode: code);
-      final msg = (err.trim().isNotEmpty ? err : out).trim().split('\n').first;
-      return CmdResult(false, exe: exe, exitCode: code, output: msg);
-    } catch (e) {
-      return CmdResult(false, exe: exe, error: e);
+  String? stdinData,
+}) async {
+  try {
+    final p = await Process.start(exe, args);
+    if (stdinData != null) {
+      p.stdin.write(stdinData);
     }
+    await p.stdin.close();
+
+    final outFuture = p.stdout.transform(utf8.decoder).join();
+    final errFuture = p.stderr.transform(utf8.decoder).join();
+    final out = await outFuture;
+    final err = await errFuture;
+    final code = await p.exitCode;
+
+    if (code == 0) return CmdResult(true, exe: exe, exitCode: code);
+    final msg = (err.trim().isNotEmpty ? err : out).trim().split('\n').first;
+    return CmdResult(false, exe: exe, exitCode: code, output: msg);
+  } catch (e) {
+    return CmdResult(false, exe: exe, error: e);
   }
+}
 
 String readFile(String path) {
   try {

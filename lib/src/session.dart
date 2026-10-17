@@ -78,7 +78,7 @@ File _writeRcFile() {
     if (result.exitCode != 0) {
       return f;
     }
-  } catch(_) {
+  } catch (_) {
     return f;
   }
   f.writeAsStringSync(
