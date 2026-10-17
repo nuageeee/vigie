@@ -18,11 +18,10 @@ String formatOc(int oc, Strings t) {
   double value = oc.toDouble();
   var i = 0;
 
-  while (value >= 1000 && i < unit.length -1) {
+  while (value >= 1000 && i < unit.length - 1) {
     value /= 1000;
     i++;
   }
-
 
   return '${value.toStringAsFixed(1)} ${unit[i]}/s';
 }

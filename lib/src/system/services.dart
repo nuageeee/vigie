@@ -32,7 +32,9 @@ void invalidateServices() {
 Future<List<Service>> loadServices() async {
   final currentTime = DateTime.now();
 
-  if (_lastServiceList != null && _lastServicesRead != null && currentTime.difference(_lastServicesRead!) < _servicesInterval) {
+  if (_lastServiceList != null &&
+      _lastServicesRead != null &&
+      currentTime.difference(_lastServicesRead!) < _servicesInterval) {
     return _lastServiceList!;
   }
 

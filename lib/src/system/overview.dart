@@ -30,7 +30,7 @@ final _wholeDisk = RegExp(
   r'^(sd[a-z]+|vd[a-z]+|xvd[a-z]+|nvme\d+n\d+|mmcblk\d+)$',
 );
 final _sectorSize = 512;
-  const _diskInterval = Duration(seconds: 30);
+const _diskInterval = Duration(seconds: 30);
 
 /// Parses a text from /proc/stat into a map keyed by CPU name (cpu for the whole machine, cpu0, cpu1... for each one).
 ///
@@ -68,6 +68,7 @@ class CpuSampler {
   double total = 0;
   List<double> cores = [];
 
+  final historyTotal = History();
   final _lastIdle = <String, int>{};
   final _lastTotal = <String, int>{};
 
@@ -85,6 +86,7 @@ class CpuSampler {
       }
     }
     cores = newCores;
+    historyTotal.push(total);
   }
 
   double _usage(String name, int idle, int sum) {
@@ -117,8 +119,7 @@ List<Disk> parseDisks(String text) {
   for (final line in text.split('\n').skip(1)) {
     final cols = line.trim().split(RegExp(r'\s+'));
     if (cols.length < 5) continue;
-    if (!cols[0].startsWith('/dev/') || cols[0].startsWith('/dev/loop'))
-      continue;
+    if (!cols[0].startsWith('/dev/') || cols[0].startsWith('/dev/loop')) continue;
     if (!seenDevices.add(cols[0])) continue;
 
     final name = cols[0].split('/').last;
@@ -213,12 +214,23 @@ List<Memory> getMemory() {
   return (totalReceived, totalSent);
 }
 
+class History {
+  final int max;
+  final values = <double>[];
+
+  History({this.max = 90});
+
+  void push(double value) {
+    values.add(value);
+    if (values.length > max) values.removeAt(0);
+  }
+}
+
 class RateSampler {
   final String path;
   final (int, int) Function(String) parse;
 
   RateSampler(this.path, this.parse);
-
 
   int? _lastTotalIn;
   int? _lastTotalOut;
@@ -226,15 +238,8 @@ class RateSampler {
   double rateIn = 0;
   double rateOut = 0;
 
-
-  static const _max = 90;
-  final historyRateIn = <double>[];
-  final historyRateOut = <double>[];
-
-  void _push(List<double> history, double value) {
-    history.add(value);
-    if (history.length > _max) history.removeAt(0);
-  }
+  final historyIn = History();
+  final historyOut = History();
 
   void sample() {
     final text = readFile(path);
@@ -255,8 +260,8 @@ class RateSampler {
 
         if (gapIn >= 0) rateIn = gapIn / seconds;
         if (gapOut >= 0) rateOut = gapOut / seconds;
-        _push(historyRateIn, rateIn);
-        _push(historyRateOut, rateOut);
+        historyIn.push(rateIn);
+        historyOut.push(rateOut);
       }
     }
 
@@ -296,7 +301,11 @@ Future<String> _mainIp() async {
 String? _kernel;
 String? _osNameValue;
 
-Future<Overview> loadOverview(CpuSampler cpu, RateSampler net, RateSampler diskIo) async {
+Future<Overview> loadOverview(
+  CpuSampler cpu,
+  RateSampler net,
+  RateSampler diskIo,
+) async {
   cpu.sample();
   net.sample();
   diskIo.sample();

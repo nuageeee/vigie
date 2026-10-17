@@ -3,7 +3,7 @@ import 'package:vigie/src/system/overview.dart';
 
 import 'dart:math';
 
-import 'package:vigie/src/ui/components/formators.dart';
+import 'package:vigie/src/ui/components/formatters.dart';
 import 'package:vigie/src/ui/strings.dart';
 
 import 'package:vigie/vigie.dart';
@@ -37,6 +37,34 @@ void _box(RenderContext ctx, Rect area, String title) {
   ctx.draw(Container(border: BorderStyle.single, title: title), area);
 }
 
+void historyLine(
+  RenderContext ctx,
+  Rect area,
+  String label,
+  List<double> values,
+  String value, {
+  int? labelWidth,
+  int? valueWidth,
+}) {
+  const space = 1;
+  final labelCol = labelWidth ?? label.length;
+  final valueCol = valueWidth ?? value.length;
+  final sparkWidth = area.width - labelCol - space - valueCol - space;
+
+  const dim = Style(dim: true);
+  ctx.draw(Text(label, style: dim), Rect(area.x, area.y, labelCol, 1));
+
+  final right = area.x + area.width - value.length;
+  ctx.draw(Text(value), Rect(right, area.y, value.length, 1));
+
+  if (sparkWidth <= 0) return;
+  final sparkX = area.x + labelCol + space;
+  ctx.draw(
+    Text(formatHistory(values, sparkWidth)),
+    Rect(sparkX, area.y, sparkWidth, 1),
+  );
+}
+
 void rateLines(
   RenderContext ctx,
   Strings t,
@@ -47,7 +75,6 @@ void rateLines(
 ) {
   if (area.height < rateLinesHeight) return;
 
-  const gap = 1;
   final yIn = area.y;
   final yOut = area.y + rateLinesHeight - 1;
 
@@ -56,28 +83,24 @@ void rateLines(
 
   final labelWidth = max(labelIn.length, labelOut.length);
   final valueWidth = max(valueIn.length, valueOut.length);
-  final sparkWidth = area.width - labelWidth - gap - valueWidth - gap;
 
-  const dim = Style(dim: true);
-  ctx.draw(Text(labelIn, style: dim), Rect(area.x, yIn, labelWidth, 1));
-  ctx.draw(Text(labelOut, style: dim), Rect(area.x, yOut, labelWidth, 1));
-
-  final right = area.x + area.width;
-  ctx.draw(Text(valueIn), Rect(right - valueIn.length, yIn, valueIn.length, 1));
-  ctx.draw(
-    Text(valueOut),
-    Rect(right - valueOut.length, yOut, valueOut.length, 1),
+  historyLine(
+    ctx,
+    Rect(area.x, yIn, area.width, 1),
+    labelIn,
+    sampler.historyIn.values,
+    valueIn,
+    labelWidth: labelWidth,
+    valueWidth: valueWidth,
   );
-
-  if (sparkWidth <= 0) return;
-  final sparkX = area.x + labelWidth + gap;
-  ctx.draw(
-    Text(formatHistory(sampler.historyRateIn, sparkWidth)),
-    Rect(sparkX, yIn, sparkWidth, 1),
-  );
-  ctx.draw(
-    Text(formatHistory(sampler.historyRateOut, sparkWidth)),
-    Rect(sparkX, yOut, sparkWidth, 1),
+  historyLine(
+    ctx,
+    Rect(area.x, yOut, area.width, 1),
+    labelOut,
+    sampler.historyOut.values,
+    valueIn,
+    labelWidth: labelWidth,
+    valueWidth: valueWidth,
   );
 }
 
@@ -146,7 +169,29 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
 
   _box(ctx, area, s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0)));
 
-  _drawBars(names, cores, ctx, area);
+  final columnsWidth = _longestName(names) + maxBarWidth + 8;
+  final barsWidth = 2 * columnsWidth + 4;
+
+  final barsArea = Rect(
+    area.x,
+    area.y,
+    min(area.width, barsWidth),
+    area.height,
+  );
+
+  _drawBars(names, cores, ctx, barsArea);
+
+  final historyX = barsArea.x + barsArea.width;
+  final historyWidth = (area.right - 2) - historyX;
+  if (historyWidth < 20) return;
+
+  historyLine(
+    ctx,
+    Rect(historyX, area.y + 1, historyWidth, 1),
+    'Total',
+    s.cpu.historyTotal.values,
+    '${s.cpu.total.toStringAsFixed(0)}%',
+  );
 }
 
 void diskPanels(RenderContext ctx, VigieState s, Rect area) {
@@ -215,4 +260,8 @@ void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
 
   rateLines(ctx, s.t, inner, s.net, '↓', '↑');
+}
+
+void topProcessesPanels(RenderContext ctx, VigieState s, Rect area) {
+  _box(ctx, area, s.t.topProcesses);
 }

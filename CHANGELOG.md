@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.8.0] - 2026-10-17
+
+### Added
+- **Disk activity**: live read and write rates for all disks together, with history graphs, under the disk bars. Only whole disks are counted (no double counting of partitions, LVM or loop devices).
+- **Top processes** panel on the dashboard: the most CPU-hungry processes, with the same columns as the Processes tab.
+- **CPU history**: the total CPU usage graph, next to the per-core bars.
+
+### Changed
+- Redesigned dashboard with less empty space: CPU cores on two columns, compact Services and Network panels, and the remaining height given to the top processes.
+- Bars now show their full scale with a dimmed background track, have a maximum width with the percentage right next to them, and use solid blocks (no more vertical stripes).
+- Network and disk activity share the same layout: label, history graph, value aligned with the percentages.
+- Disks are now detected with a whitelist of real block devices (`/dev/…`, no `loop`) and listed once each, which fixes duplicates and virtual drives showing up under WSL (`C:\`, `snapfuse`).
+- Line endings are now enforced as LF in the repository (`.gitattributes`).
+- Removed unused dependencies (`path`, `hotreloader`) and enabled stricter lints.
+
+### Fixed
+- Vigie no longer crashes when the terminal is too small for the top processes panel.
+
+### Tests
+- Tests for the disk list (whitelist and deduplication), the `/proc/diskstats` parser, the total CPU usage formula and the history buffer.
+
 ## [0.7.6] - 2026-10-16
 
 ### Security
