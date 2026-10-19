@@ -33,12 +33,24 @@ jobs:
         run: dart test
 
       - name: Build
-        run: bash scripts/build-deb.sh
+        run: |
+          bash scripts/build-deb.sh amd64
+          bash scripts/build-deb.sh arm64
+
+      - name: Check architectures
+        run: |
+          file "build/$VERSION/vigie-linux-x64"   | grep -q "x86-64"
+          file "build/$VERSION/vigie-linux-arm64" | grep -q "aarch64"
 
       - name: Checksums
         run: |
           cd "build/$VERSION"
-          sha256sum "vigie_${VERSION}_amd64.deb" vigie-linux-x64 > SHA256SUMS
+          sha256sum \
+            "vigie_${VERSION}_amd64.deb" \
+            "vigie_${VERSION}_arm64.deb" \
+            vigie-linux-x64 \
+            vigie-linux-arm64 \
+            > SHA256SUMS
           cat SHA256SUMS
 
       - name: Release notes
@@ -52,7 +64,9 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "build/$VERSION/vigie_${VERSION}_amd64.deb" \
+            "build/$VERSION/vigie_${VERSION}_arm64.deb" \
             "build/$VERSION/vigie-linux-x64" \
+            "build/$VERSION/vigie-linux-arm64" \
             "build/$VERSION/SHA256SUMS" \
             --title "$GITHUB_REF_NAME" \
             --notes-file notes.md
