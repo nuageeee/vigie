@@ -2,6 +2,18 @@ import 'dart:io';
 
 const shellExitBase = 100;
 
+void restoreTerminal() {
+  stdout.write(
+    '\x1b[?1000l\x1b[?1002l\x1b[?1003l\x1b[?1006l\x1b[?1015l' // souris off
+    '\x1b[?25h' // curseur visible
+    '\x1b[?1049l',
+  ); // quitte l'écran alternatif
+  try {
+    stdin.echoMode = true;
+    stdin.lineMode = true;
+  } catch (_) {}
+}
+
 Future<Never> runSession(List<String> args, String lang) async {
   Process? current;
 
@@ -46,6 +58,9 @@ Future<Never> runSession(List<String> args, String lang) async {
       );
       await current.exitCode;
     } else {
+      if (code < 0) {
+        restoreTerminal();
+      }
       _removeRcDir(rc);
       exit(0);
     }

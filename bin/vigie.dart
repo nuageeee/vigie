@@ -7,18 +7,6 @@ import 'package:vigie/vigie.dart';
 import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
 
-void restoreTerminal() {
-  stdout.write(
-    '\x1b[?1000l\x1b[?1002l\x1b[?1003l\x1b[?1006l\x1b[?1015l' // souris off
-    '\x1b[?25h' // curseur visible
-    '\x1b[?1049l',
-  ); // quitte l'écran alternatif
-  try {
-    stdin.echoMode = true;
-    stdin.lineMode = true;
-  } catch (_) {}
-}
-
 String? _optionValue(List<String> args, String name) {
   final i = args.indexOf(name);
   return i >= 0 && i + 1 < args.length ? args[i + 1] : null;
@@ -39,7 +27,7 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
 
-  for (final sig in [ProcessSignal.sigterm, ProcessSignal.sighup]) {
+  for (final sig in [ProcessSignal.sigterm, ProcessSignal.sighup, ProcessSignal.sigint]) {
     sig.watch().listen((_) {
       restoreTerminal();
       exit(0);
