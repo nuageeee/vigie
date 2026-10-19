@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.8.1] - 2026-10-19
+
+### Added
+- ARM64 builds (Raspberry Pi, ARM servers): a `.deb` package for `apt` and a standalone binary are now published with every release.
+
 ## [0.8.0] - 2026-10-17
 
 ### Added
