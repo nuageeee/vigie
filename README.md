@@ -84,6 +84,15 @@ Vigie is a young project, and real-world feedback is what helps it most.
 
 **Coming next:** ARM builds (Raspberry Pi), an AUR package, disk activity and temperatures on the dashboard.
 
+## Support
+
+Vigie is free and open source, built on evenings and weekends.
+If it saves you time, you can support its development:
+
+[![Sponsor](https://img.shields.io/github/sponsors/nuageeee?label=Sponsor&logo=GitHub)](https://github.com/sponsors/nuageeee)
+
+Starring the repo ⭐ and sharing it also helps a lot.
+
 ## Contributing
 
 Contributions are welcome! The [development guide](docs/en/development.md) explains how to build Vigie, run the tests (`dart test`) and how the code is organised.

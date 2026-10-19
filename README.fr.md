@@ -84,6 +84,15 @@ Vigie est un jeune projet, et les retours d'utilisation réelle sont ce qui l'ai
 
 **À venir :** versions ARM (Raspberry Pi), paquet AUR, activité disque et températures sur le tableau de bord.
 
+## Soutenir
+
+Vigie est gratuit et libre, développé sur mes soirées et mes week-ends.
+S'il vous fait gagner du temps, vous pouvez soutenir son développement :
+
+[![Sponsor](https://img.shields.io/github/sponsors/nuageeee?label=Sponsor&logo=GitHub)](https://github.com/sponsors/nuageeee)
+
+Mettre une étoile ⭐ au dépôt et le partager aide aussi beaucoup.
+
 ## Contribuer
 
 Les contributions sont les bienvenues ! Le [guide de développement](docs/fr/development.md) explique comment compiler Vigie, lancer les tests (`dart test`) et comment le code est organisé.
