@@ -53,6 +53,7 @@ class VigieState {
   final net = RateSampler('/proc/net/dev', parseNetwork);
   final diskIo = RateSampler('/proc/diskstats', parseDiskStats);
   final procSampler = ProcSampler();
+  final ramHistory = History();
 
   bool openShell = false;
 
@@ -118,6 +119,7 @@ class VigieState {
 
   Future<void> refresh({bool all = false}) async {
     overview = await loadOverview(cpu, net, diskIo);
+    ramHistory.push(overview!.memory.first.memPct);
     if (all || section == Section.users) users = await loadUsers();
     if (all || section == Section.process || section == Section.table) {
       processes = await procSampler.sample();

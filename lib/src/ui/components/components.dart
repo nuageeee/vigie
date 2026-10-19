@@ -4,6 +4,7 @@ import 'package:vigie/src/system/overview.dart';
 import 'dart:math';
 
 import 'package:vigie/src/ui/components/formatters.dart';
+import 'package:vigie/src/ui/dashboard.dart';
 import 'package:vigie/src/ui/strings.dart';
 
 import 'package:vigie/vigie.dart';
@@ -21,15 +22,19 @@ Color colorFor(double pct) =>
 const huitiemes = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉'];
 const huitiemesVertical = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'];
 
-String formatHistory(List<double> history, int width) {
+String formatHistory(List<double> history, int width, {double? maxValue}) {
   final recentValues = history.skip(
     (history.length - width).clamp(0, history.length),
   );
-  final maxValue = recentValues.fold<double>(0, (m, value) => max(m, value));
-  if (maxValue == 0) return huitiemesVertical[0] * recentValues.length;
+  final top =
+      maxValue ?? recentValues.fold<double>(0, (m, value) => max(m, value));
+  if (top == 0) return huitiemesVertical[0] * recentValues.length;
   return recentValues.map((value) {
-    final index = (huitiemesVertical.length - 1) * value / maxValue;
-    return huitiemesVertical[index.floor()];
+    final index = (huitiemesVertical.length - 1) * value / top;
+    return huitiemesVertical[index.floor().clamp(
+      0,
+      huitiemesVertical.length - 1,
+    )];
   }).join();
 }
 
@@ -45,6 +50,7 @@ void historyLine(
   String value, {
   int? labelWidth,
   int? valueWidth,
+    double? maxValue,
 }) {
   const space = 1;
   final labelCol = labelWidth ?? label.length;
@@ -60,7 +66,7 @@ void historyLine(
   if (sparkWidth <= 0) return;
   final sparkX = area.x + labelCol + space;
   ctx.draw(
-    Text(formatHistory(values, sparkWidth)),
+    Text(formatHistory(values, sparkWidth, maxValue: maxValue)),
     Rect(sparkX, area.y, sparkWidth, 1),
   );
 }
@@ -189,6 +195,7 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
     ctx,
     Rect(historyX, area.y + 1, historyWidth, 1),
     'Total',
+    maxValue: 100,
     s.cpu.historyTotal.values,
     '${s.cpu.total.toStringAsFixed(0)}%',
   );
@@ -252,6 +259,15 @@ void memoryPanels(RenderContext ctx, VigieState s, Rect area) {
   final pct = memory.map((l) => l.memPct).toList();
 
   _drawBars(names, pct, ctx, area);
+
+  historyLine(
+    ctx,
+    Rect(area.x + 2, area.y + 1 + memoryLines + 1, area.width - 4, 1),
+    'RAM',
+    maxValue: 100,
+    s.ramHistory.values,
+    '${pct.first.toStringAsFixed(0)}%',
+  );
 }
 
 void networkPanels(RenderContext ctx, VigieState s, Rect area) {
@@ -260,8 +276,4 @@ void networkPanels(RenderContext ctx, VigieState s, Rect area) {
   final inner = Rect(area.x + 2, area.y + 1, area.width - 4, area.height - 2);
 
   rateLines(ctx, s.t, inner, s.net, '↓', '↑');
-}
-
-void topProcessesPanels(RenderContext ctx, VigieState s, Rect area) {
-  _box(ctx, area, s.t.topProcesses);
 }

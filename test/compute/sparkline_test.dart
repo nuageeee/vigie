@@ -15,5 +15,14 @@ void main() {
     test('returns empty chain for empty list', () {
       expect(formatHistory([], 2), '');
     });
+    test('uses the fixed ceilling when given', () {
+      expect(formatHistory([16, 16, 16], 3, maxValue: 100), '▂▂▂');
+    });
+    test('scales against the ceiling, not the max', () {
+      expect(formatHistory([50, 100], 2, maxValue: 100), '▄█');
+    });
+    test('clamps values above the ceiling', () {
+      expect(formatHistory([120], 1, maxValue: 100), '█');
+    });
   });
 }

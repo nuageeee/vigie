@@ -13,7 +13,6 @@ executables:
 
 environment:
   sdk: ^3.13.5
-
 # Add regular dependencies here.
 dependencies:
   commander_ui: ^3.0.0

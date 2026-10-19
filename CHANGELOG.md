@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Memory history: a RAM sparkline under the memory bars.
+
+### Fixed
+- Ctrl+C no longer leaves Vigie's last screen behind the shell prompt: SIGINT now restores the terminal like `q`.
+- If Vigie is killed by any signal (even `kill -9`), the session restores the terminal itself before exiting.
+- Percentage sparklines (CPU total, RAM) now use a fixed 0–100 % scale instead of stretching small variations to full height.
+
 ## [0.8.1] - 2026-10-19
 
 ### Added
