@@ -4,7 +4,12 @@ command -v dart >/dev/null || { echo "dart introuvable dans le PATH" >&2; exit 1
 cd "$(dirname "$0")/.."
 
 version=$(grep '^version:' pubspec.yaml | awk '{print $2}')
-arch=amd64
+arch="${1:-amd64}"                     # amd64 par défaut, ou arm64
+case "$arch" in
+  amd64) dart_arch=x64 ;;
+  arm64) dart_arch=arm64 ;;
+  *) echo "architecture inconnue : $arch" >&2; exit 1 ;;
+esac
 out="build/$version"
 pkg="$out/pkg/vigie_${version}_${arch}"
 
@@ -12,8 +17,8 @@ rm -rf "$pkg"
 mkdir -p "$pkg/DEBIAN" "$pkg/usr/bin"
 
 dart pub get --enforce-lockfile
-dart compile exe bin/vigie.dart -o "$pkg/usr/bin/vigie"
-cp "$pkg/usr/bin/vigie" "$out/vigie-linux-x64"     # binaire seul, pour la release GitHub
+dart compile exe --target-os=linux --target-arch="$dart_arch" bin/vigie.dart -o "$pkg/usr/bin/vigie"
+cp "$pkg/usr/bin/vigie" "$out/vigie-linux-$dart_arch"   
 
 cat > "$pkg/DEBIAN/control" <<EOF
 Package: vigie
