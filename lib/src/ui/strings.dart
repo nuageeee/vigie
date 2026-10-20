@@ -481,9 +481,9 @@ final en = Strings(
     RefusalReason.rootTarget =>
       "Refused: you can't $verb $action, it's the root account.",
     RefusalReason.initTarget =>
-      "Refused: you can't $verb the proccess $action, it's the systemd proccess.",
+      "Refused: you can't $verb the process $action, it's the systemd process.",
     RefusalReason.vigieTarget =>
-      "Refused: you can't $verb the proccess $action, it's Vigie itself.",
+      "Refused: you can't $verb the process $action, it's Vigie itself.",
     RefusalReason.lastAdmin =>
       "Refused: you can't $verb $action, it's the last administrator account.",
   }),

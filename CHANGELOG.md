@@ -3,12 +3,21 @@
 ## Unreleased
 
 ### Added
+- Side navigation menu: all sections are now listed in the left column, under the System panel (keys `1`–`4` and mouse clicks work as before). This makes room for upcoming sections.
 - Memory history: a RAM sparkline under the memory bars.
+
+### Changed
+- The top bar now only shows the Vigie logo; section tabs moved to the side menu.
+- Long values in the System panel (hostname, OS, kernel) wrap onto several lines instead of being cut off.
 
 ### Fixed
 - Ctrl+C no longer leaves Vigie's last screen behind the shell prompt: SIGINT now restores the terminal like `q`.
 - If Vigie is killed by any signal (even `kill -9`), the session restores the terminal itself before exiting.
 - Percentage sparklines (CPU total, RAM) now use a fixed 0–100 % scale instead of stretching small variations to full height.
+- The English refusal message for system processes: "proccess" → "process".
+
+### Tests
+- `wrapText` (5 cases) and fixed-ceiling sparklines (3 cases).
 
 ## [0.8.1] - 2026-10-19
 
