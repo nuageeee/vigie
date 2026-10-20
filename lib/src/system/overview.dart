@@ -29,7 +29,7 @@ final _virtualIfaces = RegExp(r'^(lo|docker|br-|veth|virbr|tun|wg)');
 final _wholeDisk = RegExp(
   r'^(sd[a-z]+|vd[a-z]+|xvd[a-z]+|nvme\d+n\d+|mmcblk\d+)$',
 );
-final _sectorSize = 512;
+const _sectorSize = 512;
 const _diskInterval = Duration(seconds: 30);
 
 /// Parses a text from /proc/stat into a map keyed by CPU name (cpu for the whole machine, cpu0, cpu1... for each one).
