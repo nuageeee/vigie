@@ -22,7 +22,13 @@ void render(RenderContext ctx, VigieState s) {
     const Constraint.fill(1),
   ]).split(rows[1]);
 
-  _systemBar(ctx, s, body[0]);
+  final sideBar = Layout.vertical([
+    const Constraint.length(24),
+    const Constraint.fill(1),
+  ]).split(body[0]);
+
+  _systemBar(ctx, s, sideBar[0]);
+  _navBar(ctx, s, sideBar[1]);
 
   final prompt = s.prompt;
   if (prompt != null) {
@@ -44,16 +50,45 @@ void render(RenderContext ctx, VigieState s) {
   _actionBar(ctx, s, Rect(rows[3].x, rows[3].y, rows[3].width - 1, 1));
 }
 
-void _topBar(RenderContext ctx, VigieState s, Rect area) {
-  const line = Style(dim: true);
-  const logo = ' ◉ Vigie ';
+void _navBar(RenderContext ctx, VigieState s, Rect area) {
+  ctx.draw(Container(border: BorderStyle.single, title: s.t.navigation), area);
 
   final labels = [
     for (var i = 0; i < Section.values.length; i++)
       ' ${i + 1} ${s.t.sectionLabel(Section.values[i])} ',
   ];
-  final tabsWidth =
-      labels.fold<int>(0, (w, l) => w + l.length) + labels.length - 1;
+
+  var y = area.y + 1;
+
+  for (var i = 0; i < labels.length; i++) {
+    if (y + 1 > area.bottom - 1) break;
+    final label = labels[i];
+    final active = Section.values[i] == s.section;
+    final rect = Rect(area.x + 2, y, label.length, 1);
+    ctx.draw(
+      Text(
+        label,
+        style: active
+            ? const Style(reverse: true, bold: true)
+            : const Style(dim: true),
+      ),
+      rect,
+    );
+
+    s.clickZones.add(
+      ClickZone(
+        Rect(rect.x, rect.y, area.width - 4, 1),
+        key: KeyEvent(char: '${i + 1}'),
+      ),
+    );
+
+    y += 1;
+  }
+}
+
+void _topBar(RenderContext ctx, VigieState s, Rect area) {
+  const line = Style(dim: true);
+  const logo = ' ◉ Vigie ';
 
   ctx.draw(const Text('|', style: line), Rect(area.x, area.y, 1, 1));
   ctx.draw(const Text('|', style: line), Rect(area.right - 1, area.y, 1, 1));
@@ -65,38 +100,11 @@ void _topBar(RenderContext ctx, VigieState s, Rect area) {
   );
   final logoEnd = logoX + logo.length;
 
-  var x = area.right - 2 - tabsWidth;
+  final x = area.right - 2;
 
   final fill = x - 1 - logoEnd;
   if (fill > 0) {
     ctx.draw(Text('─' * fill, style: line), Rect(logoEnd, area.y, fill, 1));
-  }
-
-  for (var i = 0; i < labels.length; i++) {
-    final label = labels[i];
-    final active = Section.values[i] == s.section;
-    final rect = Rect(x, area.y, label.length, 1);
-    if (x >= logoEnd) {
-      // On ne dessine pas par-dessus le logo si le terminal est trop étroit.
-      ctx.draw(
-        Text(
-          label,
-          style: active
-              ? const Style(reverse: true, bold: true)
-              : const Style(dim: true),
-        ),
-        rect,
-      );
-    }
-
-    s.clickZones.add(
-      ClickZone(
-        Rect(rect.x, rect.y, rect.width, 2),
-        key: KeyEvent(char: '${i + 1}'),
-      ),
-    );
-
-    x += label.length + 1;
   }
 }
 
@@ -117,10 +125,19 @@ void _systemBar(RenderContext ctx, VigieState s, Rect area) {
   final x = area.x + 2;
   final w = area.width - 4;
   for (final (label, value) in info) {
-    if (y + 1 >= area.bottom - 1) break;
+    final lines = wrapText(value, w);
+
+    if (y >= area.bottom - 1) return;
     ctx.draw(Text(label, style: const Style(dim: true)), Rect(x, y, w, 1));
-    ctx.draw(Text(value, style: const Style(bold: true)), Rect(x, y + 1, w, 1));
-    y += 3;
+    y += 1;
+
+    for (final line in lines) {
+      if (y >= area.bottom - 1) return;
+      ctx.draw(Text(line, style: const Style(bold: true)), Rect(x, y, w, 1));
+      y += 1;
+    }
+
+    y += 1;
   }
 }
 

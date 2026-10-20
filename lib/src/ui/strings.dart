@@ -104,6 +104,8 @@ class Strings {
   final String uptime;
   final String ip;
 
+  final String navigation;
+
   // ─── Tableau de bord ───────────────────────────────────────────────────────
   final String Function(int cores, String pct) cpuTitle;
   final String Function(int count, String total) disksTitle;
@@ -266,6 +268,7 @@ class Strings {
     required this.colDescription,
     required this.byteUnits,
     required this.dayUnit,
+    required this.navigation,
   });
 
   String sectionLabel(Section section) => switch (section) {
@@ -387,6 +390,7 @@ final fr = Strings(
   kernel: 'Noyau',
   uptime: 'Démarré depuis',
   ip: 'IP',
+  navigation: 'Navigation',
   cpuTitle: (n, pct) => 'CPU · $n cœurs · $pct%',
   disksTitle: (n, total) => 'Disques · $n · Total · $total',
   memoryTitle: (used, total) => 'Mémoires · Utilisé · $used · Total · $total',
@@ -526,6 +530,7 @@ final en = Strings(
   kernel: 'Kernel',
   uptime: 'Uptime',
   ip: 'IP',
+  navigation: 'Navigation',
   cpuTitle: (n, pct) => 'CPU · $n cores · $pct%',
   disksTitle: (n, total) => 'Disks · $n · Total · $total',
   memoryTitle: (used, total) => 'Memory · Used · $used · Total · $total',

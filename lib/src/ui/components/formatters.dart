@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:vigie/src/ui/strings.dart';
 
 String formatUptime(Duration d, Strings t) {
@@ -24,4 +26,17 @@ String formatOc(int oc, Strings t) {
   }
 
   return '${value.toStringAsFixed(1)} ${unit[i]}/s';
+}
+
+List<String> wrapText(String text, int width) {
+  final pieces = <String>[];
+
+  if (text.isEmpty || width <= 0) return [text];
+
+  for (var i = 0; i < text.length; i += width) {
+    final end = min(i + width, text.length);
+    pieces.add(text.substring(i, end));
+  }
+
+  return pieces;
 }
