@@ -119,6 +119,7 @@ class Strings {
   final String diskRead;
   final String diskWrite;
   final String topProcesses;
+  final String cpuModel;
 
   // ─── Tableaux ──────────────────────────────────────────────────────────────
   final String Function(int count) usersTitle;
@@ -271,6 +272,7 @@ class Strings {
     required this.dayUnit,
     required this.navigation,
     required this.noServiceManager,
+    required this.cpuModel,
   });
 
   String sectionLabel(Section section) => switch (section) {
@@ -394,6 +396,7 @@ final fr = Strings(
   ip: 'IP',
   navigation: 'Navigation',
   cpuTitle: (n, pct) => 'CPU · $n cœurs · $pct%',
+  cpuModel: 'Processeur',
   disksTitle: (n, total) => 'Disques · $n · Total · $total',
   memoryTitle: (used, total) => 'Mémoires · Utilisé · $used · Total · $total',
   network: 'Réseaux',
@@ -535,6 +538,7 @@ final en = Strings(
   ip: 'IP',
   navigation: 'Navigation',
   cpuTitle: (n, pct) => 'CPU · $n cores · $pct%',
+  cpuModel: 'CPU',
   disksTitle: (n, total) => 'Disks · $n · Total · $total',
   memoryTitle: (used, total) => 'Memory · Used · $used · Total · $total',
   network: 'Network',

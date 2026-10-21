@@ -286,6 +286,15 @@ int _meminfo(String text, String key) {
   return int.tryParse(m?.group(1) ?? '') ?? 0;
 }
 
+String? _cpuModel(String text, String key) {
+  final m = RegExp('^$key\\s*:\\s+(.+)', multiLine: true).firstMatch(text);
+  return m?.group(1)?.trim();
+}
+
+String parseCpuModel(String text) {
+  return _cpuModel(text, 'model name') ?? _cpuModel(text, 'Model') ?? '-';
+}
+
 Future<String> _mainIp() async {
   try {
     final ifaces = await NetworkInterface.list(type: InternetAddressType.IPv4);
