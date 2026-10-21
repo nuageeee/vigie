@@ -224,6 +224,11 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
   Color? stateColor(Service svc) =>
       svc.isFailed ? Color.red : (svc.isRunning ? Color.green : null);
 
+  final placeholder = switch (s.serviceManager) {
+    ServiceManager.systemd => s.t.noServices,
+    ServiceManager.none => s.t.noServiceManager,
+  };
+
   _frame<Service>(
     ctx,
     s,
@@ -233,7 +238,7 @@ void renderServices(RenderContext ctx, VigieState s, Rect area) {
       items: s.services,
       state: s.servicesTable,
       columnSeparator: ' │ ',
-      placeholder: s.t.noServices,
+      placeholder: placeholder,
       columns: [
         TableColumn(
           title: '',

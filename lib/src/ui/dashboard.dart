@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/ui/components/components.dart';
 import 'package:vigie/src/ui/tables.dart';
 
@@ -50,14 +51,20 @@ void renderDashboard(RenderContext ctx, VigieState s, Rect area) {
 
   final running = s.services.where((x) => x.isRunning).length;
   final failed = s.services.where((x) => x.isFailed).toList();
-  final lines = StringBuffer()
-    ..writeln(s.t.servicesRunning(running, s.services.length))
-    ..writeln(s.t.servicesFailed(failed.length));
-  for (final f in failed.take(10)) {
-    lines.writeln('  ✗ ${f.name}');
-  }
-  if (failed.isNotEmpty) {
-    lines.writeln('\n${s.t.goToServices}');
+  final lines = StringBuffer();
+
+  switch (s.serviceManager) {
+    case ServiceManager.systemd:
+      lines.writeln(s.t.servicesRunning(running, s.services.length));
+      lines.writeln(s.t.servicesFailed(failed.length));
+      for (final f in failed.take(10)) {
+        lines.writeln('  ✗ ${f.name}');
+      }
+      if (failed.isNotEmpty) {
+        lines.writeln('\n${s.t.goToServices}');
+      }
+    case ServiceManager.none:
+      lines.writeln(s.t.noServiceManager);
   }
 
   ctx.draw(

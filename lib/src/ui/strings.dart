@@ -144,6 +144,7 @@ class Strings {
 
   final String Function(int count) servicesTableTitle;
   final String noServices;
+  final String noServiceManager;
   final String colService;
   final String colBoot;
   final String colDescription;
@@ -269,6 +270,7 @@ class Strings {
     required this.byteUnits,
     required this.dayUnit,
     required this.navigation,
+    required this.noServiceManager,
   });
 
   String sectionLabel(Section section) => switch (section) {
@@ -423,12 +425,13 @@ final fr = Strings(
   colMemory: 'Mémoire',
   colCommand: 'Commande',
   servicesTableTitle: (n) => 'Services systemd ($n)',
-  noServices: 'Aucun service (systemd absent ?)',
+  noServices: 'Aucun service',
   colService: 'Service',
   colBoot: 'Au boot',
   colDescription: 'Description',
   byteUnits: const ['o', 'Ko', 'Mo', 'Go'],
   dayUnit: 'j',
+  noServiceManager: 'systemd non détecté : gestion des services indisponible',
 );
 
 final en = Strings(
@@ -563,12 +566,13 @@ final en = Strings(
   colMemory: 'Memory',
   colCommand: 'Command',
   servicesTableTitle: (n) => 'systemd services ($n)',
-  noServices: 'No services (is systemd missing?)',
+  noServices: 'No services',
   colService: 'Service',
   colBoot: 'On boot',
   colDescription: 'Description',
   byteUnits: const ['B', 'KB', 'MB', 'GB'],
   dayUnit: 'd',
+  noServiceManager: 'systemd not detected: service management unavailable',
 );
 
 /// Code de langue retenu pour une locale : 'fr' si elle commence par "fr",

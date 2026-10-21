@@ -47,6 +47,7 @@ class ClickZone {
 class VigieState {
   final bool isRoot;
   final String adminGroup;
+  final ServiceManager serviceManager;
   final Strings t;
 
   final cpu = CpuSampler();
@@ -79,7 +80,7 @@ class VigieState {
 
   final clickZones = <ClickZone>[];
 
-  VigieState({required this.isRoot, required this.adminGroup, required this.t});
+  VigieState({required this.isRoot, required this.adminGroup, required this.t, required this.serviceManager});
 
   final events = StreamController<Event>();
 
@@ -124,7 +125,7 @@ class VigieState {
     if (all || section == Section.process || section == Section.table) {
       processes = await procSampler.sample();
     }
-    if (all || section == Section.services || section == Section.table) {
+    if ((all || section == Section.services || section == Section.table) && serviceManager == ServiceManager.systemd) {
       services = await loadServices();
     }
   }

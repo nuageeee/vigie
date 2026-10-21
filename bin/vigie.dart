@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/session.dart';
+import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/ui/strings.dart';
 import 'package:vigie/vigie.dart';
 import 'package:vigie/src/system/shell.dart';
@@ -39,6 +40,7 @@ Future<void> main(List<String> args) async {
     isRoot: isRoot,
     adminGroup: detectAdminGroup(),
     t: t,
+    serviceManager: detectServiceManager((path) => Directory(path).existsSync()),
   );
   await state.refresh(all: true);
 
