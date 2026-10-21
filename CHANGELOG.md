@@ -5,6 +5,7 @@
 ### Added
 - Side navigation menu: all sections are now listed in the left column, under the System panel (keys `1`–`4` and mouse clicks work as before). This makes room for upcoming sections.
 - Memory history: a RAM sparkline under the memory bars.
+- systemd detection: on systems without systemd (Unraid, Slackware…), the Services tab and the dashboard now say "systemd not detected" instead of showing an empty list, and Vigie no longer calls `systemctl` in the background.
 
 ### Changed
 - The top bar now only shows the Vigie logo; section tabs moved to the side menu.
@@ -18,6 +19,7 @@
 
 ### Tests
 - `wrapText` (5 cases) and fixed-ceiling sparklines (3 cases).
+- `detectServiceManager` (3 cases).
 
 ## [0.8.1] - 2026-10-19
 

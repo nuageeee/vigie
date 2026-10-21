@@ -4,7 +4,7 @@
 
 ## Prérequis
 
-- Linux avec **systemd**
+- Linux. **systemd** est nécessaire pour l'onglet Services ; sans lui (Unraid, Slackware…), Vigie fonctionne et indique que la gestion des services est indisponible.
 - [Dart SDK](https://dart.dev/get-dart) ≥ 3.3, uniquement pour compiler
 
 ## Debian / Ubuntu (dépôt APT)
