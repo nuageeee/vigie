@@ -119,7 +119,8 @@ List<Disk> parseDisks(String text) {
   for (final line in text.split('\n').skip(1)) {
     final cols = line.trim().split(RegExp(r'\s+'));
     if (cols.length < 5) continue;
-    if (!cols[0].startsWith('/dev/') || cols[0].startsWith('/dev/loop')) continue;
+    if (!cols[0].startsWith('/dev/') || cols[0].startsWith('/dev/loop'))
+      continue;
     if (!seenDevices.add(cols[0])) continue;
 
     final name = cols[0].split('/').last;

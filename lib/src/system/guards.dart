@@ -36,7 +36,8 @@ RefusalReason? checkUserTarget({
   required bool isAdmin,
   required int adminCount,
 }) {
-  if (uid == rootUid && UserAction.delete == action) return RefusalReason.rootTarget;
+  if (uid == rootUid && UserAction.delete == action)
+    return RefusalReason.rootTarget;
   if (isAdmin && adminCount <= 1) return RefusalReason.lastAdmin;
   if (env['SUDO_USER'] == user) return RefusalReason.selfTarget;
   return null;

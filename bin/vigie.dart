@@ -28,7 +28,11 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
 
-  for (final sig in [ProcessSignal.sigterm, ProcessSignal.sighup, ProcessSignal.sigint]) {
+  for (final sig in [
+    ProcessSignal.sigterm,
+    ProcessSignal.sighup,
+    ProcessSignal.sigint,
+  ]) {
     sig.watch().listen((_) {
       restoreTerminal();
       exit(0);
@@ -40,7 +44,9 @@ Future<void> main(List<String> args) async {
     isRoot: isRoot,
     adminGroup: detectAdminGroup(),
     t: t,
-    serviceManager: detectServiceManager((path) => Directory(path).existsSync()),
+    serviceManager: detectServiceManager(
+      (path) => Directory(path).existsSync(),
+    ),
   );
   await state.refresh(all: true);
 

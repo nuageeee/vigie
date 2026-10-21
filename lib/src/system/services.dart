@@ -89,8 +89,10 @@ Future<List<Service>> loadServices() async {
 Future<CmdResult> serviceAction(String verb, Service s) =>
     run('systemctl', [verb, s.name]);
 
-enum ServiceManager { systemd, none}
+enum ServiceManager { systemd, none }
 
 ServiceManager detectServiceManager(bool Function(String) exists) {
-  return exists('/run/systemd/system') ? ServiceManager.systemd : ServiceManager.none;
+  return exists('/run/systemd/system')
+      ? ServiceManager.systemd
+      : ServiceManager.none;
 }

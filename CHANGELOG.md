@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.9.0] - 2026-10-21
 
 ### Added
 - Side navigation menu: all sections are now listed in the left column, under the System panel (keys `1`–`4` and mouse clicks work as before). This makes room for upcoming sections.

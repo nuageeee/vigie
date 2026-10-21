@@ -50,7 +50,7 @@ void historyLine(
   String value, {
   int? labelWidth,
   int? valueWidth,
-    double? maxValue,
+  double? maxValue,
 }) {
   const space = 1;
   final labelCol = labelWidth ?? label.length;

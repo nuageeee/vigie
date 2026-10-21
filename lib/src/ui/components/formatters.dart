@@ -10,7 +10,8 @@ String formatUptime(Duration d, Strings t) {
 }
 
 String formatKb(int kb, Strings t) {
-  if (kb >= 1024 * 1024) return '${(kb / 1024 / 1024).toStringAsFixed(1)} ${t.byteUnits[3]}';
+  if (kb >= 1024 * 1024)
+    return '${(kb / 1024 / 1024).toStringAsFixed(1)} ${t.byteUnits[3]}';
   if (kb >= 1024) return '${(kb / 1024).toStringAsFixed(0)} ${t.byteUnits[2]}';
   return '$kb ${t.byteUnits[1]}';
 }
