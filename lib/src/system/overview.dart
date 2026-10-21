@@ -12,6 +12,7 @@ class Overview {
   final List<Memory> memory;
   final List<Disk> disk;
   final String ip;
+  final String cpuModelName;
 
   const Overview({
     required this.hostname,
@@ -22,6 +23,7 @@ class Overview {
     required this.memory,
     required this.disk,
     required this.ip,
+    required this.cpuModelName,
   });
 }
 
@@ -310,6 +312,7 @@ Future<String> _mainIp() async {
 
 String? _kernel;
 String? _osNameValue;
+String? _cpuModelName;
 
 Future<Overview> loadOverview(
   CpuSampler cpu,
@@ -323,6 +326,7 @@ Future<Overview> loadOverview(
 
   _kernel ??= (await capture('uname', ['-r'])).trim();
   _osNameValue ??= _osName();
+  _cpuModelName ??= parseCpuModel(readFile('/proc/cpuinfo'));
 
   final upSeconds =
       double.tryParse(readFile('/proc/uptime').split(' ').first) ?? 0;
@@ -337,6 +341,7 @@ Future<Overview> loadOverview(
     hostname: Platform.localHostname,
     os: _osNameValue!,
     kernel: _kernel!,
+    cpuModelName: _cpuModelName!,
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
     memory: getMemory(),

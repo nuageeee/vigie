@@ -191,9 +191,20 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   final historyWidth = (area.right - 2) - historyX;
   if (historyWidth < 20) return;
 
+  final hasRoom = area.height - 2 >= 2;
+
+  final o = s.overview;
+
+  final historyY = hasRoom ? area.y + 2 : area.y + 1;
+
+  if (hasRoom && o != null) {
+    final name = wrapText(o.cpuModelName, historyWidth).first;
+    ctx.draw(Text('${s.t.cpuModel} · $name'), Rect(historyX, area.y + 1, historyWidth, 1));
+  }
+
   historyLine(
     ctx,
-    Rect(historyX, area.y + 1, historyWidth, 1),
+    Rect(historyX, historyY, historyWidth, 1),
     'Total',
     maxValue: 100,
     s.cpu.historyTotal.values,
