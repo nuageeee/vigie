@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- CPU model name in the CPU panel, above the total history (falls back to the `Model` line on Raspberry Pi).
+
+### Tests
+- `parseCpuModel` (5 cases).
+
 ## [0.9.0] - 2026-10-21
 
 ### Added
