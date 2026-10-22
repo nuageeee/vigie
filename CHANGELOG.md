@@ -4,9 +4,10 @@
 
 ### Added
 - CPU model name in the CPU panel, above the total history (falls back to the `Model` line on Raspberry Pi).
+- CPU temperature in the CPU panel title, read from `hwmon` (Intel `coretemp`, AMD `k10temp`) or thermal zones (Intel `x86_pkg_temp`, Raspberry Pi `cpu-thermal`). Hidden when no sensor exists (VPS, WSL).
 
 ### Tests
-- `parseCpuModel` (5 cases).
+- `parseCpuModel` (5 cases), `parseTemperature` (5 cases), `pickCpuTemperature` (5 cases).
 
 ## [0.9.0] - 2026-10-21
 
