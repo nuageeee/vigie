@@ -173,7 +173,15 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
   final cores = s.cpu.cores;
   final names = List.generate(cores.length, ((i) => 'C$i'));
 
-  _box(ctx, area, s.t.cpuTitle(cores.length, s.cpu.total.toStringAsFixed(0), s.overview?.cpuTemp));
+  _box(
+    ctx,
+    area,
+    s.t.cpuTitle(
+      cores.length,
+      s.cpu.total.toStringAsFixed(0),
+      s.overview?.cpuTemp,
+    ),
+  );
 
   final columnsWidth = _longestName(names) + maxBarWidth + 8;
   final barsWidth = 2 * columnsWidth + 4;
@@ -199,7 +207,10 @@ void cpuPanels(RenderContext ctx, VigieState s, Rect area) {
 
   if (hasRoom && o != null) {
     final name = wrapText(o.cpuModelName, historyWidth).first;
-    ctx.draw(Text('${s.t.cpuModel} · $name'), Rect(historyX, area.y + 1, historyWidth, 1));
+    ctx.draw(
+      Text('${s.t.cpuModel} · $name'),
+      Rect(historyX, area.y + 1, historyWidth, 1),
+    );
   }
 
   historyLine(

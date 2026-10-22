@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.10.0] - 2026-10-22
 
 ### Added
 - CPU model name in the CPU panel, above the total history (falls back to the `Model` line on Raspberry Pi).

@@ -9,11 +9,11 @@ double? parseTemperature(String text) {
 }
 
 const _tempZones = {
-  'coretemp',     // Intel (hwmon)
-  'k10temp',      // AMD (hwmon)
+  'coretemp', // Intel (hwmon)
+  'k10temp', // AMD (hwmon)
   'x86_pkg_temp', // Intel (thermal)
-  'cpu-thermal',  // Raspberry Pi (thermal)
-  'cpu_thermal',  // Raspberry Pi (hwmon / anciens noyaux)
+  'cpu-thermal', // Raspberry Pi (thermal)
+  'cpu_thermal', // Raspberry Pi (hwmon / anciens noyaux)
 };
 
 double? pickCpuTemperature(List<(String name, String temps)> thermal) {

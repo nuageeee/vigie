@@ -395,7 +395,8 @@ final fr = Strings(
   uptime: 'Démarré depuis',
   ip: 'IP',
   navigation: 'Navigation',
-  cpuTitle: (n, pct, temp) => 'CPU · $n cœurs · $pct% ${temp == null ? '' : ' · ${temp.toStringAsFixed(0)} °C'}',
+  cpuTitle: (n, pct, temp) =>
+      'CPU · $n cœurs · $pct% ${temp == null ? '' : ' · ${temp.toStringAsFixed(0)} °C'}',
   cpuModel: 'Processeur',
   disksTitle: (n, total) => 'Disques · $n · Total · $total',
   memoryTitle: (used, total) => 'Mémoires · Utilisé · $used · Total · $total',
@@ -537,7 +538,8 @@ final en = Strings(
   uptime: 'Uptime',
   ip: 'IP',
   navigation: 'Navigation',
-  cpuTitle: (n, pct, temp) => 'CPU · $n cores · $pct% ${temp == null ? '' : ' · ${temp.toStringAsFixed(0)} °C'}',
+  cpuTitle: (n, pct, temp) =>
+      'CPU · $n cores · $pct% ${temp == null ? '' : ' · ${temp.toStringAsFixed(0)} °C'}',
   cpuModel: 'CPU',
   disksTitle: (n, total) => 'Disks · $n · Total · $total',
   memoryTitle: (used, total) => 'Memory · Used · $used · Total · $total',
