@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:vigie/src/system/thermal.dart';
+
 import 'shell.dart';
 
 class Overview {
@@ -13,6 +15,7 @@ class Overview {
   final List<Disk> disk;
   final String ip;
   final String cpuModelName;
+  final double? cpuTemp;
 
   const Overview({
     required this.hostname,
@@ -24,6 +27,7 @@ class Overview {
     required this.disk,
     required this.ip,
     required this.cpuModelName,
+    required this.cpuTemp,
   });
 }
 
@@ -342,6 +346,7 @@ Future<Overview> loadOverview(
     os: _osNameValue!,
     kernel: _kernel!,
     cpuModelName: _cpuModelName!,
+    cpuTemp: pickCpuTemperature(readThermalZones()),
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
     memory: getMemory(),
