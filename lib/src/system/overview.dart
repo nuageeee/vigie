@@ -346,7 +346,7 @@ Future<Overview> loadOverview(
     os: _osNameValue!,
     kernel: _kernel!,
     cpuModelName: _cpuModelName!,
-    cpuTemp: pickCpuTemperature(readThermalZones()),
+    cpuTemp: pickCpuTemperature(readSensors()),
     uptime: Duration(seconds: upSeconds.round()),
     load: readFile('/proc/loadavg').split(' ').take(3).join('  '),
     memory: getMemory(),

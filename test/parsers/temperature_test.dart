@@ -18,5 +18,8 @@ void main() {
     test('returns null for empty text', () {
       expect(parseTemperature(''), isNull);
     });
+    test('picks the AMD sensor', () {
+      expect(pickCpuTemperature([('acpitz', '54000'), ('amdgpu', '45000'), ('k10temp', '48000')]), 48.0);
+    });
   });
 }
