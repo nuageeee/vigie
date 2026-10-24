@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/system/guards.dart';
+import 'package:vigie/src/system/journal.dart';
 import 'package:vigie/src/system/processes.dart';
 import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/system/shell.dart';
@@ -110,6 +111,22 @@ void _serviceKeys(VigieState s, String c) {
 
   final svc = s.selectedService;
   if (svc == null) return;
+
+  if (c == 'l') {
+    if (s.serviceManager == ServiceManager.none) {
+      s.setMessage('', error: true);
+      return;
+    }
+    final view = LogView(LogSource.unit(svc.name));
+    s.logs = view;
+    loadJournal(view.source).then((entries) {
+      view.entries = entries;
+      view.loading = false;
+      s.events.add(const CustomEvent('refreshed'));
+    });
+    return;
+  }
+
   final n = svc.name;
   final (verb, question, done) = switch (c) {
     's' => ('start', s.t.askStart(n), s.t.serviceStarted(n)),
