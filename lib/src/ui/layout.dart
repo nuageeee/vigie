@@ -2,6 +2,7 @@ import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/state.dart';
 import 'package:vigie/src/ui/components/formatters.dart';
 import 'package:vigie/src/ui/dashboard.dart';
+import 'package:vigie/src/ui/logs.dart';
 import 'package:vigie/src/ui/prompt.dart';
 import 'package:vigie/src/ui/tables.dart';
 
@@ -43,6 +44,8 @@ void render(RenderContext ctx, VigieState s) {
         renderProcesses(ctx, s, body[1]);
       case Section.services:
         renderServices(ctx, s, body[1]);
+      case Section.logs:
+        renderLogs(ctx, s, body[1]);
     }
   }
 
@@ -243,6 +246,7 @@ void _actionBar(RenderContext ctx, VigieState s, Rect area) {
       ('e', s.t.btnEnable, _c('e'), Color.cyan),
       ('d', s.t.btnDisable, _c('d'), Color.cyan),
     ],
+    Section.logs => <General>[],
   };
 
   final freeSpace = (gx - 1) - (area.x + 1);

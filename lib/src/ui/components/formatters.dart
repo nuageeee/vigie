@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:vigie/src/system/journal.dart';
 import 'package:vigie/src/ui/strings.dart';
 
 String formatUptime(Duration d, Strings t) {
@@ -40,4 +41,19 @@ List<String> wrapText(String text, int width) {
   }
 
   return pieces;
+}
+
+String _two(int n) {
+  return n.toString().padLeft(2, '0');
+}
+
+String formatLogLine(LogEntry e) {
+  final date = e.date;
+  final time = date == null
+    ? '--:--:--'
+    : '${_two(date.hour)}:${_two(date.minute)}:${_two(date.second)}';
+
+  final prog = e.program.isEmpty ? '' : '${e.program}: ';
+
+  return '$time' ' ' '$prog${e.message}';
 }

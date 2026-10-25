@@ -9,7 +9,7 @@ import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
 import 'package:vigie/src/ui/strings.dart';
 
-enum Section { table, users, process, services }
+enum Section { table, users, process, services, logs }
 
 class PendingAction {
   final String question;
@@ -42,7 +42,7 @@ class LogView {
   final LogSource source;
   List<LogEntry> entries = [];
   bool loading = true;
-  int scroll = 0;
+  int scroll = 1 << 30;
 
   LogView(this.source);
 }

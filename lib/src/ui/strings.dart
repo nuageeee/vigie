@@ -29,6 +29,7 @@ class Strings {
   final String sectionUsers;
   final String sectionProcesses;
   final String sectionServices;
+  final String sectionLogs;
 
   // ─── Confirmations ─────────────────────────────────────────────────────────
   final String yesKey;
@@ -150,6 +151,11 @@ class Strings {
   final String colBoot;
   final String colDescription;
 
+  final String logsLoading;
+  final String logsEmpty;
+  final String logsEmptyReadOnly;
+  final String logsUnavailable;
+
   // ─── Unités ────────────────────────────────────────────────────────────────
   /// Octet, kilo, méga, giga.
   final List<String> byteUnits;
@@ -169,6 +175,11 @@ class Strings {
     required this.sectionUsers,
     required this.sectionProcesses,
     required this.sectionServices,
+    required this.sectionLogs,
+    required this.logsLoading,
+    required this.logsEmpty,
+    required this.logsEmptyReadOnly,
+    required this.logsUnavailable,
     required this.yesKey,
     required this.yes,
     required this.noKey,
@@ -280,6 +291,7 @@ class Strings {
     Section.users => sectionUsers,
     Section.process => sectionProcesses,
     Section.services => sectionServices,
+    Section.logs => sectionLogs,
   };
 
   /// Message d'échec d'une commande : sa propre sortie si elle en a donné une,
@@ -307,6 +319,12 @@ final fr = Strings(
   sectionUsers: 'Utilisateurs',
   sectionProcesses: 'Processus',
   sectionServices: 'Services',
+  sectionLogs: 'Journaux',
+  logsLoading: 'Lecture du journal…',
+  logsEmpty: 'Journal vide',
+  logsEmptyReadOnly:
+      'Journal vide : lancez « sudo vigie » pour voir les journaux système',
+  logsUnavailable: 'Journaux indisponibles sans systemd',
   yesKey: 'o',
   yes: 'Oui',
   noKey: 'n',
@@ -452,6 +470,11 @@ final en = Strings(
   sectionUsers: 'Users',
   sectionProcesses: 'Processes',
   sectionServices: 'Services',
+  sectionLogs: 'Logs',
+  logsLoading: 'Reading the log…',
+  logsEmpty: 'Empty log',
+  logsEmptyReadOnly: 'Empty log: run "sudo vigie" to see system logs',
+  logsUnavailable: 'Logs unavailable without systemd',
   yesKey: 'y',
   yes: 'Yes',
   noKey: 'n',
