@@ -76,6 +76,10 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   if (event.key == NamedKey.f5) {
     s.refreshInBackground(all: true);
     s.setMessage(s.t.refreshing);
+    final logs = s.logs;
+    if (s.section == Section.logs && logs != null) {
+      _openLogs(s, logs.source);
+    } 
     handle.requestRedraw();
     return;
   }
