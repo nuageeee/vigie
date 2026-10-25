@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:commander_ui/tui.dart';
 import 'package:vigie/src/system/guards.dart';
+import 'package:vigie/src/system/journal.dart';
 import 'package:vigie/src/system/processes.dart';
 import 'package:vigie/src/system/services.dart';
 import 'package:vigie/src/system/shell.dart';
@@ -62,19 +64,33 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
   final digit = int.tryParse(event.char ?? '');
   if (digit != null && digit >= 1 && digit <= Section.values.length) {
     s.section = Section.values[digit - 1];
+    if (s.section == Section.logs && s.logs == null) {
+      _openLogs(s, const LogSource.kernel());
+    }
     s.setMessage(s.t.ready);
     handle.requestRedraw(); // changement de section instantané
     s.refreshInBackground();
     return;
   }
+
   if (event.key == NamedKey.f5) {
     s.refreshInBackground(all: true);
     s.setMessage(s.t.refreshing);
+    final logs = s.logs;
+    if (s.section == Section.logs && logs != null) {
+      _openLogs(s, logs.source);
+    } 
     handle.requestRedraw();
     return;
   }
 
   // 4. Raccourcis propres à la section.
+  if (s.section == Section.logs) {
+    _logKeys(s, event);
+    handle.requestRedraw();
+    return;
+  }
+
   final c = event.char;
   if (c == null) return;
   switch (s.section) {
@@ -84,6 +100,8 @@ Future<void> onEvent(VigieState s, Event event, RunHandle handle) async {
       _processKeys(s, c);
     case Section.users:
       _userKeys(s, c);
+    case Section.logs:
+      break;
     case Section.table:
       break;
   }
@@ -110,6 +128,13 @@ void _serviceKeys(VigieState s, String c) {
 
   final svc = s.selectedService;
   if (svc == null) return;
+
+  if (c == 'l') {
+    final source = LogSource.unit(svc.name);
+    _openLogs(s, source);
+    return;
+  }
+
   final n = svc.name;
   final (verb, question, done) = switch (c) {
     's' => ('start', s.t.askStart(n), s.t.serviceStarted(n)),
@@ -274,6 +299,13 @@ void _userKeys(VigieState s, String c) {
   }
 }
 
+void _logKeys(VigieState s, KeyEvent e) {
+  final logs = s.logs;
+  if (logs == null) return;
+  if (e.key == NamedKey.arrowUp) logs.scroll = max(0, logs.scroll - 1);
+  if (e.key == NamedKey.arrowDown) logs.scroll += 1;
+}
+
 Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
   if (e.key == NamedKey.escape) {
     s.prompt = null;
@@ -311,4 +343,21 @@ Future<void> _handleClick(VigieState s, MouseEvent e, RunHandle handle) async {
     }
     return;
   }
+}
+
+void _openLogs(VigieState s, LogSource source) {
+  if (s.serviceManager == ServiceManager.none) {
+    s.setMessage(s.t.logsUnavailable, error: true);
+    return;
+  }
+
+  final view = LogView(source);
+  s.logs = view;
+  s.section = Section.logs;
+  loadJournal(view.source).then((entries) {
+    view.entries = entries;
+    view.loading = false;
+    s.events.add(const CustomEvent('refreshed'));
+  });
+  return;
 }

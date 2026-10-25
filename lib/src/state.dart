@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:commander_ui/tui.dart';
+import 'package:vigie/src/system/journal.dart';
 import 'package:vigie/src/system/overview.dart';
 import 'package:vigie/src/system/processes.dart';
 import 'package:vigie/src/system/services.dart';
@@ -8,7 +9,7 @@ import 'package:vigie/src/system/shell.dart';
 import 'package:vigie/src/system/users.dart';
 import 'package:vigie/src/ui/strings.dart';
 
-enum Section { table, users, process, services }
+enum Section { table, users, process, services, logs }
 
 class PendingAction {
   final String question;
@@ -35,6 +36,15 @@ class TextPrompt {
     this.obscure = false,
     this.validate,
   });
+}
+
+class LogView {
+  final LogSource source;
+  List<LogEntry> entries = [];
+  bool loading = true;
+  int scroll = 1 << 30;
+
+  LogView(this.source);
 }
 
 class ClickZone {
@@ -74,6 +84,7 @@ class VigieState {
   bool statusError = false;
   PendingAction? pending;
   TextPrompt? prompt;
+  LogView? logs;
 
   bool _refreshing = false;
   bool _refreshAgain = false;
