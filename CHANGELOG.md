@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **Logs** tab (key `5`): reads the systemd journal, the kernel log by default, newest entries first, with ↑/↓ to scroll and colours by severity (errors in red, warnings in yellow).
+- In the Services tab, `l` opens the log of the selected service.
+- `F5` on the Logs tab reloads the current log.
+
+### Tests
+- `parseJournalLine` (7 cases), `journalArgs` (3 cases), `levelOf` (4 cases), `formatLogLine` (3 cases).
+
 ## [0.10.0] - 2026-10-22
 
 ### Added
