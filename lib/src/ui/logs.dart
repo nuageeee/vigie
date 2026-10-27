@@ -32,6 +32,7 @@ void renderLogs(RenderContext ctx, VigieState s, Rect area) {
   }
 
   final maxScroll = max(0, view.entries.length - inner.height);
+  view.page = inner.height;
   view.scroll = view.scroll.clamp(0, maxScroll);
 
   for (var i = 0; i < inner.height; i++) {

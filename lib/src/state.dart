@@ -38,11 +38,14 @@ class TextPrompt {
   });
 }
 
+const scrollBottom = 1 << 30;
+
 class LogView {
   final LogSource source;
   List<LogEntry> entries = [];
   bool loading = true;
-  int scroll = 1 << 30;
+  int scroll = scrollBottom;
+  int page = 20;
 
   LogView(this.source);
 }

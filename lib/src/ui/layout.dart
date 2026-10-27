@@ -245,6 +245,7 @@ void _actionBar(RenderContext ctx, VigieState s, Rect area) {
       ('r', s.t.btnRestart, _c('r'), Color.yellow),
       ('e', s.t.btnEnable, _c('e'), Color.cyan),
       ('d', s.t.btnDisable, _c('d'), Color.cyan),
+      ('J', s.t.logsBtn, _c('J'), Color.magenta)
     ],
     Section.logs => <General>[],
   };

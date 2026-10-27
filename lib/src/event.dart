@@ -129,7 +129,7 @@ void _serviceKeys(VigieState s, String c) {
   final svc = s.selectedService;
   if (svc == null) return;
 
-  if (c == 'l') {
+  if (c == 'J') {
     final source = LogSource.unit(svc.name);
     _openLogs(s, source);
     return;
@@ -304,6 +304,10 @@ void _logKeys(VigieState s, KeyEvent e) {
   if (logs == null) return;
   if (e.key == NamedKey.arrowUp) logs.scroll = max(0, logs.scroll - 1);
   if (e.key == NamedKey.arrowDown) logs.scroll += 1;
+  if (e.char == 'g') logs.scroll = 0;
+  if (e.char == 'G') logs.scroll = scrollBottom;
+  if (e.key == NamedKey.pageDown) logs.scroll += logs.page;
+  if (e.key == NamedKey.pageUp) logs.scroll  = max(0, logs.scroll - logs.page);
 }
 
 Future<void> _handlePrompt(VigieState s, TextPrompt p, KeyEvent e) async {
