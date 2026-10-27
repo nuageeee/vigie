@@ -129,7 +129,7 @@ void _serviceKeys(VigieState s, String c) {
   final svc = s.selectedService;
   if (svc == null) return;
 
-  if (c == 'l') {
+  if (c == 'J') {
     final source = LogSource.unit(svc.name);
     _openLogs(s, source);
     return;

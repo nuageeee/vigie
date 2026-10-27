@@ -155,6 +155,7 @@ class Strings {
   final String logsEmpty;
   final String logsEmptyReadOnly;
   final String logsUnavailable;
+  final String logsBtn;
 
   // ─── Unités ────────────────────────────────────────────────────────────────
   /// Octet, kilo, méga, giga.
@@ -284,6 +285,7 @@ class Strings {
     required this.navigation,
     required this.noServiceManager,
     required this.cpuModel,
+    required this.logsBtn,
   });
 
   String sectionLabel(Section section) => switch (section) {
@@ -322,6 +324,7 @@ final fr = Strings(
   sectionLogs: 'Journaux',
   logsLoading: 'Lecture du journal…',
   logsEmpty: 'Journal vide',
+  logsBtn: 'Journal',
   logsEmptyReadOnly:
       'Journal vide : lancez « sudo vigie » pour voir les journaux système',
   logsUnavailable: 'Journaux indisponibles sans systemd',
@@ -473,6 +476,7 @@ final en = Strings(
   sectionLogs: 'Logs',
   logsLoading: 'Reading the log…',
   logsEmpty: 'Empty log',
+  logsBtn: 'Log',
   logsEmptyReadOnly: 'Empty log: run "sudo vigie" to see system logs',
   logsUnavailable: 'Logs unavailable without systemd',
   yesKey: 'y',
