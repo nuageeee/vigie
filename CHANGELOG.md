@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.11.0] - 2026-10-27
 
 ### Added
 - **Logs** tab (key `5`): reads the systemd journal, the kernel log by default, newest entries first, with ↑/↓ to scroll and colours by severity (errors in red, warnings in yellow).
